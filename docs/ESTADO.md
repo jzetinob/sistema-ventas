@@ -29,12 +29,21 @@
 ## Entregables de la tarea 5
 
 - Documento fuente (lista para exportar): `tareas/05-implementacion-diagrama-clases/implementacion-diagrama-clases.md`
-- **Capturas** (validadas con OCR) en `tareas/05-implementacion-diagrama-clases/capturas/`: `01-menu-catalogos.png`, `02-frm-empleados.png`, `03-frm-productos.png`, `04-diagrama-uml.png`
+- **Prompt listo para otra IA** (generar PPTX/Word con las capturas): `tareas/05-implementacion-diagrama-clases/prompt-presentacion.md`
+- **Capturas** (validadas con OCR) en `tareas/05-implementacion-diagrama-clases/capturas/`:
+  - `01-menu-catalogos.png` — menú principal con Catálogos → Empleados
+  - `02-frm-empleados.png` — Catálogo de Empleados con registros
+  - `03-frm-productos.png` — Catálogo de Productos con columna Existencia
+  - `04-diagrama-uml.png` — diagrama de clases del sistema
+  - `05-frm-factura.png` — formulario de facturación
+  - `06-lista-facturas.png` — lista de facturas registradas
+  - `07-detalle-factura.png` — detalle de factura (productos y total)
+  - `08-ticket.png` — vista previa del ticket
 - Índices actualizados: `README.md` (tabla de tareas + etapa 11) y `docs/PLAN.md` (Fase 11 ✅ Completada)
 
 ## PENDIENTE — que hacer al retomar (lo único que falta)
 
-1. **Generar PDF (y/o Word) de la tarea 5**: tomar `tareas/05-implementacion-diagrama-clases/implementacion-diagrama-clases.md` y **insertar las capturas** de `tareas/.../capturas/` (el `.gitignore` excluye la carpeta `capturas/`, por eso no están subidas; las capturas van dentro del PDF entregable, igual que en las tareas 2-4).
+1. **Generar PDF (y/o Word) de la tarea 5**: tomar `tareas/05-implementacion-diagrama-clases/prompt-presentacion.md` y pegarlo en otra IA junto con las 8 capturas de `tareas/05-implementacion-diagrama-clases/capturas/`; también hay que insertar las capturas dentro del documento como en las tareas 2-4.
 2. **Subir (opcional)**: el PDF/PPTX de la tarea 5 al repo como se hizo en tareas anteriores (`git add`, `git commit`, `git push` a `origin/main`).
 3. No hay nada más pendiente del código: ya está implementado, compilado, probado y publicada.
 
