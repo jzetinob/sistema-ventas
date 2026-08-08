@@ -40,11 +40,7 @@ Trasladar el diagrama de clases del sistema de ventas a código Java real en el 
 
 ## 6. Capturas de la aplicación
 
-> Conectadas a las capturas automáticas tomadas con la HW aplicada en ejecución:
-> - `capturas/01-menu-catalogos.png` — menú principal con **Catálogos → Empleados**.
-> - `capturas/02-frm-empleados.png` — formulario **Catálogo de Empleados** con registros de ejemplo.
-> - `capturas/03-frm-productos.png` — formulario Catálogo de Productos con la columna **Existencia**.
-> - `capturas/04-diagrama-uml.png` — diagrama de clases del sistema.
+> Capturas automáticas tomadas con la aplicación en ejecución: `capturas/01-menu-catalogos.png`, `capturas/02-frm-empleados.png`, `capturas/03-frm-productos.png` y `capturas/04-diagrama-uml.png` (carpeta local, excluida del repositorio como en tareas anteriores).
 
 ## 7. Verificación
 
