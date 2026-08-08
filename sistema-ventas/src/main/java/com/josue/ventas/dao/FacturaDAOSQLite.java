@@ -10,10 +10,9 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 /**
@@ -27,7 +26,7 @@ public class FacturaDAOSQLite implements FacturaDAO {
 
     private static final java.util.logging.Logger logger = java.util.logging.Logger.getLogger(FacturaDAOSQLite.class.getName());
 
-    private static final SimpleDateFormat FORMATO_FECHA = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+    private static final DateTimeFormatter FORMATO_FECHA = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
     private static final FacturaDAOSQLite instancia = new FacturaDAOSQLite();
 
@@ -53,9 +52,9 @@ public class FacturaDAOSQLite implements FacturaDAO {
             String sqlFactura = "INSERT INTO facturas (numero_factura, nit, cliente, fecha, total) VALUES (?, ?, ?, ?, ?)";
             try (PreparedStatement ps = conexion.prepareStatement(sqlFactura, Statement.RETURN_GENERATED_KEYS)) {
                 ps.setString(1, factura.getNumeroFactura());
-                ps.setString(2, factura.getNit());
-                ps.setString(3, factura.getCliente());
-                ps.setString(4, factura.getFecha() != null ? FORMATO_FECHA.format(factura.getFecha()) : "");
+                ps.setString(2, factura.getNit() != null ? factura.getNit() : "");
+                ps.setString(3, factura.getNombreCliente() != null ? factura.getNombreCliente() : "");
+                ps.setString(4, factura.getFecha() != null ? FORMATO_FECHA.format(factura.getFecha().atTime(0, 0)) : "");
                 ps.setDouble(5, factura.getTotal());
                 ps.executeUpdate();
                 try (ResultSet rs = ps.getGeneratedKeys()) {
@@ -107,7 +106,7 @@ public class FacturaDAOSQLite implements FacturaDAO {
                 factura.setId(rs.getInt("id"));
                 factura.setNumeroFactura(rs.getString("numero_factura"));
                 factura.setNit(rs.getString("nit"));
-                factura.setCliente(rs.getString("cliente"));
+                factura.setNombreCliente(rs.getString("cliente"));
                 factura.setFecha(parsearFecha(rs.getString("fecha")));
                 factura.setTotal(rs.getDouble("total"));
                 cargarDetalles(factura);
@@ -138,9 +137,9 @@ public class FacturaDAOSQLite implements FacturaDAO {
             conexion.setAutoCommit(false);
             String sql = "UPDATE facturas SET nit = ?, cliente = ?, fecha = ?, total = ? WHERE id = ?";
             try (PreparedStatement ps = conexion.prepareStatement(sql)) {
-                ps.setString(1, factura.getNit());
-                ps.setString(2, factura.getCliente());
-                ps.setString(3, factura.getFecha() != null ? FORMATO_FECHA.format(factura.getFecha()) : "");
+                ps.setString(1, factura.getNit() != null ? factura.getNit() : "");
+                ps.setString(2, factura.getNombreCliente() != null ? factura.getNombreCliente() : "");
+                ps.setString(3, factura.getFecha() != null ? FORMATO_FECHA.format(factura.getFecha().atTime(0, 0)) : "");
                 ps.setDouble(4, factura.getTotal());
                 ps.setInt(5, factura.getId());
                 ps.executeUpdate();
@@ -209,14 +208,17 @@ public class FacturaDAOSQLite implements FacturaDAO {
         return String.format("FAC-%04d", correlativo);
     }
 
-    private Date parsearFecha(String texto) {
+    private LocalDate parsearFecha(String texto) {
         if (texto == null || texto.isBlank()) {
-            return new Date();
+            return LocalDate.now();
         }
         try {
-            return FORMATO_FECHA.parse(texto);
-        } catch (ParseException ex) {
-            return new Date();
+            if (texto.length() == 10) {
+                return LocalDate.parse(texto);
+            }
+            return java.time.LocalDateTime.parse(texto, FORMATO_FECHA).toLocalDate();
+        } catch (java.time.format.DateTimeParseException ex) {
+            return LocalDate.now();
         }
     }
 }

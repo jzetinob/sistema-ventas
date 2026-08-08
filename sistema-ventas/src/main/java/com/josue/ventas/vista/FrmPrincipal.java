@@ -23,6 +23,7 @@ public class FrmPrincipal extends javax.swing.JFrame {
     FrmListaFacturas listaVentana;
     FrmProductos productosVentana;
     FrmClientes clientesVentana;
+    FrmEmpleados empleadosVentana;
 
     public FrmPrincipal() {
         initComponents();
@@ -55,6 +56,13 @@ public class FrmPrincipal extends javax.swing.JFrame {
             clientesVentana = new FrmClientes();
         }
         abrirFormulario(clientesVentana);
+    }
+
+    private void abrirEmpleados() {
+        if (empleadosVentana == null || !empleadosVentana.isDisplayable()) {
+            empleadosVentana = new FrmEmpleados();
+        }
+        abrirFormulario(empleadosVentana);
     }
 
     private void abrirFormulario(JInternalFrame frame) {
@@ -159,6 +167,7 @@ public class FrmPrincipal extends javax.swing.JFrame {
         mnCatalogos = new javax.swing.JMenu();
         miProductos = new javax.swing.JMenuItem();
         miClientes = new javax.swing.JMenuItem();
+        miEmpleados = new javax.swing.JMenuItem();
         mnEdicion = new javax.swing.JMenu();
         miLimpiar = new javax.swing.JMenuItem();
         mnVentana = new javax.swing.JMenu();
@@ -221,6 +230,15 @@ public class FrmPrincipal extends javax.swing.JFrame {
             }
         });
         mnCatalogos.add(miProductos);
+
+        miEmpleados.setText("Empleados");
+        miEmpleados.setMnemonic('E');
+        miEmpleados.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                miEmpleadosActionPerformed(evt);
+            }
+        });
+        mnCatalogos.add(miEmpleados);
 
         miClientes.setText("Clientes");
         miClientes.setMnemonic('C');
@@ -339,6 +357,10 @@ public class FrmPrincipal extends javax.swing.JFrame {
         abrirClientes();
     }//GEN-LAST:event_miClientesActionPerformed
 
+    private void miEmpleadosActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_miEmpleadosActionPerformed
+        abrirEmpleados();
+    }//GEN-LAST:event_miEmpleadosActionPerformed
+
     private void miLimpiarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_miLimpiarActionPerformed
         limpiarFactura();
     }//GEN-LAST:event_miLimpiarActionPerformed
@@ -389,6 +411,7 @@ public class FrmPrincipal extends javax.swing.JFrame {
     private javax.swing.JMenuItem miAcercaDe;
     private javax.swing.JMenuItem miCascada;
     private javax.swing.JMenuItem miClientes;
+    private javax.swing.JMenuItem miEmpleados;
     private javax.swing.JMenuItem miLimpiar;
     private javax.swing.JMenuItem miMosaico;
     private javax.swing.JMenuItem miMinimizar;

@@ -5,41 +5,17 @@
 package com.josue.ventas.modelo;
 
 /**
+ * Cliente hereda de Persona los datos personales (id, nombre, nit, telefono)
+ * y agrega la direccion. Una persona con rol de cliente puede tener muchas
+ * facturas asociadas (asociacion 1..* con Factura).
  *
  * @author josue zetino
  */
-public class Cliente {
-    private int id;
-    private String nit;
-    private String nombre;
+public class Cliente extends Persona {
+
     private String direccion;
-    private String telefono;
 
     public Cliente() {
-    }
-
-    public int getId() {
-        return id;
-    }
-
-    public void setId(int id) {
-        this.id = id;
-    }
-
-    public String getNit() {
-        return nit;
-    }
-
-    public void setNit(String nit) {
-        this.nit = nit;
-    }
-
-    public String getNombre() {
-        return nombre;
-    }
-
-    public void setNombre(String nombre) {
-        this.nombre = nombre;
     }
 
     public String getDireccion() {
@@ -48,13 +24,5 @@ public class Cliente {
 
     public void setDireccion(String direccion) {
         this.direccion = direccion;
-    }
-
-    public String getTelefono() {
-        return telefono;
-    }
-
-    public void setTelefono(String telefono) {
-        this.telefono = telefono;
     }
 }

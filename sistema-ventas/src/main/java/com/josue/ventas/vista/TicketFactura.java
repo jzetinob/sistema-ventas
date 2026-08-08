@@ -11,7 +11,7 @@ import java.awt.Graphics2D;
 import java.awt.print.PageFormat;
 import java.awt.print.Printable;
 import java.awt.print.PrinterException;
-import java.text.SimpleDateFormat;
+import java.time.format.DateTimeFormatter;
 
 /**
  *
@@ -42,14 +42,14 @@ public class TicketFactura implements Printable {
         y += 25;
 
         g2.setFont(fuenteNormal);
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+        DateTimeFormatter sdf = DateTimeFormatter.ofPattern("yyyy-MM-dd");
         String numero = "No. Factura: " + (factura.getNumeroFactura() != null ? factura.getNumeroFactura() : "");
-        String fecha = "Fecha: " + (factura.getFecha() != null ? sdf.format(factura.getFecha()) : "");
+        String fecha = "Fecha: " + (factura.getFecha() != null ? factura.getFecha().format(sdf) : "");
         g2.drawString(numero, xProducto, y);
         g2.drawString(fecha, xProducto, y + 14);
         y += 35;
 
-        g2.drawString("Cliente: " + (factura.getCliente() != null ? factura.getCliente() : ""), xProducto, y);
+        g2.drawString("Cliente: " + (factura.getNombreCliente() != null ? factura.getNombreCliente() : ""), xProducto, y);
         g2.drawString("NIT: " + (factura.getNit() != null ? factura.getNit() : ""), xProducto, y + 14);
         y += 40;
 

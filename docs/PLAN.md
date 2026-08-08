@@ -19,6 +19,7 @@
 | 8 — Formulario contenedor MDI | ✅ Completada |
 | 9 — Base de datos SQLite (JDBC) | ✅ Completada |
 | 10 — Publicación y control de versiones | ✅ Completada |
+| 11 — Implementación del diagrama de clases | ✅ Completada |
 
 Este archivo es el **historial de decisiones** (el "por qué" de cada cosa). La descripción técnica de cómo está implementado vive en [ARQUITECTURA.md](ARQUITECTURA.md).
 
@@ -143,3 +144,15 @@ Corresponde a la tarea "Publicación y control de versiones del proyecto": no ag
 - El repositorio contiene: código fuente completo, estructura Maven de NetBeans (`pom.xml`, `nbactions.xml`), README índice, `docs/` y los entregables de cada tarea en `tareas/NN-nombre/`.
 - `.gitignore` excluye `datos/` (base de datos local), `capturas/`, `target/` y `build/`.
 - Documento de la tarea: `tareas/04-control-versiones/control-versiones.md` (fuente del PDF de entrega).
+
+## Fase 11 — Implementación del diagrama de clases
+
+Corresponde a la tarea 5 e implementa en código real el diagrama de clases del sistema:
+
+- **modelo/Persona.java** nuevo: clase abstracta (id, nombre, nit, telefono) con metodo concreto mostrarInformacion(). Cliente ahora xtends Persona (heredad; NO sobreescribe) y Empleado (nuevo) xtends Persona y **sobreescribe** mostrarInformacion() (polimorfismo).
+- **modelo/FacturaDetalle.java** nuevo: se convirtio la clase anidada en clase publica top-level con producto: Producto, cantidad, precioUnitario y calcularSubtotal() (composicion Factura → FacturaDetalle).
+- **modelo/Factura.java** reescrito: idFactura, echa: LocalDate, cliente: Cliente, detalles: List<FacturaDetalle>, gregarDetalle() y calcularTotal(). Se conservaron metodos de compatibilidad (getNombreCliente, getNit, getDetallesFilas) para no romper vistas/DAOs.
+- **modelo/Producto.java**: nuevo atributo xistencia + hayExistencia(cantidad): boolean.
+- **BD**: tabla mpleados nueva (codigo_empleado UNIQUE) y columna xistencia en productos (migracion automatica con erificarColumnaExistencia() en ConexionBD). DAOs/Controller/vista JSON para Empleado (EmpleadoDAO, EmpleadoDAOSQLite, EmpleadoController, FrmEmpleados) y ProductoDAOSQLite/FrmProductos adaptados a existencia. Factura guarda cliente_id y resta existencia al guardar.
+- **Vistas**: FrmPrincipal gana menu **Catálogos → Empleados** (miEmpleados); FrmFactura usa FacturaDetalle con Producto y valida hayExistencia().
+- **Verificacion**: compilacion javac sin errores + prueba de humo automatizada OK (tablas, CRUD Empleado, hayExistencia, composicion Factura, menu). Commit Fase 11: ... en el historial.

@@ -4,27 +4,29 @@
  */
 package com.josue.ventas.vista;
 
-import com.josue.ventas.controlador.ProductoController;
-import com.josue.ventas.modelo.Producto;
+import com.josue.ventas.controlador.EmpleadoController;
+import com.josue.ventas.modelo.Empleado;
 import java.util.List;
 import javax.swing.JOptionPane;
 import javax.swing.table.DefaultTableModel;
 
 /**
+ * Formulario CRUD (captura y consulta) de empleados.
+ * Un empleado es una Persona con codigo de empleado y puesto.
  *
  * @author josue zetino
  */
-public class FrmProductos extends javax.swing.JInternalFrame {
+public class FrmEmpleados extends javax.swing.JInternalFrame {
 
-    ProductoController controller;
+    EmpleadoController controller;
     DefaultTableModel modeloTabla;
 
-    public FrmProductos() {
+    public FrmEmpleados() {
         initComponents();
-        controller = new ProductoController();
+        controller = new EmpleadoController();
         configurarTabla();
         refrescarTabla();
-        jTableProductos.getSelectionModel().addListSelectionListener(new javax.swing.event.ListSelectionListener() {
+        jTableEmpleados.getSelectionModel().addListSelectionListener(new javax.swing.event.ListSelectionListener() {
             @Override
             public void valueChanged(javax.swing.event.ListSelectionEvent e) {
                 if (!e.getValueIsAdjusting()) {
@@ -35,120 +37,94 @@ public class FrmProductos extends javax.swing.JInternalFrame {
     }
 
     private void configurarTabla() {
-        String[] columnas = {"No.", "Código", "Nombre", "Precio", "Existencia"};
+        String[] columnas = {"No.", "Código", "Nombre", "NIT", "Teléfono", "Puesto"};
         modeloTabla = new DefaultTableModel(columnas, 0) {
             @Override
             public boolean isCellEditable(int row, int column) {
                 return false;
             }
         };
-        jTableProductos.setModel(modeloTabla);
+        jTableEmpleados.setModel(modeloTabla);
     }
 
     private void refrescarTabla() {
         modeloTabla.setRowCount(0);
-        List<Producto> productos = controller.GetProductos();
-        for (Producto p : productos) {
-            Object[] fila = {p.getId(), p.getCodigo(), p.getNombre(), String.format("%.2f", p.getPrecio()), p.getExistencia()};
+        List<Empleado> empleados = controller.GetEmpleados();
+        for (Empleado e : empleados) {
+            Object[] fila = {e.getId(), e.getCodigoEmpleado(), e.getNombre(), e.getNit(), e.getTelefono(), e.getPuesto()};
             modeloTabla.addRow(fila);
         }
     }
 
-    private void guardarProducto() {
+    private void guardarEmpleado() {
         String codigo = txtCodigo.getText().trim();
         String nombre = txtNombre.getText().trim();
-        String precioText = txtPrecio.getText().trim();
-        String existenciaText = txtExistencia.getText().trim();
+        String nit = txtNit.getText().trim();
+        String telefono = txtTelefono.getText().trim();
+        String puesto = txtPuesto.getText().trim();
 
-        if (codigo.isEmpty() || nombre.isEmpty() || precioText.isEmpty()) {
-            JOptionPane.showMessageDialog(this, "Complete todos los campos del producto.");
+        if (codigo.isEmpty() || nombre.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Complete al menos el código y el nombre del empleado.");
             return;
         }
-
-        try {
-            double precio = Double.parseDouble(precioText);
-            if (precio <= 0) {
-                JOptionPane.showMessageDialog(this, "El precio debe ser mayor a 0.");
-                return;
-            }
-            int existencia = existenciaText.isEmpty() ? 0 : Integer.parseInt(existenciaText);
-            if (existencia < 0) {
-                JOptionPane.showMessageDialog(this, "La existencia no puede ser negativa.");
-                return;
-            }
-            if (controller.ExisteCodigo(codigo)) {
-                JOptionPane.showMessageDialog(this, "Ya existe un producto con ese código.");
-                return;
-            }
-            Producto p = new Producto();
-            p.setCodigo(codigo);
-            p.setNombre(nombre);
-            p.setPrecio(precio);
-            p.setExistencia(existencia);
-            controller.Guardar(p);
-            limpiarCampos();
-            refrescarTabla();
-        } catch (NumberFormatException e) {
-            JOptionPane.showMessageDialog(this, "El precio y la existencia deben ser números válidos.");
+        if (controller.ExisteCodigoEmpleado(codigo)) {
+            JOptionPane.showMessageDialog(this, "Ya existe un empleado con ese código.");
+            return;
         }
+        Empleado e = new Empleado();
+        e.setCodigoEmpleado(codigo);
+        e.setNombre(nombre);
+        e.setNit(nit);
+        e.setTelefono(telefono);
+        e.setPuesto(puesto);
+        controller.Guardar(e);
+        limpiarCampos();
+        refrescarTabla();
     }
 
-    private void actualizarProducto() {
-        int fila = jTableProductos.getSelectedRow();
+    private void actualizarEmpleado() {
+        int fila = jTableEmpleados.getSelectedRow();
         if (fila == -1) {
-            JOptionPane.showMessageDialog(this, "Seleccione un producto para actualizar.");
+            JOptionPane.showMessageDialog(this, "Seleccione un empleado para actualizar.");
             return;
         }
         int id = (int) modeloTabla.getValueAt(fila, 0);
         String codigo = txtCodigo.getText().trim();
         String nombre = txtNombre.getText().trim();
-        String precioText = txtPrecio.getText().trim();
-        String existenciaText = txtExistencia.getText().trim();
+        String nit = txtNit.getText().trim();
+        String telefono = txtTelefono.getText().trim();
+        String puesto = txtPuesto.getText().trim();
 
-        if (codigo.isEmpty() || nombre.isEmpty() || precioText.isEmpty()) {
-            JOptionPane.showMessageDialog(this, "Complete todos los campos del producto.");
+        if (codigo.isEmpty() || nombre.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Complete al menos el código y el nombre del empleado.");
             return;
         }
-
-        try {
-            double precio = Double.parseDouble(precioText);
-            if (precio <= 0) {
-                JOptionPane.showMessageDialog(this, "El precio debe ser mayor a 0.");
-                return;
-            }
-            int existencia = existenciaText.isEmpty() ? 0 : Integer.parseInt(existenciaText);
-            if (existencia < 0) {
-                JOptionPane.showMessageDialog(this, "La existencia no puede ser negativa.");
-                return;
-            }
-            String codigoActual = (String) modeloTabla.getValueAt(fila, 1);
-            if (!codigo.equalsIgnoreCase(codigoActual) && controller.ExisteCodigo(codigo)) {
-                JOptionPane.showMessageDialog(this, "Ya existe un producto con ese código.");
-                return;
-            }
-            Producto p = new Producto();
-            p.setId(id);
-            p.setCodigo(codigo);
-            p.setNombre(nombre);
-            p.setPrecio(precio);
-            p.setExistencia(existencia);
-            controller.Actualizar(p);
-            limpiarCampos();
-            refrescarTabla();
-        } catch (NumberFormatException e) {
-            JOptionPane.showMessageDialog(this, "El precio y la existencia deben ser números válidos.");
+        String codigoActual = (String) modeloTabla.getValueAt(fila, 1);
+        if (!codigo.equalsIgnoreCase(codigoActual) && controller.ExisteCodigoEmpleado(codigo)) {
+            JOptionPane.showMessageDialog(this, "Ya existe un empleado con ese código.");
+            return;
         }
+        Empleado e = new Empleado();
+        e.setId(id);
+        e.setCodigoEmpleado(codigo);
+        e.setNombre(nombre);
+        e.setNit(nit);
+        e.setTelefono(telefono);
+        e.setPuesto(puesto);
+        controller.Actualizar(e);
+        limpiarCampos();
+        refrescarTabla();
     }
 
-    private void eliminarProducto() {
-        int fila = jTableProductos.getSelectedRow();
+    private void eliminarEmpleado() {
+        int fila = jTableEmpleados.getSelectedRow();
         if (fila == -1) {
-            JOptionPane.showMessageDialog(this, "Seleccione un producto para eliminar.");
+            JOptionPane.showMessageDialog(this, "Seleccione un empleado para eliminar.");
             return;
         }
         int id = (int) modeloTabla.getValueAt(fila, 0);
         int respuesta = JOptionPane.showConfirmDialog(this,
-                "¿Desea eliminar el producto seleccionado?", "Eliminar Producto",
+                "¿Desea eliminar el empleado seleccionado?", "Eliminar Empleado",
                 JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
         if (respuesta == JOptionPane.YES_OPTION) {
             controller.Eliminar(id);
@@ -158,21 +134,23 @@ public class FrmProductos extends javax.swing.JInternalFrame {
     }
 
     private void cargarSeleccionado() {
-        int fila = jTableProductos.getSelectedRow();
+        int fila = jTableEmpleados.getSelectedRow();
         if (fila == -1) {
             return;
         }
         txtCodigo.setText((String) modeloTabla.getValueAt(fila, 1));
         txtNombre.setText((String) modeloTabla.getValueAt(fila, 2));
-        txtPrecio.setText((String) modeloTabla.getValueAt(fila, 3));
-        txtExistencia.setText(String.valueOf(modeloTabla.getValueAt(fila, 4)));
+        txtNit.setText((String) modeloTabla.getValueAt(fila, 3));
+        txtTelefono.setText((String) modeloTabla.getValueAt(fila, 4));
+        txtPuesto.setText((String) modeloTabla.getValueAt(fila, 5));
     }
 
     private void limpiarCampos() {
         txtCodigo.setText("");
         txtNombre.setText("");
-        txtPrecio.setText("");
-        txtExistencia.setText("");
+        txtNit.setText("");
+        txtTelefono.setText("");
+        txtPuesto.setText("");
     }
 
     @SuppressWarnings("unchecked")
@@ -184,33 +162,33 @@ public class FrmProductos extends javax.swing.JInternalFrame {
         jLabel2 = new javax.swing.JLabel();
         jLabel3 = new javax.swing.JLabel();
         jLabel4 = new javax.swing.JLabel();
+        jLabel5 = new javax.swing.JLabel();
         txtCodigo = new javax.swing.JTextField();
         txtNombre = new javax.swing.JTextField();
-        txtPrecio = new javax.swing.JTextField();
-        txtExistencia = new javax.swing.JTextField();
+        txtNit = new javax.swing.JTextField();
+        txtTelefono = new javax.swing.JTextField();
+        txtPuesto = new javax.swing.JTextField();
         btnGuardar = new javax.swing.JButton();
         btnActualizar = new javax.swing.JButton();
         btnEliminar = new javax.swing.JButton();
         btnLimpiar = new javax.swing.JButton();
         jScrollPane1 = new javax.swing.JScrollPane();
-        jTableProductos = new javax.swing.JTable();
+        jTableEmpleados = new javax.swing.JTable();
 
         setClosable(true);
         setIconifiable(true);
         setMaximizable(true);
         setResizable(true);
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
-        setTitle("Catálogo de Productos");
+        setTitle("Catálogo de Empleados");
 
-        jPanel1.setBorder(javax.swing.BorderFactory.createTitledBorder("Datos del Producto"));
+        jPanel1.setBorder(javax.swing.BorderFactory.createTitledBorder("Datos del Empleado"));
 
         jLabel1.setText("Código:");
-
         jLabel2.setText("Nombre:");
-
-        jLabel3.setText("Precio:");
-
-        jLabel4.setText("Existencia:");
+        jLabel3.setText("NIT:");
+        jLabel4.setText("Teléfono:");
+        jLabel5.setText("Puesto:");
 
         btnGuardar.setText("Guardar");
         btnGuardar.addActionListener(new java.awt.event.ActionListener() {
@@ -250,13 +228,15 @@ public class FrmProductos extends javax.swing.JInternalFrame {
                     .addComponent(jLabel1)
                     .addComponent(jLabel2)
                     .addComponent(jLabel3)
-                    .addComponent(jLabel4))
+                    .addComponent(jLabel4)
+                    .addComponent(jLabel5))
                 .addGap(18, 18, 18)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                     .addComponent(txtCodigo)
                     .addComponent(txtNombre)
-                    .addComponent(txtPrecio)
-                    .addComponent(txtExistencia, javax.swing.GroupLayout.DEFAULT_SIZE, 100, Short.MAX_VALUE))
+                    .addComponent(txtNit)
+                    .addComponent(txtTelefono)
+                    .addComponent(txtPuesto, javax.swing.GroupLayout.DEFAULT_SIZE, 180, Short.MAX_VALUE))
                 .addGap(18, 18, 18)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(btnGuardar)
@@ -273,33 +253,37 @@ public class FrmProductos extends javax.swing.JInternalFrame {
                     .addComponent(jLabel1)
                     .addComponent(txtCodigo, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(btnGuardar))
-                .addGap(18, 18, 18)
+                .addGap(12, 12, 12)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel2)
                     .addComponent(txtNombre, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(btnActualizar))
-                .addGap(18, 18, 18)
+                .addGap(12, 12, 12)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel3)
-                    .addComponent(txtPrecio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(txtNit, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(btnEliminar))
-                .addGap(18, 18, 18)
+                .addGap(12, 12, 12)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel4)
-                    .addComponent(txtExistencia, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(txtTelefono, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(btnLimpiar))
+                .addGap(12, 12, 12)
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel5)
+                    .addComponent(txtPuesto, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
-        jTableProductos.setModel(new javax.swing.table.DefaultTableModel(
+        jTableEmpleados.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
 
             },
             new String [] {
-                "No.", "Código", "Nombre", "Precio", "Existencia"
+                "No.", "Código", "Nombre", "NIT", "Teléfono", "Puesto"
             }
         ));
-        jScrollPane1.setViewportView(jTableProductos);
+        jScrollPane1.setViewportView(jTableEmpleados);
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
@@ -309,7 +293,7 @@ public class FrmProductos extends javax.swing.JInternalFrame {
                 .addContainerGap()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 500, Short.MAX_VALUE))
+                    .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 580, Short.MAX_VALUE))
                 .addContainerGap())
         );
         layout.setVerticalGroup(
@@ -318,7 +302,7 @@ public class FrmProductos extends javax.swing.JInternalFrame {
                 .addContainerGap()
                 .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(18, 18, 18)
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 250, Short.MAX_VALUE)
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 220, Short.MAX_VALUE)
                 .addContainerGap())
         );
 
@@ -326,15 +310,15 @@ public class FrmProductos extends javax.swing.JInternalFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void btnGuardarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnGuardarActionPerformed
-        guardarProducto();
+        guardarEmpleado();
     }//GEN-LAST:event_btnGuardarActionPerformed
 
     private void btnActualizarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnActualizarActionPerformed
-        actualizarProducto();
+        actualizarEmpleado();
     }//GEN-LAST:event_btnActualizarActionPerformed
 
     private void btnEliminarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnEliminarActionPerformed
-        eliminarProducto();
+        eliminarEmpleado();
     }//GEN-LAST:event_btnEliminarActionPerformed
 
     private void btnLimpiarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnLimpiarActionPerformed
@@ -350,12 +334,14 @@ public class FrmProductos extends javax.swing.JInternalFrame {
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;
+    private javax.swing.JLabel jLabel5;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JScrollPane jScrollPane1;
-    private javax.swing.JTable jTableProductos;
+    private javax.swing.JTable jTableEmpleados;
     private javax.swing.JTextField txtCodigo;
-    private javax.swing.JTextField txtExistencia;
+    private javax.swing.JTextField txtNit;
     private javax.swing.JTextField txtNombre;
-    private javax.swing.JTextField txtPrecio;
+    private javax.swing.JTextField txtPuesto;
+    private javax.swing.JTextField txtTelefono;
     // End of variables declaration//GEN-END:variables
 }

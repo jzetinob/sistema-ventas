@@ -9,11 +9,12 @@ import com.josue.ventas.controlador.FacturaController;
 import com.josue.ventas.controlador.ProductoController;
 import com.josue.ventas.controlador.ClienteController;
 import com.josue.ventas.modelo.Factura;
+import com.josue.ventas.modelo.FacturaDetalle;
 import com.josue.ventas.modelo.Producto;
 import com.josue.ventas.modelo.Cliente;
-import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import javax.swing.JOptionPane;
 import javax.swing.table.DefaultTableModel;
@@ -104,8 +105,8 @@ public class FrmFactura extends javax.swing.JInternalFrame {
     }
 
     private void fechaActual() {
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
-        txtFecha.setText(sdf.format(new Date()));
+        DateTimeFormatter sdf = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+        txtFecha.setText(LocalDate.now().format(sdf));
     }
 
     private void agregarProducto() {
@@ -134,7 +135,15 @@ public class FrmFactura extends javax.swing.JInternalFrame {
                 return;
             }
 
-            facturaActual.agregarDetalle(producto, cantidad, precio);
+            Producto productoCantidad = buscarProductoSeleccionado();
+            if (productoCantidad != null && !productoCantidad.hayExistencia(cantidad)) {
+                JOptionPane.showMessageDialog(this, "No hay existencia suficiente del producto (quedan "
+                        + productoCantidad.getExistencia() + ").");
+                return;
+            }
+
+            FacturaDetalle detalle = new FacturaDetalle(productoCantidad, cantidad, precio);
+            facturaActual.agregarDetalle(detalle);
             Object[] fila = {producto, cantidad, String.format("%.2f", precio), String.format("%.2f", cantidad * precio)};
             modeloTabla.addRow(fila);
 
@@ -144,6 +153,19 @@ public class FrmFactura extends javax.swing.JInternalFrame {
         } catch (NumberFormatException e) {
             JOptionPane.showMessageDialog(this, "Cantidad y precio deben ser números válidos.");
         }
+    }
+
+    private Producto buscarProductoSeleccionado() {
+        String texto = campoBuscarProducto.getText().trim();
+        for (Producto p : productoController.GetProductos()) {
+            if ((p.getCodigo() + " - " + p.getNombre()).equalsIgnoreCase(texto)
+                    || p.getCodigo().equalsIgnoreCase(texto)) {
+                return p;
+            }
+        }
+        Producto noRegistrado = new Producto();
+        noRegistrado.setNombre(texto);
+        return noRegistrado;
     }
 
     private void eliminarProducto() {
@@ -208,10 +230,12 @@ public class FrmFactura extends javax.swing.JInternalFrame {
             return;
         }
 
-        facturaActual.setCliente(cliente);
-        facturaActual.setNit(nit);
+        Cliente clienteFactura = new Cliente();
+        clienteFactura.setNombre(cliente);
+        clienteFactura.setNit(nit);
+        facturaActual.setCliente(clienteFactura);
         facturaActual.setNumeroFactura(numeroFactura);
-        facturaActual.setFecha(new Date());
+        facturaActual.setFecha(LocalDate.now());
 
         controller.Guardar(facturaActual);
         JOptionPane.showMessageDialog(this, "Factura guardada con éxito.");

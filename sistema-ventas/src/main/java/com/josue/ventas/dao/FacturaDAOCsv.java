@@ -11,10 +11,10 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 /**
@@ -24,6 +24,8 @@ import java.util.List;
 public class FacturaDAOCsv implements FacturaDAO {
 
     private static final java.util.logging.Logger logger = java.util.logging.Logger.getLogger(FacturaDAOCsv.class.getName());
+
+    private static final DateTimeFormatter FORMATO_FECHA = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
     private static final String DIRECTORIO = "datos";
     private static final String ARCHIVO_FACTURAS = DIRECTORIO + File.separator + "facturas.csv";
@@ -45,7 +47,6 @@ public class FacturaDAOCsv implements FacturaDAO {
     }
 
     private void cargar() {
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         File archivoFacturas = new File(ARCHIVO_FACTURAS);
         if (archivoFacturas.exists()) {
             try (BufferedReader br = new BufferedReader(new FileReader(archivoFacturas))) {
@@ -59,11 +60,11 @@ public class FacturaDAOCsv implements FacturaDAO {
                     f.setId(Integer.parseInt(campos[0]));
                     f.setNumeroFactura(campos[1]);
                     f.setNit(campos[2]);
-                    f.setCliente(campos[3]);
+                    f.setNombreCliente(campos[3]);
                     try {
-                        f.setFecha(sdf.parse(campos[4]));
-                    } catch (ParseException ex) {
-                        f.setFecha(new Date());
+                        f.setFecha(parsearFecha(campos[4]));
+                    } catch (Exception ex) {
+                        f.setFecha(LocalDate.now());
                     }
                     f.setTotal(Double.parseDouble(campos[5]));
                     facturas.add(f);
@@ -111,15 +112,14 @@ public class FacturaDAOCsv implements FacturaDAO {
         if (!dir.exists()) {
             dir.mkdirs();
         }
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         try (BufferedWriter bw = new BufferedWriter(new FileWriter(ARCHIVO_FACTURAS))) {
             for (Factura f : facturas) {
                 String linea = String.join(";",
                         String.valueOf(f.getId()),
                         CsvUtil.escape(f.getNumeroFactura()),
-                        CsvUtil.escape(f.getNit()),
-                        CsvUtil.escape(f.getCliente()),
-                        f.getFecha() != null ? sdf.format(f.getFecha()) : "",
+                        CsvUtil.escape(f.getNit() != null ? f.getNit() : ""),
+                        CsvUtil.escape(f.getNombreCliente() != null ? f.getNombreCliente() : ""),
+                        f.getFecha() != null ? FORMATO_FECHA.format(f.getFecha().atStartOfDay()) : "",
                         String.valueOf(f.getTotal()));
                 bw.write(linea);
                 bw.newLine();
@@ -218,5 +218,15 @@ public class FacturaDAOCsv implements FacturaDAO {
     @Override
     public String obtenerSiguienteNumeroFactura() {
         return String.format("FAC-%04d", siguienteCorrelativo);
+    }
+
+    private LocalDate parsearFecha(String texto) {
+        if (texto == null || texto.isBlank()) {
+            throw new IllegalArgumentException("Fecha vacia");
+        }
+        if (texto.length() == 10) {
+            return LocalDate.parse(texto);
+        }
+        return LocalDateTime.parse(texto, FORMATO_FECHA).toLocalDate();
     }
 }

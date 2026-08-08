@@ -39,11 +39,12 @@ public class ProductoDAOSQLite implements ProductoDAO {
 
     @Override
     public void guardar(Producto producto) {
-        String sql = "INSERT INTO productos (codigo, nombre, precio) VALUES (?, ?, ?)";
+        String sql = "INSERT INTO productos (codigo, nombre, precio, existencia) VALUES (?, ?, ?, ?)";
         try (PreparedStatement ps = conexion().prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
             ps.setString(1, producto.getCodigo());
             ps.setString(2, producto.getNombre());
             ps.setDouble(3, producto.getPrecio());
+            ps.setInt(4, producto.getExistencia());
             ps.executeUpdate();
             try (ResultSet rs = ps.getGeneratedKeys()) {
                 if (rs.next()) {
@@ -58,7 +59,7 @@ public class ProductoDAOSQLite implements ProductoDAO {
     @Override
     public List<Producto> listar() {
         List<Producto> productos = new ArrayList<>();
-        String sql = "SELECT id, codigo, nombre, precio FROM productos ORDER BY id";
+        String sql = "SELECT id, codigo, nombre, precio, existencia FROM productos ORDER BY id";
         try (Statement stmt = conexion().createStatement(); ResultSet rs = stmt.executeQuery(sql)) {
             while (rs.next()) {
                 Producto producto = new Producto();
@@ -66,6 +67,7 @@ public class ProductoDAOSQLite implements ProductoDAO {
                 producto.setCodigo(rs.getString("codigo"));
                 producto.setNombre(rs.getString("nombre"));
                 producto.setPrecio(rs.getDouble("precio"));
+                producto.setExistencia(rs.getInt("existencia"));
                 productos.add(producto);
             }
         } catch (SQLException ex) {
@@ -76,12 +78,13 @@ public class ProductoDAOSQLite implements ProductoDAO {
 
     @Override
     public void actualizar(Producto producto) {
-        String sql = "UPDATE productos SET codigo = ?, nombre = ?, precio = ? WHERE id = ?";
+        String sql = "UPDATE productos SET codigo = ?, nombre = ?, precio = ?, existencia = ? WHERE id = ?";
         try (PreparedStatement ps = conexion().prepareStatement(sql)) {
             ps.setString(1, producto.getCodigo());
             ps.setString(2, producto.getNombre());
             ps.setDouble(3, producto.getPrecio());
-            ps.setInt(4, producto.getId());
+            ps.setInt(4, producto.getExistencia());
+            ps.setInt(5, producto.getId());
             ps.executeUpdate();
         } catch (SQLException ex) {
             logger.log(java.util.logging.Level.SEVERE, "Error al actualizar producto", ex);

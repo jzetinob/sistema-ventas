@@ -93,12 +93,35 @@ public class ConexionBD {
                     subtotal REAL NOT NULL,
                     FOREIGN KEY (factura_id) REFERENCES facturas(id) ON DELETE CASCADE
                 );
+                CREATE TABLE IF NOT EXISTS empleados (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    codigo_empleado TEXT NOT NULL UNIQUE,
+                    nombre TEXT NOT NULL,
+                    nit TEXT,
+                    telefono TEXT,
+                    puesto TEXT
+                );
                 """;
         try (Statement stmt = conexion.createStatement()) {
             stmt.executeUpdate(sql);
             logger.info("Tablas de la base de datos verificadas/creadas");
         } catch (SQLException ex) {
             logger.log(java.util.logging.Level.SEVERE, "No se pudieron crear las tablas", ex);
+        }
+        verificarColumnaExistencia();
+    }
+
+    private void verificarColumnaExistencia() {
+        String sql = "SELECT COUNT(*) FROM pragma_table_info('productos') WHERE name = 'existencia'";
+        try (Statement stmt = conexion.createStatement(); java.sql.ResultSet rs = stmt.executeQuery(sql)) {
+            if (rs.next() && rs.getInt(1) == 0) {
+                try (Statement alter = conexion.createStatement()) {
+                    alter.executeUpdate("ALTER TABLE productos ADD COLUMN existencia INTEGER NOT NULL DEFAULT 0");
+                    logger.info("Columna existencia agregada a la tabla productos");
+                }
+            }
+        } catch (SQLException ex) {
+            logger.log(java.util.logging.Level.SEVERE, "No se pudo verificar la columna existencia", ex);
         }
     }
 

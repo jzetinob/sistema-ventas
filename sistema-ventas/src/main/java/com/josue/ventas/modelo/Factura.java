@@ -4,20 +4,24 @@
  */
 package com.josue.ventas.modelo;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 /**
+ * Factura del sistema de ventas. Modela la relacion del diagrama de clases:
+ * una Factura tiene asociado un Cliente (asociación) y está compuesta por
+ * una lista de DetalleFactura (composición): los detalles se crean y se
+ * destruyen con la factura.
  *
  * @author josue zetino
  */
 public class Factura {
-    private int id;
-    private Date fecha;
+
+    private int idFactura;
+    private LocalDate fecha;
     private String numeroFactura;
-    private String cliente;
-    private String nit;
+    private Cliente cliente;
     private List<FacturaDetalle> detalles;
     private double total;
 
@@ -25,19 +29,27 @@ public class Factura {
         this.detalles = new ArrayList<>();
     }
 
+    public int getIdFactura() {
+        return idFactura;
+    }
+
+    public void setIdFactura(int idFactura) {
+        this.idFactura = idFactura;
+    }
+
     public int getId() {
-        return id;
+        return idFactura;
     }
 
     public void setId(int id) {
-        this.id = id;
+        this.idFactura = id;
     }
 
-    public Date getFecha() {
+    public LocalDate getFecha() {
         return fecha;
     }
 
-    public void setFecha(Date fecha) {
+    public void setFecha(LocalDate fecha) {
         this.fecha = fecha;
     }
 
@@ -49,20 +61,34 @@ public class Factura {
         this.numeroFactura = numeroFactura;
     }
 
-    public String getCliente() {
+    public Cliente getCliente() {
         return cliente;
     }
 
-    public void setCliente(String cliente) {
+    public void setCliente(Cliente cliente) {
         this.cliente = cliente;
     }
 
+    public String getNombreCliente() {
+        return cliente != null ? cliente.getNombre() : null;
+    }
+
+    public void setNombreCliente(String nombreCliente) {
+        if (cliente == null) {
+            cliente = new Cliente();
+        }
+        cliente.setNombre(nombreCliente);
+    }
+
     public String getNit() {
-        return nit;
+        return cliente != null ? cliente.getNit() : null;
     }
 
     public void setNit(String nit) {
-        this.nit = nit;
+        if (cliente == null) {
+            cliente = new Cliente();
+        }
+        cliente.setNit(nit);
     }
 
     public List<FacturaDetalle> getDetalles() {
@@ -77,6 +103,10 @@ public class Factura {
         return total;
     }
 
+    public void setTotal(double total) {
+        this.total = total;
+    }
+
     public Object[][] getDetallesFilas() {
         if (detalles == null || detalles.isEmpty()) {
             return new Object[0][0];
@@ -84,19 +114,22 @@ public class Factura {
         Object[][] filas = new Object[detalles.size()][4];
         for (int i = 0; i < detalles.size(); i++) {
             FacturaDetalle d = detalles.get(i);
-            filas[i][0] = d.getProducto();
+            filas[i][0] = d.getProducto() != null ? d.getProducto().getNombre() : "";
             filas[i][1] = d.getCantidad();
-            filas[i][2] = d.getPrecio();
-            filas[i][3] = d.getSubtotal();
+            filas[i][2] = d.getPrecioUnitario();
+            filas[i][3] = d.calcularSubtotal();
         }
         return filas;
     }
 
-    public void setTotal(double total) {
-        this.total = total;
+    public void agregarDetalle(FacturaDetalle detalle) {
+        this.detalles.add(detalle);
+        calcularTotal();
     }
 
-    public void agregarDetalle(String producto, int cantidad, double precio) {
+    public void agregarDetalle(String nombreProducto, int cantidad, double precio) {
+        Producto producto = new Producto();
+        producto.setNombre(nombreProducto);
         FacturaDetalle detalle = new FacturaDetalle(producto, cantidad, precio);
         this.detalles.add(detalle);
         calcularTotal();
@@ -109,59 +142,12 @@ public class Factura {
         }
     }
 
-    private void calcularTotal() {
+    public double calcularTotal() {
         double suma = 0;
         for (FacturaDetalle d : this.detalles) {
-            suma += d.getSubtotal();
+            suma += d.calcularSubtotal();
         }
         this.total = suma;
-    }
-
-    class FacturaDetalle {
-        private String producto;
-        private int cantidad;
-        private double precio;
-        private double subtotal;
-
-        public FacturaDetalle(String producto, int cantidad, double precio) {
-            this.producto = producto;
-            this.cantidad = cantidad;
-            this.precio = precio;
-            this.subtotal = cantidad * precio;
-        }
-
-        public String getProducto() {
-            return producto;
-        }
-
-        public void setProducto(String producto) {
-            this.producto = producto;
-        }
-
-        public int getCantidad() {
-            return cantidad;
-        }
-
-        public void setCantidad(int cantidad) {
-            this.cantidad = cantidad;
-            this.subtotal = cantidad * precio;
-        }
-
-        public double getPrecio() {
-            return precio;
-        }
-
-        public void setPrecio(double precio) {
-            this.precio = precio;
-            this.subtotal = cantidad * precio;
-        }
-
-        public double getSubtotal() {
-            return subtotal;
-        }
-
-        public void setSubtotal(double subtotal) {
-            this.subtotal = subtotal;
-        }
+        return total;
     }
 }

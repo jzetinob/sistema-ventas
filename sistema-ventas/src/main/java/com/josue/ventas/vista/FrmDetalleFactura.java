@@ -5,7 +5,7 @@
 package com.josue.ventas.vista;
 
 import com.josue.ventas.modelo.Factura;
-import java.text.SimpleDateFormat;
+import java.time.format.DateTimeFormatter;
 import javax.swing.table.DefaultTableModel;
 
 /**
@@ -38,9 +38,9 @@ public class FrmDetalleFactura extends javax.swing.JInternalFrame {
     private void cargarFactura(Factura factura) {
         txtNumero.setText(factura.getNumeroFactura());
         txtNit.setText(factura.getNit());
-        txtCliente.setText(factura.getCliente());
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
-        txtFecha.setText(factura.getFecha() != null ? sdf.format(factura.getFecha()) : "");
+        txtCliente.setText(factura.getNombreCliente());
+        DateTimeFormatter sdf = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+        txtFecha.setText(factura.getFecha() != null ? factura.getFecha().format(sdf) : "");
         lblTotal.setText(String.format("%.2f", factura.getTotal()));
         for (Object[] fila : factura.getDetallesFilas()) {
             modeloTabla.addRow(fila);

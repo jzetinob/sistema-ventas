@@ -6,7 +6,7 @@ package com.josue.ventas.vista;
 
 import com.josue.ventas.controlador.FacturaController;
 import com.josue.ventas.modelo.Factura;
-import java.text.SimpleDateFormat;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import javax.swing.JOptionPane;
 import javax.swing.table.DefaultTableModel;
@@ -45,13 +45,13 @@ public class FrmListaFacturas extends javax.swing.JInternalFrame {
     private void cargarFacturas() {
         modeloTabla.setRowCount(0);
         List<Factura> facturas = controller.GetFacturas();
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+        DateTimeFormatter sdf = DateTimeFormatter.ofPattern("yyyy-MM-dd");
         for (Factura factura : facturas) {
             Object[] fila = {
                 factura.getId(),
                 factura.getNit(),
-                factura.getCliente(),
-                factura.getFecha() != null ? sdf.format(factura.getFecha()) : "",
+                factura.getNombreCliente(),
+                factura.getFecha() != null ? factura.getFecha().format(sdf) : "",
                 String.format("%.2f", factura.getTotal())
             };
             modeloTabla.addRow(fila);
