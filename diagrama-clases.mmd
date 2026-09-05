@@ -395,11 +395,11 @@ classDiagram
     %% COMPOSICIÓN: Factura contiene FacturaDetalle (ciclo de vida dependiente)
     Factura *-- "1..*" FacturaDetalle : Composición
 
-    %% ASOCIACIÓN: Factura tiene un Cliente
-    Factura --> "1" Cliente : Asociación
+    %% ASOCIACIÓN: Un Cliente puede tener 0..* Facturas; cada Factura tiene 1 Cliente
+    Factura "0..*" --> "1" Cliente : Asociación
 
-    %% ASOCIACIÓN: FacturaDetalle tiene un Producto
-    FacturaDetalle --> "1" Producto : Asociación
+    %% ASOCIACIÓN: Un Producto aparece en 0..* FacturaDetalle; cada detalle tiene 1 Producto
+    FacturaDetalle "0..*" --> "1" Producto : Asociación
 
     %% REALIZACIÓN: DAO Implementaciones implementan interfaces
     FacturaDAOSQLite ..|> FacturaDAO : Realización
@@ -408,21 +408,21 @@ classDiagram
     EmpleadoDAOSQLite ..|> EmpleadoDAO : Realización
 
     %% ASOCIACIÓN: Controladores usan DAOs (a través de interfaces)
-    FacturaController --> FacturaDAO : Asociación
-    FacturaController --> ProductoDAO : Asociación
-    FacturaController --> ClienteDAO : Asociación
-    ProductoController --> ProductoDAO : Asociación
-    ClienteController --> ClienteDAO : Asociación
-    EmpleadoController --> EmpleadoDAO : Asociación
+    FacturaController --> "1" FacturaDAO : Asociación
+    FacturaController --> "1" ProductoDAO : Asociación
+    FacturaController --> "1" ClienteDAO : Asociación
+    ProductoController --> "1" ProductoDAO : Asociación
+    ClienteController --> "1" ClienteDAO : Asociación
+    EmpleadoController --> "1" EmpleadoDAO : Asociación
 
     %% ASOCIACIÓN: Vistas usan Controladores
-    FrmFactura --> FacturaController : Asociación
-    FrmFactura --> ProductoController : Asociación
-    FrmFactura --> ClienteController : Asociación
-    FrmListaFacturas --> FacturaController : Asociación
-    FrmProductos --> ProductoController : Asociación
-    FrmClientes --> ClienteController : Asociación
-    FrmEmpleados --> EmpleadoController : Asociación
+    FrmFactura --> "1" FacturaController : Asociación
+    FrmFactura --> "1" ProductoController : Asociación
+    FrmFactura --> "1" ClienteController : Asociación
+    FrmListaFacturas --> "1" FacturaController : Asociación
+    FrmProductos --> "1" ProductoController : Asociación
+    FrmClientes --> "1" ClienteController : Asociación
+    FrmEmpleados --> "1" EmpleadoController : Asociación
 
     %% ASOCIACIÓN: FrmListaFacturas abre FrmDetalleFactura
     FrmListaFacturas --> FrmDetalleFactura : Asociación
@@ -434,18 +434,19 @@ classDiagram
     %% ASOCIACIÓN: FrmFactura usa CampoBusqueda (reutilizable)
     FrmFactura --> CampoBusqueda : Asociación
 
-    %% ASOCIACIÓN: MDI - FrmPrincipal contiene formularios internos
-    FrmPrincipal --> FrmFactura : Asociación
-    FrmPrincipal --> FrmListaFacturas : Asociación
-    FrmPrincipal --> FrmProductos : Asociación
-    FrmPrincipal --> FrmClientes : Asociación
-    FrmPrincipal --> FrmEmpleados : Asociación
+    %% AGREGACIÓN: MDI - FrmPrincipal contiene formularios como ventanas internas
+    %% (JDesktopPane agrega JInternalFrame; las ventanas pueden abrirse/cerrarse por separado)
+    FrmPrincipal o-- "0..*" FrmFactura : Agregación (MDI)
+    FrmPrincipal o-- "0..*" FrmListaFacturas : Agregación (MDI)
+    FrmPrincipal o-- "0..*" FrmProductos : Agregación (MDI)
+    FrmPrincipal o-- "0..*" FrmClientes : Agregación (MDI)
+    FrmPrincipal o-- "0..*" FrmEmpleados : Agregación (MDI)
 
     %% ASOCIACIÓN: DAOs usan ConexionBD (Singleton)
-    FacturaDAOSQLite --> ConexionBD : Asociación
-    ProductoDAOSQLite --> ConexionBD : Asociación
-    ClienteDAOSQLite --> ConexionBD : Asociación
-    EmpleadoDAOSQLite --> ConexionBD : Asociación
-    MigradorDatos --> ConexionBD : Asociación
+    FacturaDAOSQLite --> "1" ConexionBD : Asociación
+    ProductoDAOSQLite --> "1" ConexionBD : Asociación
+    ClienteDAOSQLite --> "1" ConexionBD : Asociación
+    EmpleadoDAOSQLite --> "1" ConexionBD : Asociación
+    MigradorDatos --> "1" ConexionBD : Asociación
 
     ```
