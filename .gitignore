@@ -7,4 +7,5 @@ datos/
 capturas/
 notas/
 reportes/
-config/bd.properties
+**/config/bd.properties
+supabase/.temp/
