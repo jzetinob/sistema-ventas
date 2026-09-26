@@ -22,6 +22,11 @@ Sistema de facturación de escritorio en **Java Swing** con patrón **MVC**.
 - **Persistencia**: los datos se guardan en una base de datos **SQLite** (`datos/sistema_ventas.db`) mediante **JDBC** con el patrón DAO. Los registros permanecen al cerrar y volver a abrir la aplicación.
 - **Impresión**: vista previa del ticket y envío a la impresora con el diálogo estándar de Windows (`java.awt.print`, sin librerías externas).
 - **Validaciones**: NIT guatemalteco (8-13 dígitos), números de factura únicos, productos sin repetir, código/NIT únicos en catálogos.
+- **Inicio de sesión**: usuarios con rol **Administrador** o **Vendedor**. Las contraseñas se guardan cifradas (PBKDF2 con sal) y el sistema se cierra después de 3 intentos fallidos. El vendedor solo ve facturación y clientes.
+- **Compras a proveedores** (maestro-detalle): al guardar una compra aumenta la existencia de los productos. Anular una compra revierte ese aumento.
+- **Catálogos nuevos**: categorías de productos, proveedores y usuarios.
+- **Búsquedas y reportes**: todos los catálogos y listas tienen un buscador y un botón **Reporte HTML**. El menú **Reportes** ofrece inventario, existencia baja, ventas por período y compras por proveedor. Los reportes se abren en el navegador, desde donde se pueden imprimir o guardar como PDF.
+- **Respaldo**: *Administración → Respaldar base de datos* genera una copia completa del archivo `.db`.
 
 ## Requisitos
 
@@ -35,7 +40,8 @@ Sistema de facturación de escritorio en **Java Swing** con patrón **MVC**.
 1. Clona el repositorio y ábrelo en NetBeans (proyecto Maven: `sistema-ventas`).
 2. Ejecuta el proyecto (main class: `com.josue.ventas.SistemaVentas`) o corre `FrmPrincipal.java`.
 3. Al primer arranque se crea la base de datos y sus tablas automáticamente; si existen los CSV de versiones anteriores, sus datos se migran a la BD.
-4. Para ver los registros almacenados, abre `datos/sistema_ventas.db` con DB Browser for SQLite.
+4. **Primer uso**: como no hay usuarios, el sistema pide crear el **administrador** (usuario y contraseña que tú eliges). Las siguientes veces se entra con ese usuario. Los demás usuarios se crean en *Administración → Usuarios*.
+5. Para ver los registros almacenados, abre `datos/sistema_ventas.db` con DB Browser for SQLite.
 
 ## Arquitectura (resumen)
 
@@ -77,12 +83,15 @@ Documentación detallada en [`docs/`](docs/).
 | — | MDI: formulario contenedor con JDesktopPane y JInternalFrame |
 | 9 | Base de datos: SQLite + JDBC (reemplaza el CSV) |
 | 11 | Diagrama de clases: `Persona` abstracta, `Cliente`/`Empleado`, `FacturaDetalle`, catálogo de empleados, existencia de productos |
+| 12 | 10 entidades en la BD (categorías, proveedores, usuarios, compras, detalle de compras), inicio de sesión con roles, compras que actualizan existencia, llaves foráneas activas |
+| 13 | Buscador y reporte HTML en cada módulo, menú Reportes y respaldo de la base de datos |
 
 ## Documentación
 
 - [`docs/mini-tutorial.md`](docs/mini-tutorial.md) — tutorial paso a paso de cómo usar la app.
 - [`docs/PLAN.md`](docs/PLAN.md) — plan de desarrollo (decisiones y fases).
 - [`docs/ARQUITECTURA.md`](docs/ARQUITECTURA.md) — arquitectura detallada.
+- [`docs/diagrama-entidad-relacion.md`](docs/diagrama-entidad-relacion.md) — diagrama entidad-relación de las 10 tablas y reglas de llaves foráneas.
 - Los `.md` futuros se agregan en `docs/`.
 
 ## Base de datos (SQLite)
@@ -91,7 +100,7 @@ Desde la tarea 3, el almacenamiento es una base de datos relacional SQLite:
 
 - Driver `org.xerial:sqlite-jdbc` (JDBC) en el `pom.xml`.
 - `dao/ConexionBD.java`: singleton que abre la conexión (`jdbc:sqlite:datos/sistema_ventas.db`) y crea las tablas si no existen.
-- Tablas: `clientes`, `productos`, `facturas` y `factura_detalles` (con llave foránea y `ON DELETE CASCADE`).
+- Tablas (10): `clientes`, `productos`, `facturas`, `factura_detalles`, `empleados`, `categorias`, `proveedores`, `usuarios`, `compras` y `compra_detalles`. Las llaves foráneas están activas; ver [el diagrama entidad-relación](docs/diagrama-entidad-relacion.md).
 - `dao/ClienteDAOSQLite.java`, `dao/ProductoDAOSQLite.java` y `dao/FacturaDAOSQLite.java`: implementan las mismas interfaces DAO que usaba el CSV, así que las vistas y controladores no cambiaron (solo una línea por controller).
 - `dao/MigradorDatos.java`: importa a la BD los registros de los CSV de las tareas anteriores (una sola vez, si la BD está vacía).
 - La factura y sus detalles se guardan en **transacción**: o se guarda completa o no se guarda nada.

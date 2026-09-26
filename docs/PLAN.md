@@ -156,3 +156,24 @@ Corresponde a la tarea 5 e implementa en código real el diagrama de clases del 
 - **BD**: tabla mpleados nueva (codigo_empleado UNIQUE) y columna xistencia en productos (migracion automatica con erificarColumnaExistencia() en ConexionBD). DAOs/Controller/vista JSON para Empleado (EmpleadoDAO, EmpleadoDAOSQLite, EmpleadoController, FrmEmpleados) y ProductoDAOSQLite/FrmProductos adaptados a existencia. Factura guarda cliente_id y resta existencia al guardar.
 - **Vistas**: FrmPrincipal gana menu **Catálogos → Empleados** (miEmpleados); FrmFactura usa FacturaDetalle con Producto y valida hayExistencia().
 - **Verificacion**: compilacion javac sin errores + prueba de humo automatizada OK (tablas, CRUD Empleado, hayExistencia, composicion Factura, menu). Commit Fase 11: ... en el historial.
+
+## Fase 12 — 10 entidades, inicio de sesión y compras
+
+Cubre los requisitos de la guía del curso: al menos 10 entidades, autenticación de usuarios y patrones de diseño.
+
+- **BD**: 5 tablas nuevas (`categorias`, `proveedores`, `usuarios`, `compras`, `compra_detalles`) y columna `productos.categoria_id`. `ConexionBD` activa `PRAGMA foreign_keys = ON`; antes SQLite ignoraba las llaves foráneas y el `ON DELETE CASCADE` de `factura_detalles` no se aplicaba. La migración `agregarColumnaSiFalta()` actualiza las bases existentes sin perder datos.
+- **Modelo**: `Categoria`, `Proveedor extends Persona` (sobrescribe `mostrarInformacion()`), `Usuario` (enum `Rol`), `Compra` compuesta de `CompraDetalle`, y `Producto` asociado a `Categoria`.
+- **Seguridad**: `Contrasenas` usa PBKDF2WithHmacSHA256 con 120 000 iteraciones y una sal aleatoria por contraseña, y compara en tiempo constante. `UsuarioController` da el mismo mensaje si el usuario no existe o si la contraseña es incorrecta, no permite eliminarse a sí mismo y exige que quede al menos un administrador activo. `DlgLogin` cierra el sistema después de 3 intentos. En el primer uso se crea el administrador, así que no hay una contraseña fija en el código. `Sesion` es un singleton.
+- **Roles**: el VENDEDOR solo ve Archivo (facturas), Catálogos → Clientes, Edición, Ventana y Ayuda.
+- **Compras**: `CompraDAOSQLite` guarda la compra, sus detalles y el aumento de existencia en una sola transacción. `anular()` revierte la existencia y se niega si ya se vendió parte de lo comprado.
+- **Vistas**: `FrmCatalogo` es una clase abstracta con el patrón Template Method, y de ella heredan `FrmCategorias`, `FrmProveedores` y `FrmUsuarios`. Se agregaron `FrmCompra`, `FrmListaCompras` y un combo de categoría en `FrmProductos`.
+- **Integridad**: `ProductoDAO.eliminar` y `ProveedorDAO.eliminar` devuelven `false` cuando el registro tiene compras.
+
+## Fase 13 — Búsquedas, reportes y respaldo
+
+- `FiltroTabla` filtra cualquier `JTable` mientras se escribe; el texto se busca de forma literal con `Pattern.quote`. `filaDelModelo()` traduce la fila seleccionada a la fila real del modelo.
+- `BarraBusqueda` agrega "Buscar + Reporte HTML" a los formularios hechos en NetBeans sin rehacer su diseño: `GroupLayout.replace()` cambia el `JScrollPane` de la tabla por un panel que lo contiene. Se aplicó a Clientes, Productos, Empleados y Lista de facturas.
+- `ReporteHtml` genera el reporte sin librerías externas, escapa los datos y lo abre en el navegador (imprimir o guardar como PDF). Los archivos quedan en `reportes/`, que Git ignora.
+- Menú **Reportes**: inventario valorizado, existencia baja, ventas por período y compras por proveedor.
+- **Administración → Respaldar base de datos**: `VACUUM INTO` crea una copia consistente mientras el sistema está abierto.
+- **Verificación**: pruebas automatizadas contra una BD temporal (compras, anulación, llaves foráneas, login e intento de inyección SQL, búsqueda, escape HTML y respaldo). También se probó que una base creada con la versión anterior se actualiza conservando sus datos.

@@ -1,6 +1,6 @@
 # ESTADO del Proyecto
 
-> Guardado el 2026-08-08. Archivo de referencia para retomar el trabajo sin perder contexto.
+> Actualizado el 2026-09-25.
 
 ## Situación general
 
@@ -53,3 +53,12 @@
 - Compilación manual (sin Maven en PATH): `javac -encoding UTF-8 -cp <ruta>/sqlite-jdbc-3.47.1.0.jar -d <salida> <todos los *.java>`; el jar está en `$env:USERPROFILE\.m2\repository\org\xerial\sqlite-jdbc\3.47.1.0\`.
 - Scripts temporales fuera del repo: `C:\Users\Usuario\AppData\Local\Temp\opencode\smoke\` (`PruebaHumo.java`, `Capturas.java`, `Pinta.java`) y salida en `...\Temp\opencode\sv-build\`.
 - Si algo no compila con Maven en NetBeans, recordar `maven.compiler.release 25` ya configurado.
+
+## Actualización 2026-09-25 (Fases 12 y 13)
+
+- Hecho: 10 tablas, login con roles, compras, catálogos de categorías, proveedores y usuarios, buscador y reporte HTML en cada módulo, menú Reportes y respaldo. Detalle en `docs/PLAN.md`.
+- Primer uso: al abrir, el sistema pide crear el administrador.
+- **Pendiente según la guía del curso**:
+  1. **App móvil** conectada a la misma BD (entrega final). SQLite es un archivo local y el teléfono no puede leerlo; hay que decidir entre pasar a MySQL o poner un servicio web intermedio.
+  2. **Manual de usuario** y **manual técnico**.
+  3. Opcional: que la factura **descuente existencia** al vender. Hoy no lo hace, aunque la Fase 11 del plan lo menciona.
