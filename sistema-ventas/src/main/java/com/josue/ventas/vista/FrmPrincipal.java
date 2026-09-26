@@ -4,6 +4,9 @@
  */
 package com.josue.ventas.vista;
 
+import com.josue.ventas.controlador.Sesion;
+import com.josue.ventas.controlador.UsuarioController;
+import com.josue.ventas.modelo.Usuario;
 import java.awt.Dimension;
 import javax.swing.JInternalFrame;
 import javax.swing.JOptionPane;
@@ -24,10 +27,98 @@ public class FrmPrincipal extends javax.swing.JFrame {
     FrmProductos productosVentana;
     FrmClientes clientesVentana;
     FrmEmpleados empleadosVentana;
+    FrmCategorias categoriasVentana;
+    FrmProveedores proveedoresVentana;
+    FrmCompra compraVentana;
+    FrmListaCompras listaComprasVentana;
+    FrmUsuarios usuariosVentana;
 
     public FrmPrincipal() {
         initComponents();
+        aplicarSesion();
         setLocationRelativeTo(null);
+    }
+
+    /**
+     * Muestra el usuario en el titulo y oculta lo que su rol no puede usar:
+     * el vendedor solo factura y atiende clientes.
+     */
+    private void aplicarSesion() {
+        Usuario usuario = Sesion.getInstancia().getUsuario();
+        if (usuario == null) {
+            return;
+        }
+        setTitle("Sistema de Ventas - " + usuario.getNombre() + " (" + usuario.getRol() + ")");
+        boolean admin = usuario.esAdministrador();
+        miProductos.setVisible(admin);
+        miEmpleados.setVisible(admin);
+        miCategorias.setVisible(admin);
+        miProveedores.setVisible(admin);
+        mnCompras.setVisible(admin);
+        mnAdministracion.setVisible(admin);
+    }
+
+    private void abrirCategorias() {
+        if (categoriasVentana == null || !categoriasVentana.isDisplayable()) {
+            categoriasVentana = new FrmCategorias();
+        }
+        abrirFormulario(categoriasVentana);
+    }
+
+    private void abrirProveedores() {
+        if (proveedoresVentana == null || !proveedoresVentana.isDisplayable()) {
+            proveedoresVentana = new FrmProveedores();
+        }
+        abrirFormulario(proveedoresVentana);
+    }
+
+    private void abrirCompra() {
+        if (compraVentana == null || !compraVentana.isDisplayable()) {
+            compraVentana = new FrmCompra();
+        }
+        abrirFormulario(compraVentana);
+    }
+
+    private void abrirListaCompras() {
+        if (listaComprasVentana == null || !listaComprasVentana.isDisplayable()) {
+            listaComprasVentana = new FrmListaCompras();
+        }
+        abrirFormulario(listaComprasVentana);
+    }
+
+    private void abrirUsuarios() {
+        if (usuariosVentana == null || !usuariosVentana.isDisplayable()) {
+            usuariosVentana = new FrmUsuarios();
+        }
+        abrirFormulario(usuariosVentana);
+    }
+
+    private void cambiarMiClave() {
+        javax.swing.JPasswordField actual = new javax.swing.JPasswordField(15);
+        javax.swing.JPasswordField nueva = new javax.swing.JPasswordField(15);
+        javax.swing.JPasswordField confirmar = new javax.swing.JPasswordField(15);
+        Object[] campos = {"Contraseña actual:", actual, "Nueva contraseña:", nueva, "Confirmar nueva:", confirmar};
+        int respuesta = JOptionPane.showConfirmDialog(this, campos, "Cambiar contraseña",
+                JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
+        if (respuesta != JOptionPane.OK_OPTION) {
+            return;
+        }
+        if (!java.util.Arrays.equals(nueva.getPassword(), confirmar.getPassword())) {
+            JOptionPane.showMessageDialog(this, "La nueva contraseña y su confirmación no coinciden.");
+            return;
+        }
+        String error = new UsuarioController().CambiarMiClave(actual.getPassword(), nueva.getPassword());
+        JOptionPane.showMessageDialog(this, error != null ? error : "Contraseña actualizada.");
+    }
+
+    private void cerrarSesion() {
+        int respuesta = JOptionPane.showConfirmDialog(this, "¿Desea cerrar la sesión?", "Cerrar sesión",
+                JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
+        if (respuesta == JOptionPane.YES_OPTION) {
+            Sesion.getInstancia().cerrar();
+            dispose();
+            com.josue.ventas.SistemaVentas.iniciar();
+        }
     }
 
     private void abrirFactura() {
@@ -207,6 +298,16 @@ public class FrmPrincipal extends javax.swing.JFrame {
 
         mnArchivo.addSeparator();
 
+        javax.swing.JMenuItem miCambiarClave = new javax.swing.JMenuItem("Cambiar mi contraseña");
+        miCambiarClave.addActionListener(evt -> cambiarMiClave());
+        mnArchivo.add(miCambiarClave);
+
+        javax.swing.JMenuItem miCerrarSesion = new javax.swing.JMenuItem("Cerrar sesión");
+        miCerrarSesion.addActionListener(evt -> cerrarSesion());
+        mnArchivo.add(miCerrarSesion);
+
+        mnArchivo.addSeparator();
+
         miSalir.setText("Salir");
         miSalir.setMnemonic('S');
         miSalir.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_Q, java.awt.event.InputEvent.CTRL_DOWN_MASK));
@@ -249,7 +350,26 @@ public class FrmPrincipal extends javax.swing.JFrame {
         });
         mnCatalogos.add(miClientes);
 
+        miCategorias = new javax.swing.JMenuItem("Categorías");
+        miCategorias.addActionListener(evt -> abrirCategorias());
+        mnCatalogos.add(miCategorias);
+
+        miProveedores = new javax.swing.JMenuItem("Proveedores");
+        miProveedores.setMnemonic('r');
+        miProveedores.addActionListener(evt -> abrirProveedores());
+        mnCatalogos.add(miProveedores);
+
         jMenuBar1.add(mnCatalogos);
+
+        mnCompras = new javax.swing.JMenu("Compras");
+        mnCompras.setMnemonic('o');
+        javax.swing.JMenuItem miNuevaCompra = new javax.swing.JMenuItem("Nueva Compra");
+        miNuevaCompra.addActionListener(evt -> abrirCompra());
+        mnCompras.add(miNuevaCompra);
+        javax.swing.JMenuItem miVerCompras = new javax.swing.JMenuItem("Ver Compras");
+        miVerCompras.addActionListener(evt -> abrirListaCompras());
+        mnCompras.add(miVerCompras);
+        jMenuBar1.add(mnCompras);
 
         mnEdicion.setText("Edición");
         mnEdicion.setMnemonic('E');
@@ -303,6 +423,13 @@ public class FrmPrincipal extends javax.swing.JFrame {
         mnVentana.add(miRestaurar);
 
         jMenuBar1.add(mnVentana);
+
+        mnAdministracion = new javax.swing.JMenu("Administración");
+        mnAdministracion.setMnemonic('d');
+        javax.swing.JMenuItem miUsuarios = new javax.swing.JMenuItem("Usuarios");
+        miUsuarios.addActionListener(evt -> abrirUsuarios());
+        mnAdministracion.add(miUsuarios);
+        jMenuBar1.add(mnAdministracion);
 
         mnAyuda.setText("Ayuda");
         mnAyuda.setMnemonic('y');
@@ -397,7 +524,8 @@ public class FrmPrincipal extends javax.swing.JFrame {
             logger.log(java.util.logging.Level.SEVERE, null, ex);
         }
 
-        java.awt.EventQueue.invokeLater(() -> new FrmPrincipal().setVisible(true));
+        // tambien al correr este archivo directamente se pide iniciar sesion
+        com.josue.ventas.SistemaVentas.iniciar();
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
@@ -421,4 +549,8 @@ public class FrmPrincipal extends javax.swing.JFrame {
     private javax.swing.JMenuItem miSalir;
     private javax.swing.JMenuItem miVerFacturas;
     // End of variables declaration//GEN-END:variables
+    private javax.swing.JMenuItem miCategorias;
+    private javax.swing.JMenuItem miProveedores;
+    private javax.swing.JMenu mnCompras;
+    private javax.swing.JMenu mnAdministracion;
 }

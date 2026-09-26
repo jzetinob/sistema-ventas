@@ -18,8 +18,17 @@ public class Producto {
     private String nombre;
     private double precio;
     private int existencia;
+    private Categoria categoria;
 
     public Producto() {
+    }
+
+    public Categoria getCategoria() {
+        return categoria;
+    }
+
+    public void setCategoria(Categoria categoria) {
+        this.categoria = categoria;
     }
 
     public int getIdProducto() {

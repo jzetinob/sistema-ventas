@@ -4,7 +4,9 @@
  */
 package com.josue.ventas.vista;
 
+import com.josue.ventas.controlador.CategoriaController;
 import com.josue.ventas.controlador.ProductoController;
+import com.josue.ventas.modelo.Categoria;
 import com.josue.ventas.modelo.Producto;
 import java.util.List;
 import javax.swing.JOptionPane;
@@ -16,12 +18,22 @@ import javax.swing.table.DefaultTableModel;
  */
 public class FrmProductos extends javax.swing.JInternalFrame {
 
+    private static final Categoria SIN_CATEGORIA = new Categoria(0, "(Sin categoría)");
+
     ProductoController controller;
     DefaultTableModel modeloTabla;
 
     public FrmProductos() {
         initComponents();
         controller = new ProductoController();
+        cargarCategorias();
+        // si se agregan categorias con esta ventana abierta, se recargan al volver a ella
+        addInternalFrameListener(new javax.swing.event.InternalFrameAdapter() {
+            @Override
+            public void internalFrameActivated(javax.swing.event.InternalFrameEvent e) {
+                cargarCategorias();
+            }
+        });
         configurarTabla();
         refrescarTabla();
         jTableProductos.getSelectionModel().addListSelectionListener(new javax.swing.event.ListSelectionListener() {
@@ -35,7 +47,7 @@ public class FrmProductos extends javax.swing.JInternalFrame {
     }
 
     private void configurarTabla() {
-        String[] columnas = {"No.", "Código", "Nombre", "Precio", "Existencia"};
+        String[] columnas = {"No.", "Código", "Nombre", "Precio", "Existencia", "Categoría"};
         modeloTabla = new DefaultTableModel(columnas, 0) {
             @Override
             public boolean isCellEditable(int row, int column) {
@@ -49,9 +61,35 @@ public class FrmProductos extends javax.swing.JInternalFrame {
         modeloTabla.setRowCount(0);
         List<Producto> productos = controller.GetProductos();
         for (Producto p : productos) {
-            Object[] fila = {p.getId(), p.getCodigo(), p.getNombre(), String.format("%.2f", p.getPrecio()), p.getExistencia()};
+            Object[] fila = {p.getId(), p.getCodigo(), p.getNombre(), String.format("%.2f", p.getPrecio()), p.getExistencia(),
+                p.getCategoria() != null ? p.getCategoria().getNombre() : ""};
             modeloTabla.addRow(fila);
         }
+    }
+
+    private void cargarCategorias() {
+        Object elegida = cmbCategoria.getSelectedItem();
+        cmbCategoria.removeAllItems();
+        cmbCategoria.addItem(SIN_CATEGORIA);
+        for (Categoria c : new CategoriaController().GetCategorias()) {
+            cmbCategoria.addItem(c);
+        }
+        seleccionarCategoria(elegida != null ? elegida.toString() : "");
+    }
+
+    private void seleccionarCategoria(String nombre) {
+        cmbCategoria.setSelectedItem(SIN_CATEGORIA);
+        for (int i = 0; i < cmbCategoria.getItemCount(); i++) {
+            if (cmbCategoria.getItemAt(i).getNombre().equals(nombre)) {
+                cmbCategoria.setSelectedIndex(i);
+                return;
+            }
+        }
+    }
+
+    private Categoria categoriaElegida() {
+        Categoria c = (Categoria) cmbCategoria.getSelectedItem();
+        return c == null || c == SIN_CATEGORIA ? null : c;
     }
 
     private void guardarProducto() {
@@ -85,6 +123,7 @@ public class FrmProductos extends javax.swing.JInternalFrame {
             p.setNombre(nombre);
             p.setPrecio(precio);
             p.setExistencia(existencia);
+            p.setCategoria(categoriaElegida());
             controller.Guardar(p);
             limpiarCampos();
             refrescarTabla();
@@ -132,6 +171,7 @@ public class FrmProductos extends javax.swing.JInternalFrame {
             p.setNombre(nombre);
             p.setPrecio(precio);
             p.setExistencia(existencia);
+            p.setCategoria(categoriaElegida());
             controller.Actualizar(p);
             limpiarCampos();
             refrescarTabla();
@@ -151,7 +191,10 @@ public class FrmProductos extends javax.swing.JInternalFrame {
                 "¿Desea eliminar el producto seleccionado?", "Eliminar Producto",
                 JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
         if (respuesta == JOptionPane.YES_OPTION) {
-            controller.Eliminar(id);
+            if (!controller.Eliminar(id)) {
+                JOptionPane.showMessageDialog(this, "No se puede eliminar: el producto aparece en compras registradas.");
+                return;
+            }
             limpiarCampos();
             refrescarTabla();
         }
@@ -166,6 +209,7 @@ public class FrmProductos extends javax.swing.JInternalFrame {
         txtNombre.setText((String) modeloTabla.getValueAt(fila, 2));
         txtPrecio.setText((String) modeloTabla.getValueAt(fila, 3));
         txtExistencia.setText(String.valueOf(modeloTabla.getValueAt(fila, 4)));
+        seleccionarCategoria((String) modeloTabla.getValueAt(fila, 5));
     }
 
     private void limpiarCampos() {
@@ -173,6 +217,7 @@ public class FrmProductos extends javax.swing.JInternalFrame {
         txtNombre.setText("");
         txtPrecio.setText("");
         txtExistencia.setText("");
+        cmbCategoria.setSelectedItem(SIN_CATEGORIA);
     }
 
     @SuppressWarnings("unchecked")
@@ -188,6 +233,8 @@ public class FrmProductos extends javax.swing.JInternalFrame {
         txtNombre = new javax.swing.JTextField();
         txtPrecio = new javax.swing.JTextField();
         txtExistencia = new javax.swing.JTextField();
+        jLabel5 = new javax.swing.JLabel();
+        cmbCategoria = new javax.swing.JComboBox<>();
         btnGuardar = new javax.swing.JButton();
         btnActualizar = new javax.swing.JButton();
         btnEliminar = new javax.swing.JButton();
@@ -211,6 +258,8 @@ public class FrmProductos extends javax.swing.JInternalFrame {
         jLabel3.setText("Precio:");
 
         jLabel4.setText("Existencia:");
+
+        jLabel5.setText("Categoría:");
 
         btnGuardar.setText("Guardar");
         btnGuardar.addActionListener(new java.awt.event.ActionListener() {
@@ -250,13 +299,15 @@ public class FrmProductos extends javax.swing.JInternalFrame {
                     .addComponent(jLabel1)
                     .addComponent(jLabel2)
                     .addComponent(jLabel3)
-                    .addComponent(jLabel4))
+                    .addComponent(jLabel4)
+                    .addComponent(jLabel5))
                 .addGap(18, 18, 18)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                     .addComponent(txtCodigo)
                     .addComponent(txtNombre)
                     .addComponent(txtPrecio)
-                    .addComponent(txtExistencia, javax.swing.GroupLayout.DEFAULT_SIZE, 100, Short.MAX_VALUE))
+                    .addComponent(txtExistencia, javax.swing.GroupLayout.DEFAULT_SIZE, 100, Short.MAX_VALUE)
+                    .addComponent(cmbCategoria, 0, 180, Short.MAX_VALUE))
                 .addGap(18, 18, 18)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(btnGuardar)
@@ -288,6 +339,10 @@ public class FrmProductos extends javax.swing.JInternalFrame {
                     .addComponent(jLabel4)
                     .addComponent(txtExistencia, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(btnLimpiar))
+                .addGap(18, 18, 18)
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel5)
+                    .addComponent(cmbCategoria, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
@@ -296,7 +351,7 @@ public class FrmProductos extends javax.swing.JInternalFrame {
 
             },
             new String [] {
-                "No.", "Código", "Nombre", "Precio", "Existencia"
+                "No.", "Código", "Nombre", "Precio", "Existencia", "Categoría"
             }
         ));
         jScrollPane1.setViewportView(jTableProductos);
@@ -346,10 +401,12 @@ public class FrmProductos extends javax.swing.JInternalFrame {
     private javax.swing.JButton btnEliminar;
     private javax.swing.JButton btnGuardar;
     private javax.swing.JButton btnLimpiar;
+    private javax.swing.JComboBox<Categoria> cmbCategoria;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;
+    private javax.swing.JLabel jLabel5;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JTable jTableProductos;

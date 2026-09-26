@@ -33,8 +33,8 @@ public class ProductoController {
         dao.actualizar(producto);
     }
 
-    public void Eliminar(int id) {
-        dao.eliminar(id);
+    public boolean Eliminar(int id) {
+        return dao.eliminar(id);
     }
 
     public boolean ExisteCodigo(String codigo) {

@@ -4,6 +4,7 @@
  */
 package com.josue.ventas.dao;
 
+import com.josue.ventas.modelo.Categoria;
 import com.josue.ventas.modelo.Producto;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -39,12 +40,13 @@ public class ProductoDAOSQLite implements ProductoDAO {
 
     @Override
     public void guardar(Producto producto) {
-        String sql = "INSERT INTO productos (codigo, nombre, precio, existencia) VALUES (?, ?, ?, ?)";
+        String sql = "INSERT INTO productos (codigo, nombre, precio, existencia, categoria_id) VALUES (?, ?, ?, ?, ?)";
         try (PreparedStatement ps = conexion().prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
             ps.setString(1, producto.getCodigo());
             ps.setString(2, producto.getNombre());
             ps.setDouble(3, producto.getPrecio());
             ps.setInt(4, producto.getExistencia());
+            asignarCategoria(ps, 5, producto);
             ps.executeUpdate();
             try (ResultSet rs = ps.getGeneratedKeys()) {
                 if (rs.next()) {
@@ -59,7 +61,12 @@ public class ProductoDAOSQLite implements ProductoDAO {
     @Override
     public List<Producto> listar() {
         List<Producto> productos = new ArrayList<>();
-        String sql = "SELECT id, codigo, nombre, precio, existencia FROM productos ORDER BY id";
+        String sql = """
+                SELECT p.id, p.codigo, p.nombre, p.precio, p.existencia, c.id AS categoria_id, c.nombre AS categoria
+                FROM productos p
+                LEFT JOIN categorias c ON c.id = p.categoria_id
+                ORDER BY p.id
+                """;
         try (Statement stmt = conexion().createStatement(); ResultSet rs = stmt.executeQuery(sql)) {
             while (rs.next()) {
                 Producto producto = new Producto();
@@ -68,6 +75,9 @@ public class ProductoDAOSQLite implements ProductoDAO {
                 producto.setNombre(rs.getString("nombre"));
                 producto.setPrecio(rs.getDouble("precio"));
                 producto.setExistencia(rs.getInt("existencia"));
+                if (rs.getString("categoria") != null) {
+                    producto.setCategoria(new Categoria(rs.getInt("categoria_id"), rs.getString("categoria")));
+                }
                 productos.add(producto);
             }
         } catch (SQLException ex) {
@@ -78,27 +88,38 @@ public class ProductoDAOSQLite implements ProductoDAO {
 
     @Override
     public void actualizar(Producto producto) {
-        String sql = "UPDATE productos SET codigo = ?, nombre = ?, precio = ?, existencia = ? WHERE id = ?";
+        String sql = "UPDATE productos SET codigo = ?, nombre = ?, precio = ?, existencia = ?, categoria_id = ? WHERE id = ?";
         try (PreparedStatement ps = conexion().prepareStatement(sql)) {
             ps.setString(1, producto.getCodigo());
             ps.setString(2, producto.getNombre());
             ps.setDouble(3, producto.getPrecio());
             ps.setInt(4, producto.getExistencia());
-            ps.setInt(5, producto.getId());
+            asignarCategoria(ps, 5, producto);
+            ps.setInt(6, producto.getId());
             ps.executeUpdate();
         } catch (SQLException ex) {
             logger.log(java.util.logging.Level.SEVERE, "Error al actualizar producto", ex);
         }
     }
 
+    private void asignarCategoria(PreparedStatement ps, int indice, Producto producto) throws SQLException {
+        if (producto.getCategoria() != null) {
+            ps.setInt(indice, producto.getCategoria().getId());
+        } else {
+            ps.setNull(indice, java.sql.Types.INTEGER);
+        }
+    }
+
     @Override
-    public void eliminar(int id) {
+    public boolean eliminar(int id) {
         String sql = "DELETE FROM productos WHERE id = ?";
         try (PreparedStatement ps = conexion().prepareStatement(sql)) {
             ps.setInt(1, id);
             ps.executeUpdate();
+            return true;
         } catch (SQLException ex) {
-            logger.log(java.util.logging.Level.SEVERE, "Error al eliminar producto", ex);
+            logger.log(java.util.logging.Level.WARNING, "No se pudo eliminar el producto " + id, ex);
+            return false;
         }
     }
 

@@ -107,9 +107,10 @@ public class ProductoDAOCsv implements ProductoDAO {
     }
 
     @Override
-    public void eliminar(int id) {
+    public boolean eliminar(int id) {
         productos.removeIf(producto -> producto.getId() == id);
         escribir();
+        return true;
     }
 
     @Override

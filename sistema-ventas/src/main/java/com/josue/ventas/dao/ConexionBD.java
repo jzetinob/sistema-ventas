@@ -51,6 +51,10 @@ public class ConexionBD {
                 dir.mkdirs();
             }
             conexion = DriverManager.getConnection(URL);
+            // SQLite no valida las llaves foraneas si no se activan en cada conexion
+            try (Statement stmt = conexion.createStatement()) {
+                stmt.execute("PRAGMA foreign_keys = ON");
+            }
             logger.info("Conexion a la base de datos establecida: " + ARCHIVO_BD);
         } catch (ClassNotFoundException | SQLException ex) {
             logger.log(java.util.logging.Level.SEVERE, "No se pudo conectar a la base de datos", ex);
@@ -101,6 +105,48 @@ public class ConexionBD {
                     telefono TEXT,
                     puesto TEXT
                 );
+                CREATE TABLE IF NOT EXISTS categorias (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    nombre TEXT NOT NULL UNIQUE,
+                    descripcion TEXT
+                );
+                CREATE TABLE IF NOT EXISTS proveedores (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    nit TEXT NOT NULL UNIQUE,
+                    nombre TEXT NOT NULL,
+                    direccion TEXT,
+                    telefono TEXT,
+                    correo TEXT
+                );
+                CREATE TABLE IF NOT EXISTS usuarios (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    usuario TEXT NOT NULL UNIQUE,
+                    nombre TEXT NOT NULL,
+                    clave_hash TEXT NOT NULL,
+                    salt TEXT NOT NULL,
+                    rol TEXT NOT NULL CHECK (rol IN ('ADMINISTRADOR', 'VENDEDOR')),
+                    activo INTEGER NOT NULL DEFAULT 1
+                );
+                CREATE TABLE IF NOT EXISTS compras (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    numero_compra TEXT NOT NULL UNIQUE,
+                    proveedor_id INTEGER NOT NULL,
+                    usuario_id INTEGER,
+                    fecha TEXT NOT NULL,
+                    total REAL NOT NULL,
+                    FOREIGN KEY (proveedor_id) REFERENCES proveedores(id),
+                    FOREIGN KEY (usuario_id) REFERENCES usuarios(id) ON DELETE SET NULL
+                );
+                CREATE TABLE IF NOT EXISTS compra_detalles (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    compra_id INTEGER NOT NULL,
+                    producto_id INTEGER NOT NULL,
+                    cantidad INTEGER NOT NULL CHECK (cantidad > 0),
+                    costo_unitario REAL NOT NULL,
+                    subtotal REAL NOT NULL,
+                    FOREIGN KEY (compra_id) REFERENCES compras(id) ON DELETE CASCADE,
+                    FOREIGN KEY (producto_id) REFERENCES productos(id)
+                );
                 """;
         try (Statement stmt = conexion.createStatement()) {
             stmt.executeUpdate(sql);
@@ -108,20 +154,26 @@ public class ConexionBD {
         } catch (SQLException ex) {
             logger.log(java.util.logging.Level.SEVERE, "No se pudieron crear las tablas", ex);
         }
-        verificarColumnaExistencia();
+        agregarColumnaSiFalta("productos", "existencia", "INTEGER NOT NULL DEFAULT 0");
+        agregarColumnaSiFalta("productos", "categoria_id", "INTEGER REFERENCES categorias(id) ON DELETE SET NULL");
     }
 
-    private void verificarColumnaExistencia() {
-        String sql = "SELECT COUNT(*) FROM pragma_table_info('productos') WHERE name = 'existencia'";
+    /**
+     * Migracion para bases creadas con versiones anteriores: agrega la
+     * columna solo si la tabla todavia no la tiene. Los nombres vienen de
+     * constantes del codigo, nunca del usuario.
+     */
+    private void agregarColumnaSiFalta(String tabla, String columna, String definicion) {
+        String sql = "SELECT COUNT(*) FROM pragma_table_info('" + tabla + "') WHERE name = '" + columna + "'";
         try (Statement stmt = conexion.createStatement(); java.sql.ResultSet rs = stmt.executeQuery(sql)) {
             if (rs.next() && rs.getInt(1) == 0) {
                 try (Statement alter = conexion.createStatement()) {
-                    alter.executeUpdate("ALTER TABLE productos ADD COLUMN existencia INTEGER NOT NULL DEFAULT 0");
-                    logger.info("Columna existencia agregada a la tabla productos");
+                    alter.executeUpdate("ALTER TABLE " + tabla + " ADD COLUMN " + columna + " " + definicion);
+                    logger.info("Columna " + columna + " agregada a la tabla " + tabla);
                 }
             }
         } catch (SQLException ex) {
-            logger.log(java.util.logging.Level.SEVERE, "No se pudo verificar la columna existencia", ex);
+            logger.log(java.util.logging.Level.SEVERE, "No se pudo verificar la columna " + columna, ex);
         }
     }
 

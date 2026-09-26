@@ -4,25 +4,22 @@
  */
 package com.josue.ventas.dao;
 
-import com.josue.ventas.modelo.Producto;
+import com.josue.ventas.modelo.Categoria;
 import java.util.List;
 
 /**
  *
  * @author josue zetino
  */
-public interface ProductoDAO {
+public interface CategoriaDAO {
 
-    void guardar(Producto producto);
+    void guardar(Categoria categoria);
 
-    List<Producto> listar();
+    List<Categoria> listar();
 
-    void actualizar(Producto producto);
+    void actualizar(Categoria categoria);
 
-    /**
-     * @return false si no se pudo eliminar (por ejemplo, aparece en compras registradas)
-     */
     boolean eliminar(int id);
 
-    boolean existeCodigo(String codigo);
+    boolean existeNombre(String nombre);
 }
