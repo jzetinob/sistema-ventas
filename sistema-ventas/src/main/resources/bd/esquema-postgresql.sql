@@ -142,7 +142,7 @@ BEGIN
     FROM sesiones_app s JOIN usuarios u ON u.id = s.usuario_id
     WHERE s.token = p_token AND s.expira > now() AND u.activo = 1;
     IF v_id IS NULL THEN
-        RAISE EXCEPTION 'Sesion invalida o vencida. Inicie sesion de nuevo.' USING ERRCODE = '28000';
+        RAISE EXCEPTION 'Sesión inválida o vencida. Inicie sesión de nuevo.' USING ERRCODE = '28000';
     END IF;
     RETURN v_id;
 END
@@ -160,7 +160,7 @@ BEGIN
     IF u.id IS NULL OR u.activo <> 1 OR u.clave_hash NOT LIKE chr(36) || '2%'
             OR u.clave_hash <> crypt(p_clave, u.clave_hash) THEN
         PERFORM pg_sleep(1);  -- frena los intentos de adivinar contrasenas
-        RAISE EXCEPTION 'Usuario o contrasena incorrectos.' USING ERRCODE = '28P01';
+        RAISE EXCEPTION 'Usuario o contraseña incorrectos.' USING ERRCODE = '28P01';
     END IF;
     DELETE FROM sesiones_app WHERE expira < now();
     INSERT INTO sesiones_app (usuario_id, expira) VALUES (u.id, now() + INTERVAL '8 hours')
@@ -217,7 +217,7 @@ DECLARE
 BEGIN
     PERFORM app_usuario_de(p_token);
     IF regexp_replace(v_nit, '[- ]', '', 'g') !~ '^[0-9]{8,13}$' THEN
-        RAISE EXCEPTION 'El NIT debe tener entre 8 y 13 digitos.' USING ERRCODE = '22023';
+        RAISE EXCEPTION 'El NIT debe tener entre 8 y 13 dígitos.' USING ERRCODE = '22023';
     END IF;
     IF trim(coalesce(p_nombre, '')) = '' THEN
         RAISE EXCEPTION 'Escriba el nombre del cliente.' USING ERRCODE = '22023';

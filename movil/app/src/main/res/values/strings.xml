@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Ventas Móvil</string>
+    <string name="titulo_productos">Productos</string>
+    <string name="titulo_clientes">Clientes</string>
+    <string name="titulo_nuevo_cliente">Nuevo cliente</string>
+    <string name="titulo_ventas">Ventas por fecha</string>
+
+    <string name="login_subtitulo">Inicie sesión con su usuario del Sistema de Ventas</string>
+    <string name="usuario">Usuario</string>
+    <string name="contrasena">Contraseña</string>
+    <string name="entrar">Entrar</string>
+    <string name="cerrar_sesion">Cerrar sesión</string>
+    <string name="buscar_producto">Buscar por código o nombre</string>
+    <string name="buscar_cliente">Buscar por NIT o nombre</string>
+    <string name="sin_resultados">Sin resultados</string>
+    <string name="nit">NIT</string>
+    <string name="nombre">Nombre</string>
+    <string name="direccion">Dirección</string>
+    <string name="telefono">Teléfono</string>
+    <string name="guardar">Guardar</string>
+    <string name="desde">Desde</string>
+    <string name="hasta">Hasta</string>
+    <string name="consultar">Consultar</string>
+</resources>

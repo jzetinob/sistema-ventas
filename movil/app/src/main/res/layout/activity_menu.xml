@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="24dp">
+
+        <TextView
+            android:id="@+id/lblBienvenida"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textColor="@color/primario"
+            android:textSize="22sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/lblRol"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="28dp"
+            android:textColor="@color/texto_suave" />
+
+        <Button
+            android:id="@+id/btnProductos"
+            style="@style/BotonMenu"
+            android:text="@string/titulo_productos" />
+
+        <Button
+            android:id="@+id/btnClientes"
+            style="@style/BotonMenu"
+            android:text="@string/titulo_clientes" />
+
+        <Button
+            android:id="@+id/btnNuevoCliente"
+            style="@style/BotonMenu"
+            android:text="@string/titulo_nuevo_cliente" />
+
+        <Button
+            android:id="@+id/btnVentas"
+            style="@style/BotonMenu"
+            android:text="@string/titulo_ventas" />
+
+        <Button
+            android:id="@+id/btnSalir"
+            style="@style/BotonMenu"
+            android:layout_marginTop="16dp"
+            android:backgroundTint="@color/texto_suave"
+            android:text="@string/cerrar_sesion" />
+    </LinearLayout>
+</ScrollView>

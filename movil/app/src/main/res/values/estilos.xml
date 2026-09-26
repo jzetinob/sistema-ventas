@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="primario">#2F4F6F</color>
+    <color name="primario_oscuro">#1F3548</color>
+    <color name="acento">#3C7DBA</color>
+    <color name="fondo">#F4F6F9</color>
+    <color name="texto_suave">#5F6B78</color>
+    <color name="alerta">#C0392B</color>
+
+    <style name="TemaVentas" parent="android:Theme.Material.Light.DarkActionBar">
+        <item name="android:colorPrimary">@color/primario</item>
+        <item name="android:colorPrimaryDark">@color/primario_oscuro</item>
+        <item name="android:colorAccent">@color/acento</item>
+        <item name="android:windowBackground">@color/fondo</item>
+    </style>
+
+    <style name="BotonMenu">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">64dp</item>
+        <item name="android:layout_marginBottom">12dp</item>
+        <item name="android:textSize">17sp</item>
+        <item name="android:backgroundTint">@color/primario</item>
+        <item name="android:textColor">#FFFFFF</item>
+    </style>
+
+    <style name="Campo">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_marginBottom">10dp</item>
+        <item name="android:minHeight">52dp</item>
+        <item name="android:singleLine">true</item>
+    </style>
+</resources>
