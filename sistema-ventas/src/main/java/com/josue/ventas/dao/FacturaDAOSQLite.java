@@ -5,6 +5,7 @@
 package com.josue.ventas.dao;
 
 import com.josue.ventas.modelo.Factura;
+import com.josue.ventas.modelo.FacturaDetalle;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -41,8 +42,13 @@ public class FacturaDAOSQLite implements FacturaDAO {
         return ConexionBD.getInstancia().getConnection();
     }
 
+    /**
+     * Guarda la factura con sus detalles y descuenta la existencia de los
+     * productos del catalogo, todo en una transaccion. Si algun producto ya
+     * no tiene existencia suficiente, no se guarda nada y devuelve false.
+     */
     @Override
-    public void guardar(Factura factura) {
+    public boolean guardar(Factura factura) {
         Connection conexion = conexion();
         try {
             conexion.setAutoCommit(false);
@@ -64,7 +70,12 @@ public class FacturaDAOSQLite implements FacturaDAO {
                 }
             }
             guardarDetalles(conexion, factura);
+            if (!descontarExistencia(conexion, factura)) {
+                conexion.rollback();
+                return false;
+            }
             conexion.commit();
+            return true;
         } catch (SQLException ex) {
             try {
                 conexion.rollback();
@@ -72,6 +83,7 @@ public class FacturaDAOSQLite implements FacturaDAO {
                 logger.log(java.util.logging.Level.WARNING, "No se pudo revertir la factura", rollbackEx);
             }
             logger.log(java.util.logging.Level.SEVERE, "Error al guardar factura", ex);
+            return false;
         } finally {
             try {
                 conexion.setAutoCommit(true);
@@ -82,18 +94,47 @@ public class FacturaDAOSQLite implements FacturaDAO {
     }
 
     private void guardarDetalles(Connection conexion, Factura factura) throws SQLException {
-        String sql = "INSERT INTO factura_detalles (factura_id, producto, cantidad, precio, subtotal) VALUES (?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO factura_detalles (factura_id, producto, cantidad, precio, subtotal, producto_id) VALUES (?, ?, ?, ?, ?, ?)";
         try (PreparedStatement ps = conexion.prepareStatement(sql)) {
-            for (Object[] fila : factura.getDetallesFilas()) {
+            for (FacturaDetalle d : factura.getDetalles()) {
                 ps.setInt(1, factura.getId());
-                ps.setString(2, String.valueOf(fila[0]));
-                ps.setInt(3, Integer.parseInt(String.valueOf(fila[1])));
-                ps.setDouble(4, Double.parseDouble(String.valueOf(fila[2])));
-                ps.setDouble(5, Double.parseDouble(String.valueOf(fila[3])));
+                ps.setString(2, d.getProducto() != null ? d.getProducto().getNombre() : "");
+                ps.setInt(3, d.getCantidad());
+                ps.setDouble(4, d.getPrecioUnitario());
+                ps.setDouble(5, d.calcularSubtotal());
+                if (esProductoDelCatalogo(d)) {
+                    ps.setInt(6, d.getProducto().getId());
+                } else {
+                    ps.setNull(6, java.sql.Types.INTEGER);
+                }
                 ps.addBatch();
             }
             ps.executeBatch();
         }
+    }
+
+    /** Los productos escritos a mano (sin id) no llevan control de existencia. */
+    private boolean esProductoDelCatalogo(FacturaDetalle d) {
+        return d.getProducto() != null && d.getProducto().getId() > 0;
+    }
+
+    private boolean descontarExistencia(Connection conexion, Factura factura) throws SQLException {
+        String sql = "UPDATE productos SET existencia = existencia - ? WHERE id = ? AND existencia >= ?";
+        try (PreparedStatement ps = conexion.prepareStatement(sql)) {
+            for (FacturaDetalle d : factura.getDetalles()) {
+                if (!esProductoDelCatalogo(d)) {
+                    continue;
+                }
+                ps.setInt(1, d.getCantidad());
+                ps.setInt(2, d.getProducto().getId());
+                ps.setInt(3, d.getCantidad());
+                if (ps.executeUpdate() == 0) {
+                    logger.log(java.util.logging.Level.WARNING, "Existencia insuficiente de {0}", d.getProducto().getNombre());
+                    return false;
+                }
+            }
+        }
+        return true;
     }
 
     @Override
@@ -166,14 +207,44 @@ public class FacturaDAOSQLite implements FacturaDAO {
         }
     }
 
+    /**
+     * Elimina la factura (sus detalles se borran en cascada) y devuelve a la
+     * existencia lo que se habia vendido de los productos del catalogo.
+     */
     @Override
     public void eliminar(int id) {
-        String sql = "DELETE FROM facturas WHERE id = ?";
-        try (PreparedStatement ps = conexion().prepareStatement(sql)) {
-            ps.setInt(1, id);
-            ps.executeUpdate();
+        Connection conexion = conexion();
+        try {
+            conexion.setAutoCommit(false);
+            String sqlDevolver = """
+                    UPDATE productos SET existencia = existencia + (
+                        SELECT SUM(d.cantidad) FROM factura_detalles d
+                        WHERE d.factura_id = ? AND d.producto_id = productos.id)
+                    WHERE id IN (SELECT producto_id FROM factura_detalles WHERE factura_id = ? AND producto_id IS NOT NULL)
+                    """;
+            try (PreparedStatement ps = conexion.prepareStatement(sqlDevolver)) {
+                ps.setInt(1, id);
+                ps.setInt(2, id);
+                ps.executeUpdate();
+            }
+            try (PreparedStatement ps = conexion.prepareStatement("DELETE FROM facturas WHERE id = ?")) {
+                ps.setInt(1, id);
+                ps.executeUpdate();
+            }
+            conexion.commit();
         } catch (SQLException ex) {
+            try {
+                conexion.rollback();
+            } catch (SQLException rollbackEx) {
+                logger.log(java.util.logging.Level.WARNING, "No se pudo revertir la eliminacion", rollbackEx);
+            }
             logger.log(java.util.logging.Level.SEVERE, "Error al eliminar factura", ex);
+        } finally {
+            try {
+                conexion.setAutoCommit(true);
+            } catch (SQLException ex) {
+                logger.log(java.util.logging.Level.WARNING, "No se pudo restaurar autocommit", ex);
+            }
         }
     }
 

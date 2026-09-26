@@ -61,4 +61,4 @@
 - **Pendiente según la guía del curso**:
   1. **App móvil** conectada a la misma BD (entrega final). SQLite es un archivo local y el teléfono no puede leerlo; hay que decidir entre pasar a MySQL o poner un servicio web intermedio.
   2. **Manual de usuario** y **manual técnico**.
-  3. Opcional: que la factura **descuente existencia** al vender. Hoy no lo hace, aunque la Fase 11 del plan lo menciona.
+  3. ~~Que la factura descuente existencia~~ → hecho el 2026-09-26: la venta descuenta existencia en la misma transacción, la rechaza si no alcanza y al eliminar la factura se devuelve.

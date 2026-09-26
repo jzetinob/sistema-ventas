@@ -237,7 +237,11 @@ public class FrmFactura extends javax.swing.JInternalFrame {
         facturaActual.setNumeroFactura(numeroFactura);
         facturaActual.setFecha(LocalDate.now());
 
-        controller.Guardar(facturaActual);
+        if (!controller.Guardar(facturaActual)) {
+            JOptionPane.showMessageDialog(this, "No se pudo guardar la factura: algún producto ya no tiene existencia suficiente.\n"
+                    + "Revise las cantidades (otra venta pudo haberlo agotado).", "Factura", JOptionPane.WARNING_MESSAGE);
+            return;
+        }
         JOptionPane.showMessageDialog(this, "Factura guardada con éxito.");
 
         limpiarFormulario();

@@ -21,8 +21,8 @@ public class FacturaController {
         dao = FacturaDAOSQLite.getInstancia();
     }
 
-    public void Guardar(Factura factura) {
-        dao.guardar(factura);
+    public boolean Guardar(Factura factura) {
+        return dao.guardar(factura);
     }
 
     public List<Factura> GetFacturas() {

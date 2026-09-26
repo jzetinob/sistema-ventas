@@ -160,7 +160,7 @@ public class FacturaDAOCsv implements FacturaDAO {
     }
 
     @Override
-    public void guardar(Factura factura) {
+    public boolean guardar(Factura factura) {
         if (factura.getId() == 0) {
             factura.setId(siguienteId++);
         }
@@ -171,6 +171,7 @@ public class FacturaDAOCsv implements FacturaDAO {
         }
         facturas.add(factura);
         escribir();
+        return true;
     }
 
     private void adelantarCorrelativo(String numeroFactura) {

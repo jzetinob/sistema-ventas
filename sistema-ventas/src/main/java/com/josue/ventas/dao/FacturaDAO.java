@@ -13,7 +13,8 @@ import java.util.List;
  */
 public interface FacturaDAO {
 
-    void guardar(Factura factura);
+    /** @return false si no se pudo guardar (por ejemplo, sin existencia suficiente) */
+    boolean guardar(Factura factura);
 
     List<Factura> listar();
 

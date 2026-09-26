@@ -156,6 +156,7 @@ public class ConexionBD {
         }
         agregarColumnaSiFalta("productos", "existencia", "INTEGER NOT NULL DEFAULT 0");
         agregarColumnaSiFalta("productos", "categoria_id", "INTEGER REFERENCES categorias(id) ON DELETE SET NULL");
+        agregarColumnaSiFalta("factura_detalles", "producto_id", "INTEGER REFERENCES productos(id) ON DELETE SET NULL");
     }
 
     /**
