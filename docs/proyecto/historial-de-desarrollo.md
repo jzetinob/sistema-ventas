@@ -1,27 +1,32 @@
-# Plan: Completar el Sistema de Ventas
+# Historial de desarrollo
 
-**Fecha:** 2026-08-01
-**Proyecto:** Sistema de Ventas
-**Repo:** https://github.com/jzetinob/sistema-ventas
-**Documentación completa:** [README.md](../README.md) · [ARQUITECTURA.md](ARQUITECTURA.md)
+**Proyecto:** Sistema de Ventas · **Repo:** https://github.com/jzetinob/sistema-ventas
+**Inicio del plan:** 2026-08-01 · **Última fase:** 2026-09-26
 
-## Estado actual
+Este archivo es el **historial de decisiones**: qué se hizo en cada fase y por qué, en orden cronológico. Cómo está construido hoy el sistema se explica en el [manual técnico](../manual-tecnico.md), y dónde estamos, en [estado.md](estado.md).
+
+## Fases
 
 | Fase | Estado |
 |---|---|
 | 1 — Persistencia CSV | ✅ Completada |
 | 2 — Lista de facturas completa | ✅ Completada |
 | 3 — Catálogos | ✅ Completada |
-| 4 — Combos en la factura | ✅ Completada |
+| 4 — Combos en la factura (luego, buscador con autocompletado) | ✅ Completada |
 | 5 — Impresión con vista previa | ✅ Completada |
 | 6 — Validaciones | ✅ Completada |
-| 7 — Pruebas y documentación | ⏳ En curso |
+| 7 — Pruebas y documentación | ✅ Completada (pruebas automatizadas; manuales en la fase 16) |
 | 8 — Formulario contenedor MDI | ✅ Completada |
 | 9 — Base de datos SQLite (JDBC) | ✅ Completada |
 | 10 — Publicación y control de versiones | ✅ Completada |
 | 11 — Implementación del diagrama de clases | ✅ Completada |
+| 12 — 10 entidades, inicio de sesión y compras | ✅ Completada |
+| 13 — Búsquedas, reportes y respaldo | ✅ Completada |
+| 14 — La factura descuenta existencia | ✅ Completada |
+| 15 — Base en la nube (Supabase) y app móvil | ✅ Completada |
+| 16 — Manuales | ✅ Completada |
 
-Este archivo es el **historial de decisiones** (el "por qué" de cada cosa). La descripción técnica de cómo está implementado vive en [ARQUITECTURA.md](ARQUITECTURA.md).
+> Las secciones de las fases 1 a 11 se escribieron mientras se desarrollaban. Algunas hablan de "combos" o de CSV porque así era el sistema en ese momento.
 
 ## Cómo saber si una fase está terminada
 

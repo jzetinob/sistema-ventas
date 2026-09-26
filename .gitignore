@@ -11,3 +11,5 @@ notas/
 reportes/
 **/config/bd.properties
 supabase/.temp/
+# reportes de cierre inesperado de la JVM
+hs_err_pid*.log

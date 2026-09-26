@@ -89,13 +89,25 @@ Los DAO usan SQL estándar que funciona en ambos motores. Lo único específico 
 
 **Primera conexión a la nube:** si la base de Supabase está vacía y existe `datos/sistema_ventas.db` con datos, `CopiadorBD` los sube automáticamente. Conserva los `id` y ajusta las secuencias.
 
-**Migraciones SQLite:** las bases creadas con versiones anteriores se actualizan solas (`agregarColumnaSiFalta`): `productos.existencia`, `productos.categoria_id`, `factura_detalles.producto_id`.
+**Migraciones SQLite:** las bases creadas con versiones anteriores se actualizan solas (`agregarColumnaSiFalta`): `productos.existencia`, `productos.categoria_id`, `factura_detalles.producto_id`. `MigradorDatos` importa una sola vez los CSV de las primeras versiones (`clientes.csv`, `productos.csv`, `facturas.csv`, `detalles.csv`) si la base está vacía. Los DAO CSV (`…DAOCsv`) quedaron en el código como referencia del entregable de listas y archivos.
+
+### 3.3 Detalles de implementación
+
+- **Ventana MDI:** `FrmPrincipal` contiene un `JDesktopPane`, y cada formulario es un `JInternalFrame`. Si una ventana ya está abierta (`isDisplayable()`), se trae al frente en lugar de crear otra. El menú *Ventana* acomoda en cascada o mosaico, y minimiza o restaura todas.
+- **Correlativos (FAC-0001, COM-0001):** se calculan como el mayor número existente más uno, consultando la tabla. No hay un contador aparte, así que no se repiten al reiniciar y no se "queman" números al cerrar un formulario sin guardar.
+- **Impresión:** `TicketFactura` implementa `java.awt.print.Printable` y dibuja el ticket con `Graphics2D`. `FrmVistaPreviaFactura` usa el mismo método `pintar(...)` para la vista previa y abre el diálogo de impresión del sistema (`PrinterJob.printDialog()`). Se imprime desde la factura en curso y desde el detalle de una factura guardada, sin librerías externas.
+- **Buscador con autocompletado (`CampoBusqueda`):**
+  - Es un `JTextField` con un menú emergente y una `JList`. Filtra por "contiene", sin distinguir mayúsculas; se navega con ↑/↓, Enter elige y Escape cierra.
+  - Vuelve a leer su lista (`setFuente`) cada vez que recibe el foco, así aparecen los registros creados en otra ventana o desde el celular.
+  - Si nada coincide, muestra "(sin coincidencias)".
+  - Avisa a sus oyentes (`addActionListener`) al elegir un elemento. Es el patrón Observer.
+- **Búsqueda en tablas (`FiltroTabla`, `BarraBusqueda`):** usan `TableRowSorter` y `RowFilter`. Cuando la tabla está filtrada, la fila seleccionada se traduce con `convertRowIndexToModel`.
 
 ## 4. Base de datos
 
 ### 4.1 Tablas
 
-Hay 10 tablas del sistema, más `sesiones_app` para el móvil (solo en PostgreSQL). El diagrama completo está en [`diagrama-entidad-relacion.md`](diagrama-entidad-relacion.md).
+Hay 10 tablas del sistema, más `sesiones_app` para el móvil (solo en PostgreSQL). El diagrama completo está en [`diagramas/diagrama-entidad-relacion.md`](diagramas/diagrama-entidad-relacion.md).
 
 | Tabla | Descripción | Llaves foráneas |
 |---|---|---|
