@@ -37,4 +37,8 @@ public class CompraController {
     public String ObtenerSiguienteNumeroCompra() {
         return dao.obtenerSiguienteNumeroCompra();
     }
+
+    public Double UltimoCosto(int productoId) {
+        return dao.ultimoCosto(productoId);
+    }
 }

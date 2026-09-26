@@ -26,4 +26,7 @@ public interface CompraDAO {
     boolean anular(int id);
 
     String obtenerSiguienteNumeroCompra();
+
+    /** Costo unitario de la compra mas reciente de ese producto, o null si nunca se ha comprado. */
+    Double ultimoCosto(int productoId);
 }

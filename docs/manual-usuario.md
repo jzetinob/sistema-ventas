@@ -96,6 +96,8 @@ Al guardar, el sistema **descuenta la existencia** de cada producto. Si algún p
 
 1. Elija el **proveedor** en el buscador.
 2. Por cada producto: elíjalo, escriba **cantidad** y **costo unitario** y presione **Agregar**.
+   - El **costo unitario** es lo que se le **paga al proveedor** por cada unidad. No es lo mismo que el **precio de venta** del catálogo, que es lo que paga el cliente.
+   - Al elegir el producto, a la derecha aparecen su precio de venta, su existencia y su último costo. El costo se llena solo con **el de la última compra** de ese producto; cámbielo si esta vez fue distinto. En la primera compra de un producto hay que escribirlo.
 3. Presione **Guardar compra**. La existencia de cada producto **aumenta** en la cantidad comprada.
 
 *Compras → Ver compras* lista las compras (con buscador y reporte). Al seleccionar una, abajo aparece su detalle. **Anular compra** la elimina y resta la existencia que había sumado. Si parte de esa mercadería ya se vendió, el sistema no permite anularla.

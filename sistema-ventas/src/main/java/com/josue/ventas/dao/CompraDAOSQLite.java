@@ -213,6 +213,20 @@ public class CompraDAOSQLite implements CompraDAO {
         return String.format("COM-%04d", correlativo);
     }
 
+    @Override
+    public Double ultimoCosto(int productoId) {
+        String sql = "SELECT costo_unitario FROM compra_detalles WHERE producto_id = ? ORDER BY compra_id DESC, id DESC LIMIT 1";
+        try (PreparedStatement ps = conexion().prepareStatement(sql)) {
+            ps.setInt(1, productoId);
+            try (ResultSet rs = ps.executeQuery()) {
+                return rs.next() ? rs.getDouble(1) : null;
+            }
+        } catch (SQLException ex) {
+            logger.log(java.util.logging.Level.WARNING, "No se pudo consultar el ultimo costo", ex);
+            return null;
+        }
+    }
+
     private void revertir(Connection conexion) {
         try {
             conexion.rollback();

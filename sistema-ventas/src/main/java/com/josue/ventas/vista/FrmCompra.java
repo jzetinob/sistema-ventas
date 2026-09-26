@@ -54,6 +54,7 @@ public class FrmCompra extends javax.swing.JInternalFrame {
     private final JTextField txtCantidad = new JTextField(6);
     private final JTextField txtCosto = new JTextField(8);
     private final JLabel lblTotal = new JLabel("0.00");
+    private final JLabel lblReferencia = new JLabel(" ");
     private final DefaultTableModel modeloTabla = new DefaultTableModel(
             new String[]{"Código", "Producto", "Cantidad", "Costo unitario", "Subtotal"}, 0) {
         @Override
@@ -95,6 +96,13 @@ public class FrmCompra extends javax.swing.JInternalFrame {
         c.gridx = 4;
         c.gridy = 1;
         lineas.add(botonesLinea, c);
+        GridBagConstraints r = new GridBagConstraints();
+        r.gridx = 4;
+        r.gridy = 0;
+        r.insets = new Insets(4, 10, 4, 4);
+        r.anchor = GridBagConstraints.LINE_START;
+        lblReferencia.setForeground(java.awt.Color.DARK_GRAY);
+        lineas.add(lblReferencia, r);
 
         JPanel arriba = new JPanel(new BorderLayout(0, 8));
         arriba.add(encabezado, BorderLayout.NORTH);
@@ -122,6 +130,15 @@ public class FrmCompra extends javax.swing.JInternalFrame {
         setContentPane(contenido);
 
         campoProducto.addActionListener(e -> productoElegido());
+        // si el producto se escribio completo sin elegirlo de la lista, igual se completa al pasar al siguiente campo
+        java.awt.event.FocusAdapter completar = new java.awt.event.FocusAdapter() {
+            @Override
+            public void focusGained(java.awt.event.FocusEvent e) {
+                completarDatosProducto();
+            }
+        };
+        txtCantidad.addFocusListener(completar);
+        txtCosto.addFocusListener(completar);
     }
 
     private void agregar(JPanel panel, int fila, int columna, String etiqueta, JComponent campo) {
@@ -167,7 +184,29 @@ public class FrmCompra extends javax.swing.JInternalFrame {
     }
 
     private void productoElegido() {
+        txtCosto.setText(""); // se eligio otro producto: se propone su propio costo
+        completarDatosProducto();
         txtCantidad.requestFocusInWindow();
+    }
+
+    /**
+     * Muestra el precio de venta y la existencia del producto elegido, y
+     * propone como costo el de su ultima compra (si el campo esta vacio).
+     * El costo es lo que se le paga al proveedor, distinto del precio de venta.
+     */
+    private void completarDatosProducto() {
+        Producto producto = productos.get(campoProducto.getText().trim());
+        if (producto == null) {
+            lblReferencia.setText(" ");
+            return;
+        }
+        Double ultimoCosto = controller.UltimoCosto(producto.getId());
+        lblReferencia.setText(String.format("<html>Precio de venta: Q %.2f · Existencia: %d<br>%s</html>",
+                producto.getPrecio(), producto.getExistencia(),
+                ultimoCosto != null ? String.format("Último costo: Q %.2f", ultimoCosto) : "Primera compra de este producto"));
+        if (ultimoCosto != null && txtCosto.getText().trim().isEmpty()) {
+            txtCosto.setText(String.format(java.util.Locale.US, "%.2f", ultimoCosto));
+        }
     }
 
     private void agregarProducto() {
@@ -240,5 +279,6 @@ public class FrmCompra extends javax.swing.JInternalFrame {
         campoProducto.setText("");
         txtCantidad.setText("");
         txtCosto.setText("");
+        lblReferencia.setText(" ");
     }
 }
