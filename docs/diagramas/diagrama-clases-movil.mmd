@@ -1,0 +1,111 @@
+---
+title: Sistema de Ventas - Diagrama de clases (app movil Android)
+---
+classDiagram
+    direction LR
+
+    namespace datos {
+        class ApiSupabase {
+            <<Singleton / Facade>>
+            -hilo: ExecutorService
+            -principal: Handler
+            +getInstancia()$ ApiSupabase
+            +login(usuario: String, clave: String, r: Respuesta) void
+            +logout(token: String) void
+            +productos(token: String, buscar: String, r: Respuesta) void
+            +clientes(token: String, buscar: String, r: Respuesta) void
+            +registrarCliente(token: String, nit: String, nombre: String, direccion: String, telefono: String, r: Respuesta) void
+            +ventas(token: String, desde: String, hasta: String, r: Respuesta) void
+            -rpc(funcion: String, parametros: JSONObject) String
+        }
+        class Respuesta~T~ {
+            <<interface>>
+            +exito(resultado: T) void
+            +error(mensaje: String, sesionVencida: boolean) void
+        }
+        class ApiException {
+            ~codigo: int
+        }
+        class ConfigSupabase {
+            <<utility>>
+            +URL$: String
+            +CLAVE_PUBLICA$: String
+        }
+        class Sesion {
+            <<utility>>
+            +guardar(c: Context, token: String, nombre: String, rol: String)$ void
+            +getToken(c: Context)$ String
+            +activa(c: Context)$ boolean
+            +cerrar(c: Context)$ void
+        }
+    }
+
+    namespace modelo {
+        class Producto {
+            -codigo: String
+            -nombre: String
+            -categoria: String
+            -precio: double
+            -existencia: int
+            +tieneExistenciaBaja() boolean
+        }
+        class Cliente {
+            -nit: String
+            -nombre: String
+            -direccion: String
+            -telefono: String
+        }
+        class Venta {
+            -numeroFactura: String
+            -fecha: String
+            -cliente: String
+            -total: double
+        }
+    }
+
+    namespace vista {
+        class Activity {
+            <<Android>>
+        }
+        class ActividadBase {
+            <<abstract>>
+            #token() String
+            #mostrarError(mensaje: String, sesionVencida: boolean) void
+            #irAlLogin() void
+        }
+        class LoginActivity
+        class MenuActivity
+        class ProductosActivity
+        class ClientesActivity
+        class NuevoClienteActivity
+        class VentasActivity
+        class AdaptadorFilas~T~ {
+            -formato: Formato
+            +setElementos(elementos: List) void
+        }
+    }
+
+    Exception <|-- ApiException
+    Activity <|-- ActividadBase
+    Activity <|-- LoginActivity
+    ActividadBase <|-- MenuActivity
+    ActividadBase <|-- ProductosActivity
+    ActividadBase <|-- ClientesActivity
+    ActividadBase <|-- NuevoClienteActivity
+    ActividadBase <|-- VentasActivity
+    ApiSupabase ..> Respuesta : devuelve resultados
+    ApiSupabase ..> ApiException : errores HTTP
+    ApiSupabase ..> ConfigSupabase
+    ApiSupabase ..> Producto : crea
+    ApiSupabase ..> Cliente : crea
+    ApiSupabase ..> Venta : crea
+    LoginActivity ..> ApiSupabase
+    LoginActivity ..> Sesion
+    ActividadBase ..> Sesion
+    ProductosActivity ..> ApiSupabase
+    ClientesActivity ..> ApiSupabase
+    NuevoClienteActivity ..> ApiSupabase
+    VentasActivity ..> ApiSupabase
+    ProductosActivity *-- AdaptadorFilas
+    ClientesActivity *-- AdaptadorFilas
+    VentasActivity *-- AdaptadorFilas

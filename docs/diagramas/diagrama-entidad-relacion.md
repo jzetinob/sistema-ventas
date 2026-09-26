@@ -1,5 +1,7 @@
 # Diagrama entidad-relación
 
+![Diagrama entidad-relación](img/entidad-relacion.png)
+
 El sistema tiene **10 tablas**. Funcionan igual en la base en la nube (**PostgreSQL en Supabase**, compartida con la app móvil) y en la base local SQLite (`datos/sistema_ventas.db`, cuando no hay configuración de nube). La nube tiene además `sesiones_app`, para los inicios de sesión del celular. `ConexionBD` crea las tablas al arrancar; en SQLite activa las llaves foráneas con `PRAGMA foreign_keys = ON`.
 
 ```mermaid

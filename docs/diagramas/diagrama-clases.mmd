@@ -1,452 +1,509 @@
-```mermaid
+---
+title: Sistema de Ventas - Diagrama de clases (app de escritorio)
+---
 classDiagram
-    %% ==================== MODELO (Entidades de negocio) ====================
-    namespace Modelo {
+    direction TB
+
+    %% Getters y setters omitidos. Nombres y firmas tomados del codigo compilado (javap).
+    %% Notacion: + publico, - privado, # protegido, ~ paquete, $ estatico, * abstracto.
+
+    %% ============================== MODELO ==============================
+    namespace modelo {
         class Persona {
             <<abstract>>
             #id: int
             #nombre: String
             #nit: String
             #telefono: String
-            +Persona()
-            +getId(): int
-            +setId(id: int): void
-            +getNombre(): String
-            +setNombre(nombre: String): void
-            +getNit(): String
-            +setNit(nit: String): void
-            +getTelefono(): String
-            +setTelefono(telefono: String): void
-            +mostrarInformacion(): String
+            +mostrarInformacion() String
         }
-
         class Cliente {
             -direccion: String
-            +Cliente()
-            +getDireccion(): String
-            +setDireccion(direccion: String): void
         }
-
         class Empleado {
             -codigoEmpleado: String
             -puesto: String
-            +Empleado()
-            +getCodigoEmpleado(): String
-            +setCodigoEmpleado(codigoEmpleado: String): void
-            +getPuesto(): String
-            +setPuesto(puesto: String): void
-            +mostrarInformacion(): String
+            +mostrarInformacion() String
         }
-
+        class Proveedor {
+            -direccion: String
+            -correo: String
+            +mostrarInformacion() String
+        }
+        class Categoria {
+            -id: int
+            -nombre: String
+            -descripcion: String
+            +toString() String
+        }
         class Producto {
             -idProducto: int
             -codigo: String
             -nombre: String
             -precio: double
             -existencia: int
-            +Producto()
-            +getIdProducto(): int
-            +setIdProducto(idProducto: int): void
-            +getId(): int
-            +setId(id: int): void
-            +getCodigo(): String
-            +setCodigo(codigo: String): void
-            +getNombre(): String
-            +setNombre(nombre: String): void
-            +getPrecio(): double
-            +setPrecio(precio: double): void
-            +getExistencia(): int
-            +setExistencia(existencia: int): void
-            +hayExistencia(cantidad: int): boolean
+            -categoria: Categoria
+            +hayExistencia(cantidad: int) boolean
         }
-
         class Factura {
             -idFactura: int
-            -fecha: LocalDate
             -numeroFactura: String
+            -fecha: LocalDate
             -cliente: Cliente
             -detalles: List~FacturaDetalle~
             -total: double
-            +Factura()
-            +getIdFactura(): int
-            +setIdFactura(idFactura: int): void
-            +getId(): int
-            +setId(id: int): void
-            +getFecha(): LocalDate
-            +setFecha(fecha: LocalDate): void
-            +getNumeroFactura(): String
-            +setNumeroFactura(numeroFactura: String): void
-            +getCliente(): Cliente
-            +setCliente(cliente: Cliente): void
-            +getNombreCliente(): String
-            +setNombreCliente(nombreCliente: String): void
-            +getNit(): String
-            +setNit(nit: String): void
-            +getDetalles(): List~FacturaDetalle~
-            +setDetalles(detalles: List~FacturaDetalle~): void
-            +getTotal(): double
-            +setTotal(total: double): void
-            +getDetallesFilas(): Object[][]
-            +agregarDetalle(detalle: FacturaDetalle): void
-            +agregarDetalle(nombreProducto: String, cantidad: int, precio: double): void
-            +eliminarDetalle(index: int): void
-            +calcularTotal(): double
+            +agregarDetalle(detalle: FacturaDetalle) void
+            +agregarDetalle(nombreProducto: String, cantidad: int, precio: double) void
+            +eliminarDetalle(index: int) void
+            +calcularTotal() double
+            +getDetallesFilas() Object[][]
         }
-
         class FacturaDetalle {
             -producto: Producto
             -cantidad: int
             -precioUnitario: double
-            +FacturaDetalle()
-            +FacturaDetalle(producto: Producto, cantidad: int, precioUnitario: double)
-            +getProducto(): Producto
-            +setProducto(producto: Producto): void
-            +getCantidad(): int
-            +setCantidad(cantidad: int): void
-            +getPrecioUnitario(): double
-            +setPrecioUnitario(precioUnitario: double): void
-            +getPrecio(): double
-            +calcularSubtotal(): double
-            +getSubtotal(): double
+            +calcularSubtotal() double
+        }
+        class Compra {
+            -id: int
+            -numeroCompra: String
+            -fecha: LocalDate
+            -proveedor: Proveedor
+            -usuario: Usuario
+            -detalles: List~CompraDetalle~
+            -total: double
+            +agregarDetalle(detalle: CompraDetalle) void
+            +eliminarDetalle(index: int) void
+            +calcularTotal() double
+        }
+        class CompraDetalle {
+            -producto: Producto
+            -cantidad: int
+            -costoUnitario: double
+            +calcularSubtotal() double
+        }
+        class Usuario {
+            -id: int
+            -usuario: String
+            -nombre: String
+            -claveHash: String
+            -salt: String
+            -rol: Rol
+            -activo: boolean
+            +esAdministrador() boolean
+        }
+        class Rol {
+            <<enumeration>>
+            ADMINISTRADOR
+            VENDEDOR
         }
     }
 
-    %% ==================== DAO INTERFACES ====================
-    namespace DAO {
-        class FacturaDAO {
-            <<interface>>
-            +guardar(factura: Factura): void
-            +listar(): List~Factura~
-            +actualizar(factura: Factura): void
-            +eliminar(id: int): void
-            +eliminarConDetalles(id: int): void
-            +obtenerSiguienteNumeroFactura(): String
-        }
+    Persona <|-- Cliente
+    Persona <|-- Empleado
+    Persona <|-- Proveedor
+    Factura "1" *-- "1..*" FacturaDetalle : se compone de
+    Compra "1" *-- "1..*" CompraDetalle : se compone de
+    Factura "0..*" --> "1" Cliente : a nombre de
+    FacturaDetalle "0..*" --> "0..1" Producto : vende
+    CompraDetalle "0..*" --> "1" Producto : compra
+    Compra "0..*" --> "1" Proveedor : a
+    Compra "0..*" --> "0..1" Usuario : registrada por
+    Producto "0..*" --> "0..1" Categoria : pertenece a
+    Usuario --> Rol
 
-        class ProductoDAO {
-            <<interface>>
-            +guardar(producto: Producto): void
-            +listar(): List~Producto~
-            +actualizar(producto: Producto): void
-            +eliminar(id: int): void
-            +existeCodigo(codigo: String): boolean
-        }
-
+    %% ========================= ACCESO A DATOS (DAO) =========================
+    namespace dao {
         class ClienteDAO {
             <<interface>>
-            +guardar(cliente: Cliente): void
-            +listar(): List~Cliente~
-            +actualizar(cliente: Cliente): void
-            +eliminar(id: int): void
-            +existeNit(nit: String): boolean
+            +guardar(c: Cliente) void
+            +listar() List~Cliente~
+            +actualizar(c: Cliente) void
+            +eliminar(id: int) void
+            +existeNit(nit: String) boolean
         }
-
         class EmpleadoDAO {
             <<interface>>
-            +guardar(empleado: Empleado): void
-            +listar(): List~Empleado~
-            +actualizar(empleado: Empleado): void
-            +eliminar(id: int): void
-            +existeCodigoEmpleado(codigoEmpleado: String): boolean
+            +guardar(e: Empleado) void
+            +listar() List~Empleado~
+            +actualizar(e: Empleado) void
+            +eliminar(id: int) void
+            +existeCodigoEmpleado(codigo: String) boolean
         }
-    }
-
-    %% ==================== DAO IMPLEMENTACIONES (Singleton) ====================
-    namespace DAO_Impl {
-        class FacturaDAOSQLite {
-            <<Singleton>>
-            -instancia: FacturaDAOSQLite
-            -FacturaDAOSQLite()
-            +getInstancia(): FacturaDAOSQLite
-            +guardar(factura: Factura): void
-            +listar(): List~Factura~
-            +actualizar(factura: Factura): void
-            +eliminar(id: int): void
-            +eliminarConDetalles(id: int): void
-            +obtenerSiguienteNumeroFactura(): String
+        class ProveedorDAO {
+            <<interface>>
+            +guardar(p: Proveedor) void
+            +listar() List~Proveedor~
+            +actualizar(p: Proveedor) void
+            +eliminar(id: int) boolean
+            +existeNit(nit: String) boolean
         }
-
-        class ProductoDAOSQLite {
-            <<Singleton>>
-            -instancia: ProductoDAOSQLite
-            -ProductoDAOSQLite()
-            +getInstancia(): ProductoDAOSQLite
-            +guardar(producto: Producto): void
-            +listar(): List~Producto~
-            +actualizar(producto: Producto): void
-            +eliminar(id: int): void
-            +existeCodigo(codigo: String): boolean
+        class CategoriaDAO {
+            <<interface>>
+            +guardar(c: Categoria) void
+            +listar() List~Categoria~
+            +actualizar(c: Categoria) void
+            +eliminar(id: int) boolean
+            +existeNombre(nombre: String) boolean
         }
-
+        class ProductoDAO {
+            <<interface>>
+            +guardar(p: Producto) void
+            +listar() List~Producto~
+            +actualizar(p: Producto) void
+            +eliminar(id: int) boolean
+            +existeCodigo(codigo: String) boolean
+        }
+        class FacturaDAO {
+            <<interface>>
+            +guardar(f: Factura) boolean
+            +listar() List~Factura~
+            +actualizar(f: Factura) void
+            +eliminar(id: int) void
+            +eliminarConDetalles(id: int) void
+            +obtenerSiguienteNumeroFactura() String
+        }
+        class CompraDAO {
+            <<interface>>
+            +guardar(c: Compra) boolean
+            +listar() List~Compra~
+            +anular(id: int) boolean
+            +obtenerSiguienteNumeroCompra() String
+            +ultimoCosto(productoId: int) Double
+        }
+        class UsuarioDAO {
+            <<interface>>
+            +guardar(u: Usuario) void
+            +listar() List~Usuario~
+            +actualizar(u: Usuario) void
+            +cambiarClave(id: int, hash: String, salt: String) void
+            +eliminar(id: int) void
+            +buscarPorUsuario(usuario: String) Usuario
+            +existeUsuario(usuario: String) boolean
+            +contar() int
+            +contarAdministradoresActivos() int
+        }
         class ClienteDAOSQLite {
             <<Singleton>>
-            -instancia: ClienteDAOSQLite
-            -ClienteDAOSQLite()
-            +getInstancia(): ClienteDAOSQLite
-            +guardar(cliente: Cliente): void
-            +listar(): List~Cliente~
-            +actualizar(cliente: Cliente): void
-            +eliminar(id: int): void
-            +existeNit(nit: String): boolean
+            +getInstancia()$ ClienteDAOSQLite
         }
-
         class EmpleadoDAOSQLite {
             <<Singleton>>
-            -instancia: EmpleadoDAOSQLite
-            -EmpleadoDAOSQLite()
-            +getInstancia(): EmpleadoDAOSQLite
-            +guardar(empleado: Empleado): void
-            +listar(): List~Empleado~
-            +actualizar(empleado: Empleado): void
-            +eliminar(id: int): void
-            +existeCodigoEmpleado(codigoEmpleado: String): boolean
+            +getInstancia()$ EmpleadoDAOSQLite
         }
-
+        class ProveedorDAOSQLite {
+            <<Singleton>>
+            +getInstancia()$ ProveedorDAOSQLite
+        }
+        class CategoriaDAOSQLite {
+            <<Singleton>>
+            +getInstancia()$ CategoriaDAOSQLite
+        }
+        class ProductoDAOSQLite {
+            <<Singleton>>
+            +getInstancia()$ ProductoDAOSQLite
+            -asignarCategoria(ps: PreparedStatement, indice: int, p: Producto) void
+        }
+        class FacturaDAOSQLite {
+            <<Singleton>>
+            +getInstancia()$ FacturaDAOSQLite
+            -guardarDetalles(c: Connection, f: Factura) void
+            -descontarExistencia(c: Connection, f: Factura) boolean
+        }
+        class CompraDAOSQLite {
+            <<Singleton>>
+            +getInstancia()$ CompraDAOSQLite
+            -cargarDetalles(c: Compra) void
+        }
+        class UsuarioDAOSQLite {
+            <<Singleton>>
+            +getInstancia()$ UsuarioDAOSQLite
+        }
+        class ClienteDAOCsv {
+            <<Singleton>>
+        }
+        class ProductoDAOCsv {
+            <<Singleton>>
+        }
+        class FacturaDAOCsv {
+            <<Singleton>>
+        }
         class ConexionBD {
             <<Singleton>>
-            -instancia: ConexionBD
-            -connection: Connection
-            -ConexionBD()
-            +getInstancia(): ConexionBD
-            +getConnection(): Connection
+            -motor: Motor
+            -conexion: Connection
+            -errorConexion: String
+            +getInstancia()$ ConexionBD
+            +getConnection() Connection
+            +getMotor() Motor
+            +getErrorConexion() String
+            +respaldar(destino: File) void
+            -conectarPostgres(config: Properties) void
+            -crearEsquemaPostgres() void
+            ~crearTablas(c: Connection)$ void
         }
-
+        class Motor {
+            <<enumeration>>
+            SQLITE
+            POSTGRESQL
+        }
+        class CopiadorBD {
+            ~TABLAS$: String[]
+            +copiar(origen: Connection, destino: Connection)$ void
+            ~importarSqliteSiVacia(postgres: Connection, archivo: File)$ void
+        }
         class MigradorDatos {
-            +migrarSiNecesario(connection: Connection): void
+            <<Singleton>>
+            +migrarSiVacio(c: Connection) void
         }
     }
 
-    %% ==================== CONTROLADORES ====================
-    namespace Controlador {
-        class FacturaController {
-            -facturaDAO: FacturaDAO
-            -productoDAO: ProductoDAO
-            -clienteDAO: ClienteDAO
-            +FacturaController()
-            +guardarFactura(factura: Factura): boolean
-            +listarFacturas(): List~Factura~
-            +eliminarFactura(id: int): boolean
-            +obtenerSiguienteNumeroFactura(): String
-            +buscarProducto(codigo: String): Producto
-            +buscarCliente(nit: String): Cliente
-            +verificarExistencia(producto: Producto, cantidad: int): boolean
-        }
+    ClienteDAOSQLite ..|> ClienteDAO
+    ClienteDAOCsv ..|> ClienteDAO
+    EmpleadoDAOSQLite ..|> EmpleadoDAO
+    ProveedorDAOSQLite ..|> ProveedorDAO
+    CategoriaDAOSQLite ..|> CategoriaDAO
+    ProductoDAOSQLite ..|> ProductoDAO
+    ProductoDAOCsv ..|> ProductoDAO
+    FacturaDAOSQLite ..|> FacturaDAO
+    FacturaDAOCsv ..|> FacturaDAO
+    CompraDAOSQLite ..|> CompraDAO
+    UsuarioDAOSQLite ..|> UsuarioDAO
+    ConexionBD --> Motor
+    ConexionBD ..> CopiadorBD : sube datos / respalda
+    ConexionBD ..> MigradorDatos : importa CSV
+    ClienteDAOSQLite ..> ConexionBD
+    EmpleadoDAOSQLite ..> ConexionBD
+    ProveedorDAOSQLite ..> ConexionBD
+    CategoriaDAOSQLite ..> ConexionBD
+    ProductoDAOSQLite ..> ConexionBD
+    FacturaDAOSQLite ..> ConexionBD
+    CompraDAOSQLite ..> ConexionBD
+    UsuarioDAOSQLite ..> ConexionBD
 
-        class ProductoController {
-            -productoDAO: ProductoDAO
-            +ProductoController()
-            +guardarProducto(producto: Producto): boolean
-            +listarProductos(): List~Producto~
-            +actualizarProducto(producto: Producto): boolean
-            +eliminarProducto(id: int): boolean
-            +existeCodigo(codigo: String): boolean
-        }
-
+    %% ====================== CONTROLADORES Y SEGURIDAD ======================
+    namespace controlador {
         class ClienteController {
-            -clienteDAO: ClienteDAO
-            +ClienteController()
-            +guardarCliente(cliente: Cliente): boolean
-            +listarClientes(): List~Cliente~
-            +actualizarCliente(cliente: Cliente): boolean
-            +eliminarCliente(id: int): boolean
-            +existeNit(nit: String): boolean
+            +Guardar(c: Cliente) void
+            +GetClientes() List~Cliente~
+            +Actualizar(c: Cliente) void
+            +Eliminar(id: int) void
+            +ExisteNit(nit: String) boolean
         }
-
         class EmpleadoController {
-            -empleadoDAO: EmpleadoDAO
-            +EmpleadoController()
-            +guardarEmpleado(empleado: Empleado): boolean
-            +listarEmpleados(): List~Empleado~
-            +actualizarEmpleado(empleado: Empleado): boolean
-            +eliminarEmpleado(id: int): boolean
-            +existeCodigoEmpleado(codigoEmpleado: String): boolean
+            +Guardar(e: Empleado) void
+            +GetEmpleados() List~Empleado~
+            +Actualizar(e: Empleado) void
+            +Eliminar(id: int) void
+            +ExisteCodigoEmpleado(codigo: String) boolean
+        }
+        class ProveedorController {
+            +Guardar(p: Proveedor) void
+            +GetProveedores() List~Proveedor~
+            +Actualizar(p: Proveedor) void
+            +Eliminar(id: int) boolean
+            +ExisteNit(nit: String) boolean
+        }
+        class CategoriaController {
+            +Guardar(c: Categoria) void
+            +GetCategorias() List~Categoria~
+            +Actualizar(c: Categoria) void
+            +Eliminar(id: int) boolean
+            +ExisteNombre(nombre: String) boolean
+        }
+        class ProductoController {
+            +Guardar(p: Producto) void
+            +GetProductos() List~Producto~
+            +Actualizar(p: Producto) void
+            +Eliminar(id: int) boolean
+            +ExisteCodigo(codigo: String) boolean
+        }
+        class FacturaController {
+            +Guardar(f: Factura) boolean
+            +GetFacturas() List~Factura~
+            +EliminarConDetalles(id: int) void
+            +obtenerSiguienteNumeroFactura() String
+        }
+        class CompraController {
+            +Guardar(c: Compra) boolean
+            +GetCompras() List~Compra~
+            +Anular(id: int) boolean
+            +ObtenerSiguienteNumeroCompra() String
+            +UltimoCosto(productoId: int) Double
+        }
+        class UsuarioController {
+            +HayUsuarios() boolean
+            +IniciarSesion(usuario: String, clave: char[]) String
+            +GetUsuarios() List~Usuario~
+            +Crear(usuario: String, nombre: String, clave: char[], rol: Rol) String
+            +Actualizar(u: Usuario) String
+            +CambiarClave(id: int, nueva: char[]) String
+            +CambiarMiClave(actual: char[], nueva: char[]) String
+            +Eliminar(id: int) String
+        }
+        class RespaldoController {
+            +Respaldar(destino: File) String
+        }
+        class Sesion {
+            <<Singleton>>
+            -usuario: Usuario
+            +getInstancia()$ Sesion
+            +getUsuario() Usuario
+            ~iniciar(u: Usuario) void
+            +cerrar() void
+            +esAdministrador() boolean
+        }
+        class Contrasenas {
+            <<utility>>
+            +LONGITUD_MINIMA$: int
+            +calcularHash(clave: char[])$ String
+            +verificar(clave: char[], sal: String, hash: String)$ boolean
+            +necesitaActualizar(hash: String)$ boolean
         }
     }
 
-    %% ==================== VISTAS (JInternalFrames - MDI) ====================
-    namespace Vista {
+    ClienteController --> ClienteDAO
+    EmpleadoController --> EmpleadoDAO
+    ProveedorController --> ProveedorDAO
+    CategoriaController --> CategoriaDAO
+    ProductoController --> ProductoDAO
+    FacturaController --> FacturaDAO
+    CompraController --> CompraDAO
+    CompraController ..> Sesion : usuario que registra
+    UsuarioController --> UsuarioDAO
+    UsuarioController ..> Contrasenas : hash bcrypt
+    UsuarioController ..> Sesion : inicia sesion
+    RespaldoController ..> ConexionBD
+    Sesion --> "0..1" Usuario
+
+    %% ================================ VISTAS ================================
+    namespace vista {
         class FrmPrincipal {
-            -desktopPane: JDesktopPane
-            -miNuevaFactura: JMenuItem
-            -miVerFacturas: JMenuItem
-            -miSalir: JMenuItem
-            -miProductos: JMenuItem
-            -miClientes: JMenuItem
-            -miEmpleados: JMenuItem
-            -miLimpiar: JMenuItem
-            -miCascada: JMenuItem
-            -miMosaico: JMenuItem
-            -miMinimizarTodo: JMenuItem
-            -miRestaurarTodo: JMenuItem
-            -miAcercaDe: JMenuItem
-            +FrmPrincipal()
-            +main(args: String[]): void
+            <<JFrame MDI>>
+            -jDesktopPane: JDesktopPane
+            -aplicarSesion() void
+            -abrirFormulario(frame: JInternalFrame) void
+            -respaldarBaseDatos() void
+            -cerrarSesion() void
         }
-
+        class DlgLogin {
+            <<JDialog>>
+            -INTENTOS_MAXIMOS$: int
+            -primerUso: boolean
+            +mostrar() boolean
+        }
+        class FrmCatalogo {
+            <<abstract>>
+            #modeloTabla: DefaultTableModel
+            #tabla: JTable
+            #agregarCampo(etiqueta: String, campo: JComponent) void
+            #terminarPantalla() void
+            #refrescarTabla()* void
+            #cargarFila(fila: int)* void
+            #guardar()* void
+            #actualizar()* void
+            #eliminar()* void
+            #limpiarCampos()* void
+        }
+        class FrmCategorias
+        class FrmProveedores
+        class FrmUsuarios
+        class FrmProductos
+        class FrmClientes
+        class FrmEmpleados
         class FrmFactura {
-            -facturaController: FacturaController
-            -productoController: ProductoController
-            -clienteController: ClienteController
-            -txtNumeroFactura: JTextField
-            -txtFecha: JTextField
-            -campoCliente: CampoBusqueda
-            -campoProducto: CampoBusqueda
-            -txtCantidad: JTextField
-            -txtPrecio: JTextField
-            -tblDetalles: JTable
-            -lblTotal: JLabel
-            -btnAgregar: JButton
-            -btnEliminar: JButton
-            -btnGuardar: JButton
-            -btnImprimir: JButton
-            -btnLimpiar: JButton
-            +FrmFactura()
-            +limpiarFormulario(): void
+            -facturaActual: Factura
+            -guardarFactura() void
+            +limpiarFormulario() void
         }
-
-        class FrmListaFacturas {
-            -facturaController: FacturaController
-            -desktopPane: JDesktopPane
-            -tblFacturas: JTable
-            -btnEliminar: JButton
-            -btnVerDetalle: JButton
-            -btnActualizar: JButton
-            +FrmListaFacturas(facturaController: FacturaController, desktopPane: JDesktopPane)
-        }
-
-        class FrmDetalleFactura {
-            -factura: Factura
-            +FrmDetalleFactura(factura: Factura)
-        }
-
-        class FrmProductos {
-            -productoController: ProductoController
-            -txtCodigo: JTextField
-            -txtNombre: JTextField
-            -txtPrecio: JTextField
-            -txtExistencia: JTextField
-            -tblProductos: JTable
-            -btnGuardar: JButton
-            -btnActualizar: JButton
-            -btnEliminar: JButton
-            -btnLimpiar: JButton
-            +FrmProductos()
-        }
-
-        class FrmClientes {
-            -clienteController: ClienteController
-            -txtNit: JTextField
-            -txtNombre: JTextField
-            -txtDireccion: JTextField
-            -txtTelefono: JTextField
-            -tblClientes: JTable
-            -btnGuardar: JButton
-            -btnActualizar: JButton
-            -btnEliminar: JButton
-            -btnLimpiar: JButton
-            +FrmClientes()
-        }
-
-        class FrmEmpleados {
-            -empleadoController: EmpleadoController
-            -txtCodigoEmpleado: JTextField
-            -txtNit: JTextField
-            -txtNombre: JTextField
-            -txtTelefono: JTextField
-            -txtPuesto: JTextField
-            -tblEmpleados: JTable
-            -btnGuardar: JButton
-            -btnActualizar: JButton
-            -btnEliminar: JButton
-            -btnLimpiar: JButton
-            +FrmEmpleados()
-        }
-
+        class FrmListaFacturas
+        class FrmDetalleFactura
         class FrmVistaPreviaFactura {
-            -ticket: TicketFactura
-            +FrmVistaPreviaFactura(parent: Component, ticket: TicketFactura)
+            <<JDialog>>
         }
-
+        class FrmCompra {
+            -compraActual: Compra
+            -guardarCompra() void
+            -completarDatosProducto() void
+        }
+        class FrmListaCompras {
+            -anular() void
+        }
         class TicketFactura {
-            <<implements Printable>>
-            -factura: Factura
-            +TicketFactura(factura: Factura)
-            +print(graphics: Graphics, pageFormat: PageFormat, pageIndex: int): int
-            +pintar(g2d: Graphics2D, ancho: int, alto: int): void
+            +pintar(g2: Graphics2D, ancho: float) void
+            +print(g: Graphics, pf: PageFormat, pagina: int) int
         }
-
+        class Printable {
+            <<interface>>
+        }
         class CampoBusqueda {
-            -popup: JPopupMenu
-            -lista: JList~String~
-            -datos: List~String~
-            -onSeleccion: Consumer~String~
-            +CampoBusqueda(datos: List~String~, onSeleccion: Consumer~String~)
-            +setDatos(datos: List~String~): void
-            +filtrar(texto: String): void
+            -oyentes: List~ActionListener~
+            -fuente: Supplier~List~String~~
+            +setFuente(fuente: Supplier) void
+            +addActionListener(oyente: ActionListener) void
+            -notificar() void
+        }
+        class ReporteHtml {
+            +desdeTabla(titulo: String, tabla: JTable)$ ReporteHtml
+            +generarHtml() String
+            +abrir(padre: Component) File
+            ~escapar(texto: String)$ String
+        }
+        class Reportes {
+            <<utility>>
+            +inventario(padre: Component)$ void
+            +existenciaBaja(padre: Component)$ void
+            +ventasPorPeriodo(padre: Component)$ void
+            +comprasPorProveedor(padre: Component)$ void
+        }
+        class BarraBusqueda {
+            <<utility>>
+            +instalar(frame: JInternalFrame, tabla: JTable, scroll: JScrollPane, titulo: String)$ void
+        }
+        class FiltroTabla {
+            <<utility>>
+            +instalar(campo: JTextField, tabla: JTable)$ void
+            +filaDelModelo(tabla: JTable)$ int
         }
     }
 
-    %% ==================== RELACIONES ====================
-
-    %% HERENCIA
-    Persona <|-- Cliente : Herencia
-    Persona <|-- Empleado : Herencia
-
-    %% COMPOSICIÓN: Factura contiene FacturaDetalle (ciclo de vida dependiente)
-    Factura *-- "1..*" FacturaDetalle : Composición
-
-    %% ASOCIACIÓN: Un Cliente puede tener 0..* Facturas; cada Factura tiene 1 Cliente
-    Factura "0..*" --> "1" Cliente : Asociación
-
-    %% ASOCIACIÓN: Un Producto aparece en 0..* FacturaDetalle; cada detalle tiene 1 Producto
-    FacturaDetalle "0..*" --> "1" Producto : Asociación
-
-    %% REALIZACIÓN: DAO Implementaciones implementan interfaces
-    FacturaDAOSQLite ..|> FacturaDAO : Realización
-    ProductoDAOSQLite ..|> ProductoDAO : Realización
-    ClienteDAOSQLite ..|> ClienteDAO : Realización
-    EmpleadoDAOSQLite ..|> EmpleadoDAO : Realización
-
-    %% ASOCIACIÓN: Controladores usan DAOs (a través de interfaces)
-    FacturaController --> "1" FacturaDAO : Asociación
-    FacturaController --> "1" ProductoDAO : Asociación
-    FacturaController --> "1" ClienteDAO : Asociación
-    ProductoController --> "1" ProductoDAO : Asociación
-    ClienteController --> "1" ClienteDAO : Asociación
-    EmpleadoController --> "1" EmpleadoDAO : Asociación
-
-    %% ASOCIACIÓN: Vistas usan Controladores
-    FrmFactura --> "1" FacturaController : Asociación
-    FrmFactura --> "1" ProductoController : Asociación
-    FrmFactura --> "1" ClienteController : Asociación
-    FrmListaFacturas --> "1" FacturaController : Asociación
-    FrmProductos --> "1" ProductoController : Asociación
-    FrmClientes --> "1" ClienteController : Asociación
-    FrmEmpleados --> "1" EmpleadoController : Asociación
-
-    %% ASOCIACIÓN: FrmListaFacturas abre FrmDetalleFactura
-    FrmListaFacturas --> FrmDetalleFactura : Asociación
-
-    %% ASOCIACIÓN: FrmFactura usa TicketFactura para impresión
-    FrmFactura --> TicketFactura : Asociación
-    FrmVistaPreviaFactura --> TicketFactura : Asociación
-
-    %% ASOCIACIÓN: FrmFactura usa CampoBusqueda (reutilizable)
-    FrmFactura --> CampoBusqueda : Asociación
-
-    %% AGREGACIÓN: MDI - FrmPrincipal contiene formularios como ventanas internas
-    %% (JDesktopPane agrega JInternalFrame; las ventanas pueden abrirse/cerrarse por separado)
-    FrmPrincipal o-- "0..*" FrmFactura : Agregación (MDI)
-    FrmPrincipal o-- "0..*" FrmListaFacturas : Agregación (MDI)
-    FrmPrincipal o-- "0..*" FrmProductos : Agregación (MDI)
-    FrmPrincipal o-- "0..*" FrmClientes : Agregación (MDI)
-    FrmPrincipal o-- "0..*" FrmEmpleados : Agregación (MDI)
-
-    %% ASOCIACIÓN: DAOs usan ConexionBD (Singleton)
-    FacturaDAOSQLite --> "1" ConexionBD : Asociación
-    ProductoDAOSQLite --> "1" ConexionBD : Asociación
-    ClienteDAOSQLite --> "1" ConexionBD : Asociación
-    EmpleadoDAOSQLite --> "1" ConexionBD : Asociación
-    MigradorDatos --> "1" ConexionBD : Asociación
-
-    ```
+    FrmCatalogo <|-- FrmCategorias
+    FrmCatalogo <|-- FrmProveedores
+    FrmCatalogo <|-- FrmUsuarios
+    TicketFactura ..|> Printable
+    FrmPrincipal o-- "0..*" FrmCatalogo : ventanas internas
+    FrmPrincipal o-- FrmFactura
+    FrmPrincipal o-- FrmListaFacturas
+    FrmPrincipal o-- FrmProductos
+    FrmPrincipal o-- FrmClientes
+    FrmPrincipal o-- FrmEmpleados
+    FrmPrincipal o-- FrmCompra
+    FrmPrincipal o-- FrmListaCompras
+    FrmPrincipal ..> Reportes
+    FrmPrincipal ..> RespaldoController
+    FrmPrincipal ..> Sesion
+    DlgLogin --> UsuarioController
+    FrmCategorias --> CategoriaController
+    FrmProveedores --> ProveedorController
+    FrmUsuarios --> UsuarioController
+    FrmProductos --> ProductoController
+    FrmProductos ..> CategoriaController
+    FrmClientes --> ClienteController
+    FrmEmpleados --> EmpleadoController
+    FrmFactura --> FacturaController
+    FrmFactura --> ProductoController
+    FrmFactura --> ClienteController
+    FrmFactura *-- "2" CampoBusqueda
+    FrmFactura ..> FrmVistaPreviaFactura : imprimir
+    FrmListaFacturas --> FacturaController
+    FrmListaFacturas ..> FrmDetalleFactura : ver detalle
+    FrmVistaPreviaFactura --> TicketFactura
+    FrmCompra --> CompraController
+    FrmCompra --> ProveedorController
+    FrmCompra --> ProductoController
+    FrmCompra *-- "2" CampoBusqueda
+    FrmListaCompras --> CompraController
+    FrmCatalogo ..> BarraBusqueda
+    BarraBusqueda ..> FiltroTabla
+    BarraBusqueda ..> ReporteHtml
+    Reportes ..> ReporteHtml

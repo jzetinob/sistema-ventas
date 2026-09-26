@@ -19,7 +19,7 @@ Todo está en GitHub, en la rama `main`.
 | App móvil | ✅ Probada en un teléfono real | `movil/`, APK en `entregables/VentasMovil.apk` |
 | Manuales | ✅ | `entregables/manual-usuario.pdf`, `entregables/manual-tecnico.pdf` |
 | Diagrama ER | ✅ Al día | [`../diagramas/diagrama-entidad-relacion.md`](../diagramas/diagrama-entidad-relacion.md) |
-| Diagrama de clases | ⚠️ Refleja la tarea 5/6; faltan las clases de las fases 12–15 | [`../diagramas/diagrama-clases.md`](../diagramas/diagrama-clases.md) |
+| Diagrama de clases | ✅ Al día (5 vistas por capa, en PNG) | [`../diagramas/diagrama-clases.md`](../diagramas/diagrama-clases.md) |
 
 ## Configuración de esta PC
 
@@ -34,7 +34,6 @@ Todo está en GitHub, en la rama `main`.
 1. Cargar datos de ejemplo para la presentación.
 2. Generar el respaldo con datos reales (*Administración → Respaldar base de datos*) para entregarlo.
 3. Entregar en la plataforma del curso: enlace de GitHub, los PDF, el APK y el `.db` del respaldo.
-4. Opcional: actualizar el diagrama de clases con las clases nuevas.
 
 ## Avisos
 

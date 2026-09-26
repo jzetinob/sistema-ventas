@@ -27,6 +27,7 @@ Sistema de facturación e inventario en **Java**, desarrollado durante el curso 
 | 04 | Publicación y control de versiones del proyecto | [`tareas/04-control-versiones/`](tareas/04-control-versiones/) |
 | 05 | Implementación del diagrama de clases | [`tareas/05-implementacion-diagrama-clases/`](tareas/05-implementacion-diagrama-clases/) |
 | 06 | Elaboración del diagrama de clases del proyecto | [`tareas/06-Elaboración del Diagrama de Clases del Proyecto/`](<tareas/06-Elaboración del Diagrama de Clases del Proyecto/>) |
+| 07 | Revisión presencial de avance del proyecto | [`tareas/07-revision-avance-proyecto/`](tareas/07-revision-avance-proyecto/) |
 
 Cada carpeta tiene el documento fuente (`.md`) y, cuando corresponde, la presentación (`.pptx`) y el PDF que se entregó.
 
