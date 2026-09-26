@@ -44,19 +44,10 @@ public class FrmFactura extends javax.swing.JInternalFrame {
     }
 
     private void cargarBuscadores() {
-        List<String> etiquetasProductos = new ArrayList<>();
-        List<Producto> productos = productoController.GetProductos();
-        for (Producto p : productos) {
-            etiquetasProductos.add(p.getCodigo() + " - " + p.getNombre());
-        }
-        campoBuscarProducto.setElementos(etiquetasProductos);
-
-        List<String> etiquetasClientes = new ArrayList<>();
-        List<Cliente> clientes = clienteController.GetClientes();
-        for (Cliente c : clientes) {
-            etiquetasClientes.add(c.getNit() + " - " + c.getNombre());
-        }
-        campoBuscarCliente.setElementos(etiquetasClientes);
+        // la lista se vuelve a leer cada vez que se entra al buscador: asi aparecen
+        // los clientes y productos registrados con esta ventana abierta (o desde el movil)
+        campoBuscarProducto.setFuente(this::etiquetasProductos);
+        campoBuscarCliente.setFuente(this::etiquetasClientes);
 
         campoBuscarProducto.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -68,6 +59,22 @@ public class FrmFactura extends javax.swing.JInternalFrame {
                 clienteSeleccionado();
             }
         });
+    }
+
+    private List<String> etiquetasProductos() {
+        List<String> etiquetas = new ArrayList<>();
+        for (Producto p : productoController.GetProductos()) {
+            etiquetas.add(p.getCodigo() + " - " + p.getNombre());
+        }
+        return etiquetas;
+    }
+
+    private List<String> etiquetasClientes() {
+        List<String> etiquetas = new ArrayList<>();
+        for (Cliente c : clienteController.GetClientes()) {
+            etiquetas.add(c.getNit() + " - " + c.getNombre());
+        }
+        return etiquetas;
     }
 
     private void productoSeleccionado() {

@@ -158,18 +158,26 @@ public class FrmCompra extends javax.swing.JInternalFrame {
         panel.add(campo, c);
     }
 
+    /** Los buscadores releen proveedores y productos cada vez que se entra a ellos. */
     private void cargarCatalogos() {
+        campoProveedor.setFuente(this::recargarProveedores);
+        campoProducto.setFuente(this::recargarProductos);
+    }
+
+    private java.util.List<String> recargarProveedores() {
         proveedores.clear();
         for (Proveedor p : proveedorController.GetProveedores()) {
             proveedores.put(p.getNit() + " - " + p.getNombre(), p);
         }
-        campoProveedor.setElementos(new ArrayList<>(proveedores.keySet()));
+        return new ArrayList<>(proveedores.keySet());
+    }
 
+    private java.util.List<String> recargarProductos() {
         productos.clear();
         for (Producto p : productoController.GetProductos()) {
             productos.put(p.getCodigo() + " - " + p.getNombre(), p);
         }
-        campoProducto.setElementos(new ArrayList<>(productos.keySet()));
+        return new ArrayList<>(productos.keySet());
     }
 
     private void nuevaCompra() {

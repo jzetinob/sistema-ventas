@@ -38,6 +38,8 @@ public class CampoBusqueda extends javax.swing.JPanel {
     private final JPopupMenu menuSugerencias = new JPopupMenu();
     private final List<ActionListener> oyentes = new ArrayList<>();
     private List<String> elementos = new ArrayList<>();
+    private boolean sinCoincidencias = false;
+    private java.util.function.Supplier<List<String>> fuente;
 
     public CampoBusqueda() {
         setOpaque(false);
@@ -84,6 +86,10 @@ public class CampoBusqueda extends javax.swing.JPanel {
         campo.addFocusListener(new FocusListener() {
             @Override
             public void focusGained(FocusEvent e) {
+                // datos al dia: pudieron registrarse en otra ventana o desde la app movil
+                if (fuente != null) {
+                    elementos = new ArrayList<>(fuente.get());
+                }
             }
 
             @Override
@@ -140,6 +146,12 @@ public class CampoBusqueda extends javax.swing.JPanel {
         this.elementos = new ArrayList<>(elementos);
     }
 
+    /** De donde se leen los elementos; se vuelve a consultar cada vez que el campo recibe el foco. */
+    public void setFuente(java.util.function.Supplier<List<String>> fuente) {
+        this.fuente = fuente;
+        setElementos(fuente.get());
+    }
+
     public String getText() {
         return campo.getText();
     }
@@ -168,12 +180,13 @@ public class CampoBusqueda extends javax.swing.JPanel {
                 }
             }
         }
-        if (coincidencias.isEmpty()) {
-            menuSugerencias.setVisible(false);
-            return;
+        sinCoincidencias = coincidencias.isEmpty();
+        if (sinCoincidencias) {
+            // se avisa en lugar de no mostrar nada, para que se note que el buscador funciona
+            coincidencias.add(elementos.isEmpty() ? "(el catálogo está vacío)" : "(sin coincidencias)");
         }
         listaSugerencias.setListData(coincidencias.toArray(new String[0]));
-        listaSugerencias.setSelectedIndex(0);
+        listaSugerencias.setSelectedIndex(sinCoincidencias ? -1 : 0);
         if (!menuSugerencias.isVisible()) {
             mostrarSugerencias();
         }
@@ -184,6 +197,10 @@ public class CampoBusqueda extends javax.swing.JPanel {
     }
 
     private void elegir() {
+        if (sinCoincidencias) {
+            menuSugerencias.setVisible(false);
+            return;
+        }
         String valor = listaSugerencias.getSelectedValue();
         if (valor != null) {
             campo.setText(valor);
