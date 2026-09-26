@@ -25,6 +25,7 @@ public class FrmEmpleados extends javax.swing.JInternalFrame {
         initComponents();
         controller = new EmpleadoController();
         configurarTabla();
+        BarraBusqueda.instalar(this, jTableEmpleados, jScrollPane1, "Catálogo de empleados");
         refrescarTabla();
         jTableEmpleados.getSelectionModel().addListSelectionListener(new javax.swing.event.ListSelectionListener() {
             @Override
@@ -83,7 +84,7 @@ public class FrmEmpleados extends javax.swing.JInternalFrame {
     }
 
     private void actualizarEmpleado() {
-        int fila = jTableEmpleados.getSelectedRow();
+        int fila = FiltroTabla.filaDelModelo(jTableEmpleados);
         if (fila == -1) {
             JOptionPane.showMessageDialog(this, "Seleccione un empleado para actualizar.");
             return;
@@ -117,7 +118,7 @@ public class FrmEmpleados extends javax.swing.JInternalFrame {
     }
 
     private void eliminarEmpleado() {
-        int fila = jTableEmpleados.getSelectedRow();
+        int fila = FiltroTabla.filaDelModelo(jTableEmpleados);
         if (fila == -1) {
             JOptionPane.showMessageDialog(this, "Seleccione un empleado para eliminar.");
             return;
@@ -134,7 +135,7 @@ public class FrmEmpleados extends javax.swing.JInternalFrame {
     }
 
     private void cargarSeleccionado() {
-        int fila = jTableEmpleados.getSelectedRow();
+        int fila = FiltroTabla.filaDelModelo(jTableEmpleados);
         if (fila == -1) {
             return;
         }

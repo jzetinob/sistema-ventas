@@ -177,6 +177,18 @@ public class ConexionBD {
         }
     }
 
+    /**
+     * Copia de seguridad completa y consistente de la base de datos en el
+     * archivo indicado (VACUUM INTO de SQLite). El archivo no debe existir.
+     */
+    public void respaldar(File destino) throws SQLException {
+        try (java.sql.PreparedStatement ps = conexion.prepareStatement("VACUUM INTO ?")) {
+            ps.setString(1, destino.getAbsolutePath());
+            ps.executeUpdate();
+        }
+        logger.info("Respaldo de la base de datos creado en " + destino.getAbsolutePath());
+    }
+
     public void cerrar() {
         try {
             if (conexion != null && !conexion.isClosed()) {

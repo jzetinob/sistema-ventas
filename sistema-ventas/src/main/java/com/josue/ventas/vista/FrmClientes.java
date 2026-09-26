@@ -23,6 +23,7 @@ public class FrmClientes extends javax.swing.JInternalFrame {
         initComponents();
         controller = new ClienteController();
         configurarTabla();
+        BarraBusqueda.instalar(this, jTableClientes, jScrollPane1, "Catálogo de clientes");
         refrescarTabla();
         jTableClientes.getSelectionModel().addListSelectionListener(new javax.swing.event.ListSelectionListener() {
             @Override
@@ -96,7 +97,7 @@ public class FrmClientes extends javax.swing.JInternalFrame {
     }
 
     private void actualizarCliente() {
-        int fila = jTableClientes.getSelectedRow();
+        int fila = FiltroTabla.filaDelModelo(jTableClientes);
         if (fila == -1) {
             JOptionPane.showMessageDialog(this, "Seleccione un cliente para actualizar.");
             return;
@@ -132,7 +133,7 @@ public class FrmClientes extends javax.swing.JInternalFrame {
     }
 
     private void eliminarCliente() {
-        int fila = jTableClientes.getSelectedRow();
+        int fila = FiltroTabla.filaDelModelo(jTableClientes);
         if (fila == -1) {
             JOptionPane.showMessageDialog(this, "Seleccione un cliente para eliminar.");
             return;
@@ -149,7 +150,7 @@ public class FrmClientes extends javax.swing.JInternalFrame {
     }
 
     private void cargarSeleccionado() {
-        int fila = jTableClientes.getSelectedRow();
+        int fila = FiltroTabla.filaDelModelo(jTableClientes);
         if (fila == -1) {
             return;
         }

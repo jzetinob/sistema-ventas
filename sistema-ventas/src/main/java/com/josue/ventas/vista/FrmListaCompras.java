@@ -13,13 +13,11 @@ import java.util.ArrayList;
 import java.util.List;
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
-import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
 import javax.swing.JTable;
-import javax.swing.JTextField;
 import javax.swing.ListSelectionModel;
 import javax.swing.table.DefaultTableModel;
 
@@ -38,29 +36,24 @@ public class FrmListaCompras extends javax.swing.JInternalFrame {
     private final DefaultTableModel modeloCompras = modeloSoloLectura("No.", "Número", "Fecha", "Proveedor", "Registró", "Total");
     private final DefaultTableModel modeloDetalle = modeloSoloLectura("Código", "Producto", "Cantidad", "Costo unitario", "Subtotal");
     private final JTable tablaCompras = new JTable(modeloCompras);
-    private final JTextField txtBuscar = new JTextField(20);
 
     public FrmListaCompras() {
         super("Compras Registradas", true, true, true, true);
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
 
         tablaCompras.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-        FiltroTabla.instalar(txtBuscar, tablaCompras);
         tablaCompras.getSelectionModel().addListSelectionListener(e -> {
             if (!e.getValueIsAdjusting()) {
                 mostrarDetalle();
             }
         });
 
-        JPanel buscador = new JPanel(new BorderLayout(8, 0));
-        buscador.add(new JLabel("Buscar:"), BorderLayout.WEST);
-        buscador.add(txtBuscar, BorderLayout.CENTER);
-
         JPanel detalle = new JPanel(new BorderLayout());
         detalle.setBorder(BorderFactory.createTitledBorder("Detalle de la compra seleccionada"));
         detalle.add(new JScrollPane(new JTable(modeloDetalle)), BorderLayout.CENTER);
 
-        JSplitPane division = new JSplitPane(JSplitPane.VERTICAL_SPLIT, new JScrollPane(tablaCompras), detalle);
+        JPanel lista = BarraBusqueda.crear(tablaCompras, new JScrollPane(tablaCompras), "Compras registradas");
+        JSplitPane division = new JSplitPane(JSplitPane.VERTICAL_SPLIT, lista, detalle);
         division.setResizeWeight(0.6);
         division.setPreferredSize(new java.awt.Dimension(680, 380));
 
@@ -74,7 +67,6 @@ public class FrmListaCompras extends javax.swing.JInternalFrame {
 
         JPanel contenido = new JPanel(new BorderLayout(0, 8));
         contenido.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
-        contenido.add(buscador, BorderLayout.NORTH);
         contenido.add(division, BorderLayout.CENTER);
         contenido.add(botones, BorderLayout.SOUTH);
         setContentPane(contenido);

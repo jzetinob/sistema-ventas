@@ -4,6 +4,7 @@
  */
 package com.josue.ventas.vista;
 
+import com.josue.ventas.controlador.RespaldoController;
 import com.josue.ventas.controlador.Sesion;
 import com.josue.ventas.controlador.UsuarioController;
 import com.josue.ventas.modelo.Usuario;
@@ -56,6 +57,7 @@ public class FrmPrincipal extends javax.swing.JFrame {
         miProveedores.setVisible(admin);
         mnCompras.setVisible(admin);
         mnAdministracion.setVisible(admin);
+        mnReportes.setVisible(admin);
     }
 
     private void abrirCategorias() {
@@ -109,6 +111,25 @@ public class FrmPrincipal extends javax.swing.JFrame {
         }
         String error = new UsuarioController().CambiarMiClave(actual.getPassword(), nueva.getPassword());
         JOptionPane.showMessageDialog(this, error != null ? error : "Contraseña actualizada.");
+    }
+
+    private void agregarReporte(String texto, Runnable accion) {
+        javax.swing.JMenuItem item = new javax.swing.JMenuItem(texto);
+        item.addActionListener(evt -> accion.run());
+        mnReportes.add(item);
+    }
+
+    private void respaldarBaseDatos() {
+        javax.swing.JFileChooser selector = new javax.swing.JFileChooser();
+        selector.setDialogTitle("Guardar respaldo de la base de datos");
+        selector.setSelectedFile(new java.io.File("respaldo-sistema-ventas-"
+                + java.time.LocalDateTime.now().format(java.time.format.DateTimeFormatter.ofPattern("yyyyMMdd-HHmm")) + ".db"));
+        if (selector.showSaveDialog(this) != javax.swing.JFileChooser.APPROVE_OPTION) {
+            return;
+        }
+        String error = new RespaldoController().Respaldar(selector.getSelectedFile());
+        JOptionPane.showMessageDialog(this, error != null ? error
+                : "Respaldo creado correctamente.\nPara restaurarlo, cierre el sistema y reemplace datos/sistema_ventas.db por ese archivo.");
     }
 
     private void cerrarSesion() {
@@ -429,7 +450,18 @@ public class FrmPrincipal extends javax.swing.JFrame {
         javax.swing.JMenuItem miUsuarios = new javax.swing.JMenuItem("Usuarios");
         miUsuarios.addActionListener(evt -> abrirUsuarios());
         mnAdministracion.add(miUsuarios);
+        javax.swing.JMenuItem miRespaldo = new javax.swing.JMenuItem("Respaldar base de datos");
+        miRespaldo.addActionListener(evt -> respaldarBaseDatos());
+        mnAdministracion.add(miRespaldo);
         jMenuBar1.add(mnAdministracion);
+
+        mnReportes = new javax.swing.JMenu("Reportes");
+        mnReportes.setMnemonic('R');
+        agregarReporte("Inventario de productos", () -> Reportes.inventario(this));
+        agregarReporte("Productos con existencia baja", () -> Reportes.existenciaBaja(this));
+        agregarReporte("Ventas por período", () -> Reportes.ventasPorPeriodo(this));
+        agregarReporte("Compras por proveedor", () -> Reportes.comprasPorProveedor(this));
+        jMenuBar1.add(mnReportes);
 
         mnAyuda.setText("Ayuda");
         mnAyuda.setMnemonic('y');
@@ -553,4 +585,5 @@ public class FrmPrincipal extends javax.swing.JFrame {
     private javax.swing.JMenuItem miProveedores;
     private javax.swing.JMenu mnCompras;
     private javax.swing.JMenu mnAdministracion;
+    private javax.swing.JMenu mnReportes;
 }

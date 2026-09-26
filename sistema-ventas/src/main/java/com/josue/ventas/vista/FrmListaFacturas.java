@@ -28,6 +28,7 @@ public class FrmListaFacturas extends javax.swing.JInternalFrame {
         this.escritorio = escritorio;
         controller = new FacturaController();
         configurarTabla();
+        BarraBusqueda.instalar(this, jTableFacturas, jScrollPane1, "Facturas registradas");
         cargarFacturas();
     }
 
@@ -59,7 +60,7 @@ public class FrmListaFacturas extends javax.swing.JInternalFrame {
     }
 
     private void eliminarFactura() {
-        int fila = jTableFacturas.getSelectedRow();
+        int fila = FiltroTabla.filaDelModelo(jTableFacturas);
         if (fila == -1) {
             JOptionPane.showMessageDialog(this, "Seleccione una factura para eliminar.");
             return;
@@ -75,7 +76,7 @@ public class FrmListaFacturas extends javax.swing.JInternalFrame {
     }
 
     private void verDetalle() {
-        int fila = jTableFacturas.getSelectedRow();
+        int fila = FiltroTabla.filaDelModelo(jTableFacturas);
         if (fila == -1) {
             JOptionPane.showMessageDialog(this, "Seleccione una factura para ver su detalle.");
             return;

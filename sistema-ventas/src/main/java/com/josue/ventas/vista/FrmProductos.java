@@ -35,6 +35,7 @@ public class FrmProductos extends javax.swing.JInternalFrame {
             }
         });
         configurarTabla();
+        BarraBusqueda.instalar(this, jTableProductos, jScrollPane1, "Catálogo de productos");
         refrescarTabla();
         jTableProductos.getSelectionModel().addListSelectionListener(new javax.swing.event.ListSelectionListener() {
             @Override
@@ -133,7 +134,7 @@ public class FrmProductos extends javax.swing.JInternalFrame {
     }
 
     private void actualizarProducto() {
-        int fila = jTableProductos.getSelectedRow();
+        int fila = FiltroTabla.filaDelModelo(jTableProductos);
         if (fila == -1) {
             JOptionPane.showMessageDialog(this, "Seleccione un producto para actualizar.");
             return;
@@ -181,7 +182,7 @@ public class FrmProductos extends javax.swing.JInternalFrame {
     }
 
     private void eliminarProducto() {
-        int fila = jTableProductos.getSelectedRow();
+        int fila = FiltroTabla.filaDelModelo(jTableProductos);
         if (fila == -1) {
             JOptionPane.showMessageDialog(this, "Seleccione un producto para eliminar.");
             return;
@@ -201,7 +202,7 @@ public class FrmProductos extends javax.swing.JInternalFrame {
     }
 
     private void cargarSeleccionado() {
-        int fila = jTableProductos.getSelectedRow();
+        int fila = FiltroTabla.filaDelModelo(jTableProductos);
         if (fila == -1) {
             return;
         }

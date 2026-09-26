@@ -15,14 +15,13 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
-import javax.swing.JTextField;
 import javax.swing.ListSelectionModel;
 import javax.swing.table.DefaultTableModel;
 
 /**
  * Formulario base (clase abstracta) para los catalogos de altas, bajas y
  * cambios. Arma la misma pantalla para todos: datos arriba, botones a la
- * derecha, buscador y tabla abajo. Cada catalogo concreto solo agrega sus
+ * derecha, buscador con reporte HTML y tabla abajo. Cada catalogo concreto solo agrega sus
  * campos e implementa las operaciones (patron Template Method).
  *
  * @author josue zetino
@@ -31,7 +30,6 @@ public abstract class FrmCatalogo extends javax.swing.JInternalFrame {
 
     protected final DefaultTableModel modeloTabla;
     protected final JTable tabla = new JTable();
-    protected final JTextField txtBuscar = new JTextField(20);
 
     private final JPanel panelCampos = new JPanel(new GridBagLayout());
     private final JPanel panelBotones = new JPanel(new GridBagLayout());
@@ -50,7 +48,6 @@ public abstract class FrmCatalogo extends javax.swing.JInternalFrame {
         };
         tabla.setModel(modeloTabla);
         tabla.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-        FiltroTabla.instalar(txtBuscar, tabla);
         tabla.getSelectionModel().addListSelectionListener(e -> {
             int fila = FiltroTabla.filaDelModelo(tabla);
             if (!e.getValueIsAdjusting() && fila != -1) {
@@ -68,15 +65,9 @@ public abstract class FrmCatalogo extends javax.swing.JInternalFrame {
         datos.add(panelCampos, BorderLayout.CENTER);
         datos.add(panelBotones, BorderLayout.EAST);
 
-        JPanel buscador = new JPanel(new BorderLayout(8, 0));
-        buscador.add(new JLabel("Buscar:"), BorderLayout.WEST);
-        buscador.add(txtBuscar, BorderLayout.CENTER);
-
-        JPanel abajo = new JPanel(new BorderLayout(0, 6));
-        abajo.add(buscador, BorderLayout.NORTH);
         JScrollPane scroll = new JScrollPane(tabla);
         scroll.setPreferredSize(new java.awt.Dimension(600, 220));
-        abajo.add(scroll, BorderLayout.CENTER);
+        JPanel abajo = BarraBusqueda.crear(tabla, scroll, titulo);
 
         JPanel contenido = new JPanel(new BorderLayout(0, 12));
         contenido.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
