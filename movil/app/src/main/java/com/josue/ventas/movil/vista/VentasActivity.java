@@ -63,8 +63,8 @@ public class VentasActivity extends ActividadBase {
     }
 
     private void mostrarFechas() {
-        btnDesde.setText(getString(R.string.desde) + ": " + texto(desde));
-        btnHasta.setText(getString(R.string.hasta) + ": " + texto(hasta));
+        btnDesde.setText(getString(R.string.fecha_boton, getString(R.string.desde), texto(desde)));
+        btnHasta.setText(getString(R.string.fecha_boton, getString(R.string.hasta), texto(hasta)));
     }
 
     private static String texto(Calendar c) {

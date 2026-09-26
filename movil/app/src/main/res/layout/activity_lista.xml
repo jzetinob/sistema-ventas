@@ -9,6 +9,8 @@
     <EditText
         android:id="@+id/txtBuscar"
         style="@style/Campo"
+        android:hint="@string/buscar_producto"
+        android:importantForAutofill="no"
         android:imeOptions="actionSearch"
         android:inputType="text" />
 

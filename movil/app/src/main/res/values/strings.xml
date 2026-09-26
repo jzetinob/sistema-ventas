@@ -21,5 +21,7 @@
     <string name="guardar">Guardar</string>
     <string name="desde">Desde</string>
     <string name="hasta">Hasta</string>
-    <string name="consultar">Consultar</string>
+    <string name="saludo">Hola, %1$s</string>
+    <string name="rol">Rol: %1$s</string>
+    <string name="fecha_boton">%1$s: %2$s</string>
 </resources>

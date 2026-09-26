@@ -177,3 +177,25 @@ Cubre los requisitos de la guía del curso: al menos 10 entidades, autenticació
 - Menú **Reportes**: inventario valorizado, existencia baja, ventas por período y compras por proveedor.
 - **Administración → Respaldar base de datos**: `VACUUM INTO` crea una copia consistente mientras el sistema está abierto.
 - **Verificación**: pruebas automatizadas contra una BD temporal (compras, anulación, llaves foráneas, login e intento de inyección SQL, búsqueda, escape HTML y respaldo). También se probó que una base creada con la versión anterior se actualiza conservando sus datos.
+
+## Fase 14 — La factura descuenta existencia
+
+- `factura_detalles.producto_id` (migración automática, FK `SET NULL`).
+- `FacturaDAOSQLite.guardar` descuenta la existencia en la misma transacción, con `UPDATE … WHERE existencia >= ?`. Si un producto no alcanza, hace rollback y devuelve `false`, y el formulario lo avisa. Antes mostraba "guardada con éxito" aunque fallara.
+- `eliminar` devuelve la existencia de los productos del catálogo antes de borrar la factura.
+
+## Fase 15 — Base en la nube y app móvil
+
+Corresponde al entregable final de la guía: integrar la app móvil con la base de datos ya definida.
+
+- **Supabase** (PostgreSQL 17, plan Free, cuenta de la universidad, separada de cualquier otra): proyecto `sistema-ventas`, región us-east-1.
+- `ConexionBD` elige el motor según `config/bd.properties`. Git lo ignora porque guarda la contraseña; en el repositorio va solo un `.ejemplo`. Sin ese archivo se usa SQLite.
+- `bd/esquema-postgresql.sql` es idempotente: crea las mismas tablas (montos `NUMERIC(12,2)`, `IDENTITY`) y `sesiones_app`, activa RLS en todas las tablas, revoca los permisos a `anon`/`authenticated` y define las funciones `SECURITY DEFINER` `app_login`, `app_logout`, `app_productos`, `app_clientes`, `app_registrar_cliente` y `app_ventas`, todas con validación de token.
+- `CopiadorBD`: la primera vez sube a la nube los datos de SQLite y también respalda la nube en un `.db` local.
+- Contraseñas en **bcrypt** (jBCrypt), verificables por `pgcrypto`. Los hash PBKDF2 antiguos se convierten al iniciar sesión.
+- **App Android** (`movil/`, Java, sin librerías externas): login, productos, clientes, nuevo cliente y ventas. Usa `ApiSupabase` (singleton), `ActividadBase` y `AdaptadorFilas<T>`. Se construye con AGP 9.4.1, Gradle 9.8, compileSdk 37 y targetSdk 34.
+- **Verificación**: 36 pruebas contra el proyecto real, incluida la API. Se comprobó que las tablas y los hash no se pueden leer por la API (401). El APK compila y lint no marca errores.
+
+## Fase 16 — Manuales
+
+- `docs/manual-usuario.md` y `docs/manual-tecnico.md`, exportados a PDF en `entregables/`.

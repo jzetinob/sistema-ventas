@@ -11,24 +11,28 @@
 
         <EditText
             android:id="@+id/txtNit"
+            android:importantForAutofill="no"
             style="@style/Campo"
             android:hint="@string/nit"
             android:inputType="number|text" />
 
         <EditText
             android:id="@+id/txtNombre"
+            android:importantForAutofill="no"
             style="@style/Campo"
             android:hint="@string/nombre"
             android:inputType="textPersonName|textCapWords" />
 
         <EditText
             android:id="@+id/txtDireccion"
+            android:importantForAutofill="no"
             style="@style/Campo"
             android:hint="@string/direccion"
             android:inputType="textPostalAddress" />
 
         <EditText
             android:id="@+id/txtTelefono"
+            android:importantForAutofill="no"
             style="@style/Campo"
             android:hint="@string/telefono"
             android:inputType="phone" />

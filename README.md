@@ -26,12 +26,25 @@ Sistema de facturación de escritorio en **Java Swing** con patrón **MVC**.
 - **Compras a proveedores** (maestro-detalle): al guardar una compra aumenta la existencia de los productos. Anular una compra revierte ese aumento.
 - **Catálogos nuevos**: categorías de productos, proveedores y usuarios.
 - **Búsquedas y reportes**: todos los catálogos y listas tienen un buscador y un botón **Reporte HTML**. El menú **Reportes** ofrece inventario, existencia baja, ventas por período y compras por proveedor. Los reportes se abren en el navegador, desde donde se pueden imprimir o guardar como PDF.
-- **Respaldo**: *Administración → Respaldar base de datos* genera una copia completa del archivo `.db`.
+- **Respaldo**: *Administración → Respaldar base de datos* genera una copia completa en un archivo `.db`.
+- **Base de datos en la nube (Supabase / PostgreSQL)**: la app de escritorio y la app móvil comparten los mismos datos. Si no hay configuración de nube, el sistema usa SQLite local igual que antes.
+- **App móvil Android** ([`movil/`](movil/)): inicio de sesión con los mismos usuarios, consulta de productos con existencia, clientes y ventas por fecha, y registro de clientes desde el teléfono.
+
+## Entregables
+
+| Archivo | Qué es |
+|---|---|
+| [`entregables/VentasMovil.apk`](entregables/VentasMovil.apk) | App móvil lista para instalar en Android 7.0 o superior |
+| [`entregables/manual-usuario.pdf`](entregables/manual-usuario.pdf) | Manual de usuario (escritorio y móvil) |
+| [`entregables/manual-tecnico.pdf`](entregables/manual-tecnico.pdf) | Manual técnico (arquitectura, base de datos, seguridad, API, instalación) |
+| Respaldo de la BD | Se genera desde *Administración → Respaldar base de datos* |
 
 ## Requisitos
 
 - JDK 25 (el proyecto compila con `maven.compiler.release 25`).
 - NetBeans 22+ con soporte Maven.
+- Para la app móvil: Android Studio (SDK de Android) o solo instalar el APK de `entregables/`.
+- Para la base en la nube: una cuenta de Supabase (plan Free) y `config/bd.properties`.
 - Internet (solo la primera vez): Maven descarga el driver JDBC de SQLite (`org.xerial:sqlite-jdbc`).
 - Opcional: DB Browser for SQLite para ver la base de datos (`datos/sistema_ventas.db`).
 
@@ -40,8 +53,10 @@ Sistema de facturación de escritorio en **Java Swing** con patrón **MVC**.
 1. Clona el repositorio y ábrelo en NetBeans (proyecto Maven: `sistema-ventas`).
 2. Ejecuta el proyecto (main class: `com.josue.ventas.SistemaVentas`) o corre `FrmPrincipal.java`.
 3. Al primer arranque se crea la base de datos y sus tablas automáticamente; si existen los CSV de versiones anteriores, sus datos se migran a la BD.
-4. **Primer uso**: como no hay usuarios, el sistema pide crear el **administrador** (usuario y contraseña que tú eliges). Las siguientes veces se entra con ese usuario. Los demás usuarios se crean en *Administración → Usuarios*.
-5. Para ver los registros almacenados, abre `datos/sistema_ventas.db` con DB Browser for SQLite.
+4. **Base en la nube**: si existe `sistema-ventas/config/bd.properties` (copia de `bd.properties.ejemplo` con los datos de Supabase), el sistema se conecta a la nube. Si no existe, usa SQLite local. Ese archivo tiene la contraseña de la base y **no se sube a GitHub**.
+5. **Primer uso**: como no hay usuarios, el sistema pide crear el **administrador** (usuario y contraseña que tú eliges). Las siguientes veces se entra con ese usuario. Los demás usuarios se crean en *Administración → Usuarios*.
+6. Para ver los registros de la base local, abre `datos/sistema_ventas.db` con DB Browser for SQLite. Los de la nube se ven en el *Table Editor* de Supabase.
+7. **App móvil**: instala `entregables/VentasMovil.apk`, o abre `movil/` en Android Studio.
 
 ## Arquitectura (resumen)
 
@@ -85,12 +100,16 @@ Documentación detallada en [`docs/`](docs/).
 | 11 | Diagrama de clases: `Persona` abstracta, `Cliente`/`Empleado`, `FacturaDetalle`, catálogo de empleados, existencia de productos |
 | 12 | 10 entidades en la BD (categorías, proveedores, usuarios, compras, detalle de compras), inicio de sesión con roles, compras que actualizan existencia, llaves foráneas activas |
 | 13 | Buscador y reporte HTML en cada módulo, menú Reportes y respaldo de la base de datos |
+| 14 | La factura descuenta la existencia al vender y la devuelve al eliminarse |
+| 15 | Base de datos en la nube (Supabase/PostgreSQL), contraseñas bcrypt, API segura (RLS + funciones `app_*`) y app móvil Android |
+| 16 | Manual de usuario y manual técnico (PDF) |
 
 ## Documentación
 
 - [`docs/mini-tutorial.md`](docs/mini-tutorial.md) — tutorial paso a paso de cómo usar la app.
 - [`docs/PLAN.md`](docs/PLAN.md) — plan de desarrollo (decisiones y fases).
 - [`docs/ARQUITECTURA.md`](docs/ARQUITECTURA.md) — arquitectura detallada.
+- [`docs/manual-usuario.md`](docs/manual-usuario.md) y [`docs/manual-tecnico.md`](docs/manual-tecnico.md) — fuentes de los manuales en PDF.
 - [`docs/diagrama-entidad-relacion.md`](docs/diagrama-entidad-relacion.md) — diagrama entidad-relación de las 10 tablas y reglas de llaves foráneas.
 - Los `.md` futuros se agregan en `docs/`.
 

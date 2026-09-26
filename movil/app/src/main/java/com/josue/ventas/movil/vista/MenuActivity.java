@@ -16,8 +16,8 @@ public class MenuActivity extends ActividadBase {
         setContentView(R.layout.activity_menu);
         setTitle(R.string.app_name);
 
-        ((TextView) findViewById(R.id.lblBienvenida)).setText("Hola, " + Sesion.getNombre(this));
-        ((TextView) findViewById(R.id.lblRol)).setText("Rol: " + Sesion.getRol(this));
+        ((TextView) findViewById(R.id.lblBienvenida)).setText(getString(R.string.saludo, Sesion.getNombre(this)));
+        ((TextView) findViewById(R.id.lblRol)).setText(getString(R.string.rol, Sesion.getRol(this)));
 
         findViewById(R.id.btnProductos).setOnClickListener(v -> abrir(ProductosActivity.class));
         findViewById(R.id.btnClientes).setOnClickListener(v -> abrir(ClientesActivity.class));

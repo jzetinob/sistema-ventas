@@ -58,7 +58,15 @@
 
 - Hecho: 10 tablas, login con roles, compras, catálogos de categorías, proveedores y usuarios, buscador y reporte HTML en cada módulo, menú Reportes y respaldo. Detalle en `docs/PLAN.md`.
 - Primer uso: al abrir, el sistema pide crear el administrador.
-- **Pendiente según la guía del curso**:
-  1. **App móvil** conectada a la misma BD (entrega final). SQLite es un archivo local y el teléfono no puede leerlo; hay que decidir entre pasar a MySQL o poner un servicio web intermedio.
-  2. **Manual de usuario** y **manual técnico**.
-  3. ~~Que la factura descuente existencia~~ → hecho el 2026-09-26: la venta descuenta existencia en la misma transacción, la rechaza si no alcanza y al eliminar la factura se devuelve.
+- Pendientes de la guía cubiertos el 2026-09-26 (Fases 14 a 16): app móvil conectada a la base en la nube (Supabase), manuales de usuario y técnico (PDF) y descuento de existencia en la factura.
+
+## Actualización 2026-09-26 — Proyecto completo según la guía
+
+- **Nube**: proyecto Supabase `sistema-ventas` (ref `nlgvnwonkokdhbgpuoqe`) en la organización `sistema-ventas-umg` de la cuenta **jzetinob** (plan Free). La contraseña de la base está solo en `sistema-ventas/config/bd.properties`, que es local y Git ignora.
+- **Entregables** en `entregables/`: `VentasMovil.apk`, `manual-usuario.pdf` y `manual-tecnico.pdf`.
+- **Lo que queda en manos del estudiante**:
+  1. Crear el administrador en la nube (primer arranque en modo nube) y cargar datos de ejemplo.
+  2. Probar el APK en un teléfono Android.
+  3. Generar el respaldo de la BD con datos reales (*Administración → Respaldar base de datos*) para entregarlo.
+  4. Entregar en la plataforma del curso.
+- **Aviso**: el plan Free de Supabase pausa el proyecto tras 7 días sin uso. Se reactiva en supabase.com con *Restore project*.
