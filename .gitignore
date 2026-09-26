@@ -3,7 +3,9 @@ target/
 nbproject/private/
 build/
 .nb-gradle/
-datos/
+# base de datos local SQLite (solo la carpeta de datos, no paquetes Java llamados datos)
+/datos/
+sistema-ventas/datos/
 capturas/
 notas/
 reportes/
