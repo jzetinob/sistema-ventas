@@ -44,6 +44,12 @@ public class UsuarioController {
             if (!usuario.isActivo()) {
                 return "El usuario está desactivado. Consulte al administrador.";
             }
+            if (Contrasenas.necesitaActualizar(usuario.getClaveHash())) {
+                // la contrasena es correcta: se aprovecha para pasarla al formato actual (bcrypt)
+                usuario.setClaveHash(Contrasenas.calcularHash(clave));
+                usuario.setSalt(Contrasenas.SAL_BCRYPT);
+                dao.cambiarClave(usuario.getId(), usuario.getClaveHash(), usuario.getSalt());
+            }
             Sesion.getInstancia().iniciar(usuario);
             return null;
         } finally {
@@ -72,8 +78,8 @@ public class UsuarioController {
             usuario.setNombre(nombre.trim());
             usuario.setRol(rol);
             usuario.setActivo(true);
-            usuario.setSalt(Contrasenas.generarSal());
-            usuario.setClaveHash(Contrasenas.calcularHash(clave, usuario.getSalt()));
+            usuario.setSalt(Contrasenas.SAL_BCRYPT);
+            usuario.setClaveHash(Contrasenas.calcularHash(clave));
             dao.guardar(usuario);
             return null;
         } finally {
@@ -111,8 +117,7 @@ public class UsuarioController {
             if (error != null) {
                 return error;
             }
-            String sal = Contrasenas.generarSal();
-            dao.cambiarClave(idUsuario, Contrasenas.calcularHash(nuevaClave, sal), sal);
+            dao.cambiarClave(idUsuario, Contrasenas.calcularHash(nuevaClave), Contrasenas.SAL_BCRYPT);
             return null;
         } finally {
             Arrays.fill(nuevaClave, '\0');

@@ -1,0 +1,14 @@
+# Configuracion de la base de datos del Sistema de Ventas.
+#
+# SIN este archivo, el sistema usa la base local SQLite (datos/sistema_ventas.db).
+# Para usar la base en la nube (Supabase, compartida con la app movil):
+#   1. Copie este archivo como "bd.properties" en esta misma carpeta (config/).
+#   2. Complete los datos. bd.properties NO se sube a GitHub (esta en .gitignore)
+#      porque contiene la contrasena de la base de datos.
+#
+# Datos en Supabase: boton "Connect" > "Session pooler".
+
+bd.motor=postgresql
+bd.url=jdbc:postgresql://HOST_DEL_POOLER:5432/postgres
+bd.usuario=postgres.REFERENCIA_DEL_PROYECTO
+bd.clave=ESCRIBA_AQUI_LA_CONTRASENA_DE_LA_BASE_DE_DATOS

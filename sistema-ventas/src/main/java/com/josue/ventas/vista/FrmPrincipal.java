@@ -49,7 +49,9 @@ public class FrmPrincipal extends javax.swing.JFrame {
         if (usuario == null) {
             return;
         }
-        setTitle("Sistema de Ventas - " + usuario.getNombre() + " (" + usuario.getRol() + ")");
+        boolean nube = com.josue.ventas.dao.ConexionBD.getInstancia().getMotor() == com.josue.ventas.dao.ConexionBD.Motor.POSTGRESQL;
+        setTitle("Sistema de Ventas - " + usuario.getNombre() + " (" + usuario.getRol() + ")"
+                + (nube ? " - Base en la nube" : " - Base local"));
         boolean admin = usuario.esAdministrador();
         miProductos.setVisible(admin);
         miEmpleados.setVisible(admin);

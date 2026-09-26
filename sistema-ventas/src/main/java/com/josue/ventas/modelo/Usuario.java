@@ -6,7 +6,8 @@ package com.josue.ventas.modelo;
 
 /**
  * Usuario que inicia sesion en el sistema. La contrasena nunca se guarda
- * en texto plano: solo su hash (PBKDF2) y la sal con la que se calculo.
+ * en texto plano: solo su hash (bcrypt; los usuarios antiguos, PBKDF2 con
+ * su sal aparte).
  * El rol define que opciones del menu puede usar.
  *
  * @author josue zetino
