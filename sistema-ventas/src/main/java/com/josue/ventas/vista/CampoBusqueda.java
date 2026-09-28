@@ -60,7 +60,7 @@ public class CampoBusqueda extends javax.swing.JPanel {
         });
 
         menuSugerencias.setFocusable(false);
-        menuSugerencias.setBorder(BorderFactory.createLineBorder(java.awt.Color.GRAY));
+        campo.putClientProperty("JTextField.placeholderText", "Escriba para buscar…");
         JScrollPane scroll = new JScrollPane(listaSugerencias);
         scroll.setPreferredSize(new Dimension(320, 150));
         scroll.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);

@@ -25,10 +25,6 @@ import javax.swing.JPanel;
  */
 public class GraficoDonaPanel extends JPanel {
 
-    static final Color[] COLORES = {
-        new Color(0x3C7DBA), new Color(0xE08E2B), new Color(0x2E9E6B), new Color(0x9B59B6), new Color(0xD4526E)
-    };
-
     private final List<Double> valores = new ArrayList<>();
     private String textoCentro = "";
     private String etiquetaCentro = "";
@@ -39,7 +35,7 @@ public class GraficoDonaPanel extends JPanel {
     }
 
     static Color colorDe(int i) {
-        return COLORES[i % COLORES.length];
+        return Tema.serie(i);
     }
 
     public void setDatos(List<Double> valores, String textoCentro, String etiquetaCentro) {
@@ -69,7 +65,7 @@ public class GraficoDonaPanel extends JPanel {
         }
         Arc2D.Double arco = new Arc2D.Double(cx - radio, cy - radio, radio * 2, radio * 2, 0, 0, Arc2D.OPEN);
         if (total <= 0) {
-            g2.setColor(GraficoBarrasPanel.REJILLA);
+            g2.setColor(Tema.rejilla());
             arco.setAngleStart(0);
             arco.setAngleExtent(360);
             g2.draw(arco);
@@ -85,11 +81,11 @@ public class GraficoDonaPanel extends JPanel {
                 inicio -= barrido;
             }
         }
-        g2.setColor(GraficoBarrasPanel.TEXTO);
+        g2.setColor(Tema.texto());
         g2.setFont(getFont().deriveFont(Font.BOLD, 20f));
         int w = g2.getFontMetrics().stringWidth(textoCentro);
         g2.drawString(textoCentro, (int) (cx - w / 2.0), (int) cy + 4);
-        g2.setColor(GraficoBarrasPanel.TEXTO_SUAVE);
+        g2.setColor(Tema.textoSuave());
         g2.setFont(getFont().deriveFont(Font.PLAIN, 11f));
         w = g2.getFontMetrics().stringWidth(etiquetaCentro);
         g2.drawString(etiquetaCentro, (int) (cx - w / 2.0), (int) cy + 20);

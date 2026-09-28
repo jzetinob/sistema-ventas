@@ -57,26 +57,28 @@ public class FrmResumen extends javax.swing.JInternalFrame {
         super("Resumen", true, true, true, true);
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
 
-        JPanel indicadores = new JPanel(new GridLayout(1, 4, 10, 0));
+        JPanel indicadores = new JPanel(new GridLayout(1, 4, 12, 0));
+        indicadores.setOpaque(false);
         indicadores.add(tarjeta(lblVentasHoy, "Ventas de hoy"));
         indicadores.add(tarjeta(lblFacturasHoy, "Facturas de hoy"));
         indicadores.add(tarjeta(lblVentasMes, "Ventas del mes"));
         indicadores.add(tarjeta(lblPorAgotarse, "Productos por agotarse"));
 
-        JPanel barras = seccion("Ventas de los últimos 7 días");
+        JPanel barras = new PanelTarjeta("Ventas de los últimos 7 días");
         barras.add(graficoBarras, BorderLayout.CENTER);
 
         leyenda.setLayout(new BoxLayout(leyenda, BoxLayout.Y_AXIS));
         leyenda.setOpaque(false);
-        JPanel dona = seccion("Más vendidos del mes");
+        JPanel dona = new PanelTarjeta("Más vendidos del mes");
         dona.add(graficoDona, BorderLayout.WEST);
         dona.add(leyenda, BorderLayout.CENTER);
 
-        JPanel graficos = new JPanel(new GridLayout(1, 2, 10, 0));
+        JPanel graficos = new JPanel(new GridLayout(1, 2, 12, 0));
+        graficos.setOpaque(false);
         graficos.add(barras);
         graficos.add(dona);
 
-        JPanel agotandose = seccion("Productos por agotarse (existencia de " + EXISTENCIA_BAJA + " o menos)");
+        JPanel agotandose = new PanelTarjeta("Productos por agotarse (existencia de " + EXISTENCIA_BAJA + " o menos)");
         JScrollPane scroll = new JScrollPane(new JTable(modeloAgotandose));
         scroll.setPreferredSize(new Dimension(600, 130));
         agotandose.add(scroll, BorderLayout.CENTER);
@@ -84,14 +86,16 @@ public class FrmResumen extends javax.swing.JInternalFrame {
         JButton btnActualizar = new JButton("Actualizar");
         btnActualizar.addActionListener(e -> cargar());
         JPanel botones = new JPanel(new FlowLayout(FlowLayout.RIGHT, 0, 0));
+        botones.setOpaque(false);
         botones.add(btnActualizar);
 
-        JPanel centro = new JPanel(new BorderLayout(0, 10));
+        JPanel centro = new JPanel(new BorderLayout(0, 12));
+        centro.setOpaque(false);
         centro.add(graficos, BorderLayout.CENTER);
         centro.add(agotandose, BorderLayout.SOUTH);
 
-        JPanel contenido = new JPanel(new BorderLayout(0, 10));
-        contenido.setBorder(BorderFactory.createEmptyBorder(12, 12, 12, 12));
+        JPanel contenido = new JPanel(new BorderLayout(0, 12));
+        contenido.setBorder(BorderFactory.createEmptyBorder(14, 14, 14, 14));
         contenido.add(indicadores, BorderLayout.NORTH);
         contenido.add(centro, BorderLayout.CENTER);
         contenido.add(botones, BorderLayout.SOUTH);
@@ -99,6 +103,16 @@ public class FrmResumen extends javax.swing.JInternalFrame {
 
         cargar();
         pack();
+
+        // si cambia el tema (por la hora o desde el menu) se vuelven a aplicar los colores propios
+        Runnable alCambiarTema = this::cargar;
+        Tema.alCambiar(alCambiarTema);
+        addInternalFrameListener(new javax.swing.event.InternalFrameAdapter() {
+            @Override
+            public void internalFrameClosed(javax.swing.event.InternalFrameEvent e) {
+                Tema.quitar(alCambiarTema);
+            }
+        });
     }
 
     private void cargar() {
@@ -137,7 +151,10 @@ public class FrmResumen extends javax.swing.JInternalFrame {
 
         List<Producto> baja = resumen.ExistenciaBaja(EXISTENCIA_BAJA);
         lblPorAgotarse.setText(String.valueOf(baja.size()));
-        lblPorAgotarse.setForeground(baja.isEmpty() ? new Color(0x1E8449) : new Color(0xC0392B));
+        lblPorAgotarse.setForeground(baja.isEmpty() ? Tema.exito() : Tema.alerta());
+        for (JLabel l : new JLabel[]{lblVentasHoy, lblFacturasHoy, lblVentasMes}) {
+            l.setForeground(Tema.primario());
+        }
         modeloAgotandose.setRowCount(0);
         for (Producto p : baja) {
             modeloAgotandose.addRow(new Object[]{p.getCodigo(), p.getNombre(), p.getExistencia() == 0 ? "Agotado" : p.getExistencia()});
@@ -147,27 +164,18 @@ public class FrmResumen extends javax.swing.JInternalFrame {
     private static JLabel valorIndicador() {
         JLabel l = new JLabel("—");
         l.setFont(l.getFont().deriveFont(Font.BOLD, 20f));
-        l.setForeground(new Color(0x2F4F6F));
+        l.setForeground(Tema.primario());
         return l;
     }
 
+    /** Indicador: cifra grande y su etiqueta dentro de una tarjeta. */
     private static JPanel tarjeta(JLabel valor, String etiqueta) {
-        JPanel p = new JPanel(new BorderLayout(0, 2));
-        p.setBackground(Color.WHITE);
-        p.setBorder(BorderFactory.createCompoundBorder(BorderFactory.createLineBorder(new Color(0xDDE3EA)),
-                BorderFactory.createEmptyBorder(10, 12, 10, 12)));
+        PanelTarjeta p = new PanelTarjeta(null);
         JLabel texto = new JLabel(etiqueta);
-        texto.setForeground(GraficoBarrasPanel.TEXTO_SUAVE);
+        texto.setFont(texto.getFont().deriveFont(12f));
+        texto.putClientProperty("FlatLaf.styleClass", "small");
         p.add(valor, BorderLayout.CENTER);
         p.add(texto, BorderLayout.SOUTH);
-        return p;
-    }
-
-    private static JPanel seccion(String titulo) {
-        JPanel p = new JPanel(new BorderLayout(10, 6));
-        p.setBackground(Color.WHITE);
-        p.setBorder(BorderFactory.createCompoundBorder(BorderFactory.createTitledBorder(titulo),
-                BorderFactory.createEmptyBorder(4, 6, 6, 6)));
         return p;
     }
 

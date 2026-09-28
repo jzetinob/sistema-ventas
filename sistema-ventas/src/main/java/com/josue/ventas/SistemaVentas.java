@@ -7,17 +7,21 @@ package com.josue.ventas;
 import com.josue.ventas.dao.ConexionBD;
 import com.josue.ventas.vista.DlgLogin;
 import com.josue.ventas.vista.FrmPrincipal;
+import com.josue.ventas.vista.Tema;
 import javax.swing.JOptionPane;
 
 /**
- * Punto de entrada: se verifica la conexion a la base de datos, luego se
- * inicia sesion y, si es correcta, se abre la ventana principal.
+ * Punto de entrada: se aplica el tema (claro u oscuro segun la hora), se
+ * verifica la conexion a la base de datos, luego se inicia sesion y, si es
+ * correcta, se abre la ventana principal.
  *
  * @author josue zetino
  */
 public class SistemaVentas {
 
     public static void main(String[] args) {
+        // apariencia FlatLaf con tema claro u oscuro segun la hora (antes de crear ventanas)
+        java.awt.EventQueue.invokeLater(Tema::instalar);
         iniciar();
     }
 

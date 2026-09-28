@@ -22,6 +22,12 @@
             <artifactId>postgresql</artifactId>
             <version>42.7.4</version>
         </dependency>
+        <!-- FlatLaf: apariencia moderna de Swing con tema claro y oscuro -->
+        <dependency>
+            <groupId>com.formdev</groupId>
+            <artifactId>flatlaf</artifactId>
+            <version>3.7.2</version>
+        </dependency>
         <!-- bcrypt: formato de contrasena que PostgreSQL (pgcrypto) tambien puede verificar -->
         <dependency>
             <groupId>org.mindrot</groupId>

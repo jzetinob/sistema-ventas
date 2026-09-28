@@ -5,7 +5,6 @@
 package com.josue.ventas.vista;
 
 import java.awt.BasicStroke;
-import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.FontMetrics;
@@ -19,17 +18,12 @@ import javax.swing.JPanel;
 /**
  * Grafico de barras dibujado con Graphics2D (sin librerias): se sobrescribe
  * paintComponent(), que Swing llama cada vez que hay que pintar el panel.
- * Es la version de escritorio del GraficoBarras de la app movil.
+ * Es la version de escritorio del GraficoBarras de la app movil. Los colores
+ * se piden a Tema cada vez que se pinta, asi siguen el tema claro u oscuro.
  *
  * @author josue zetino
  */
 public class GraficoBarrasPanel extends JPanel {
-
-    static final Color BARRA = new Color(0x3C7DBA);
-    static final Color BARRA_DESTACADA = new Color(0xE08E2B);
-    static final Color REJILLA = new Color(0xE6EAF0);
-    static final Color TEXTO = new Color(0x1D2733);
-    static final Color TEXTO_SUAVE = new Color(0x5F6B78);
 
     private final List<String> etiquetas = new ArrayList<>();
     private final List<Double> valores = new ArrayList<>();
@@ -69,7 +63,7 @@ public class GraficoBarrasPanel extends JPanel {
             maximo = Math.max(maximo, v);
         }
 
-        g2.setColor(REJILLA);
+        g2.setColor(Tema.rejilla());
         g2.setStroke(new BasicStroke(1f));
         for (int i = 0; i <= 2; i++) {
             int y = arriba + area * i / 2;
@@ -78,7 +72,7 @@ public class GraficoBarrasPanel extends JPanel {
         g2.setFont(getFont().deriveFont(Font.PLAIN, 11f));
         FontMetrics fm = g2.getFontMetrics();
         if (maximo <= 0) {
-            g2.setColor(TEXTO_SUAVE);
+            g2.setColor(Tema.textoSuave());
             String texto = "Sin ventas en estos días";
             g2.drawString(texto, (ancho - fm.stringWidth(texto)) / 2, arriba + area / 2 - 6);
         }
@@ -91,16 +85,16 @@ public class GraficoBarrasPanel extends JPanel {
             int altoBarra = maximo > 0 ? (int) Math.round(v / maximo * area) : 0;
             int base = arriba + area;
             if (altoBarra > 0) {
-                g2.setColor(i == destacada ? BARRA_DESTACADA : BARRA);
+                g2.setColor(Tema.serie(i == destacada ? 1 : 0)); // hoy en naranja, el resto en azul
                 g2.fillRoundRect(centro - anchoBarra / 2, base - altoBarra, anchoBarra, altoBarra, 8, 8);
                 String valor = compacto(v);
-                g2.setColor(TEXTO);
+                g2.setColor(Tema.texto());
                 g2.setFont(getFont().deriveFont(Font.BOLD, 11f));
                 g2.drawString(valor, centro - g2.getFontMetrics().stringWidth(valor) / 2, base - altoBarra - 5);
                 g2.setFont(getFont().deriveFont(Font.PLAIN, 11f));
             }
             String etiqueta = etiquetas.get(i);
-            g2.setColor(TEXTO_SUAVE);
+            g2.setColor(Tema.textoSuave());
             g2.drawString(etiqueta, centro - fm.stringWidth(etiqueta) / 2, alto - 6);
         }
         g2.dispose();

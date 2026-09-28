@@ -38,7 +38,24 @@ public class FrmPrincipal extends javax.swing.JFrame {
     public FrmPrincipal() {
         initComponents();
         aplicarSesion();
+        agregarMenuTema();
+        jDesktopPane.setBackground(Tema.escritorio());
+        Tema.alCambiar(() -> jDesktopPane.setBackground(Tema.escritorio()));
         setLocationRelativeTo(null);
+    }
+
+    /** Ventana > Tema: automatico por hora (claro de dia, oscuro de noche), claro u oscuro. */
+    private void agregarMenuTema() {
+        javax.swing.JMenu mnTema = new javax.swing.JMenu("Tema");
+        javax.swing.ButtonGroup grupo = new javax.swing.ButtonGroup();
+        for (Tema.Modo modo : Tema.Modo.values()) {
+            javax.swing.JRadioButtonMenuItem item = new javax.swing.JRadioButtonMenuItem(modo.toString(), modo == Tema.getModo());
+            item.addActionListener(evt -> Tema.setModo(modo));
+            grupo.add(item);
+            mnTema.add(item);
+        }
+        mnVentana.addSeparator();
+        mnVentana.add(mnTema);
     }
 
     /**
@@ -493,7 +510,6 @@ public class FrmPrincipal extends javax.swing.JFrame {
 
         setJMenuBar(jMenuBar1);
 
-        jDesktopPane.setBackground(new java.awt.Color(204, 204, 204));
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
@@ -559,19 +575,8 @@ public class FrmPrincipal extends javax.swing.JFrame {
     }//GEN-LAST:event_miAcercaDeActionPerformed
 
     public static void main(String args[]) {
-        try {
-            for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {
-                if ("Nimbus".equals(info.getName())) {
-                    javax.swing.UIManager.setLookAndFeel(info.getClassName());
-                    break;
-                }
-            }
-        } catch (ReflectiveOperationException | javax.swing.UnsupportedLookAndFeelException ex) {
-            logger.log(java.util.logging.Level.SEVERE, null, ex);
-        }
-
-        // tambien al correr este archivo directamente se pide iniciar sesion
-        com.josue.ventas.SistemaVentas.iniciar();
+        // tambien al correr este archivo directamente se aplica el tema y se pide iniciar sesion
+        com.josue.ventas.SistemaVentas.main(args);
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables

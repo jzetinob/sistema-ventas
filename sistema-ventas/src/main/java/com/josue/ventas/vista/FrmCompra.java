@@ -101,7 +101,7 @@ public class FrmCompra extends javax.swing.JInternalFrame {
         r.gridy = 0;
         r.insets = new Insets(4, 10, 4, 4);
         r.anchor = GridBagConstraints.LINE_START;
-        lblReferencia.setForeground(java.awt.Color.DARK_GRAY);
+        lblReferencia.putClientProperty("FlatLaf.styleClass", "small");
         lineas.add(lblReferencia, r);
 
         JPanel arriba = new JPanel(new BorderLayout(0, 8));
