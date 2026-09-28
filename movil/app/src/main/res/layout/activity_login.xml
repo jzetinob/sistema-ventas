@@ -9,13 +9,14 @@
         android:layout_height="wrap_content"
         android:gravity="center_horizontal"
         android:orientation="vertical"
-        android:padding="28dp">
+        android:padding="24dp">
 
         <ImageView
             android:layout_width="88dp"
             android:layout_height="88dp"
             android:layout_marginTop="32dp"
             android:contentDescription="@string/app_name"
+            android:elevation="4dp"
             android:src="@drawable/ic_ventas" />
 
         <TextView
@@ -31,36 +32,46 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="6dp"
-            android:layout_marginBottom="28dp"
+            android:layout_marginBottom="24dp"
             android:gravity="center"
             android:text="@string/login_subtitulo"
             android:textColor="@color/texto_suave" />
 
-        <EditText
-            android:id="@+id/txtUsuario"
-            style="@style/Campo"
-            android:autofillHints="username"
-            android:hint="@string/usuario"
-            android:inputType="text" />
+        <!-- Campos dentro de una tarjeta, igual que el resto de la app -->
+        <LinearLayout
+            style="@style/Tarjeta"
+            android:orientation="vertical"
+            android:padding="20dp">
 
-        <EditText
-            android:id="@+id/txtClave"
-            style="@style/Campo"
-            android:autofillHints="password"
-            android:hint="@string/contrasena"
-            android:imeOptions="actionDone"
-            android:inputType="textPassword" />
+            <EditText
+                android:id="@+id/txtUsuario"
+                style="@style/Campo"
+                android:autofillHints="username"
+                android:hint="@string/usuario"
+                android:inputType="text" />
 
-        <Button
-            android:id="@+id/btnEntrar"
-            style="@style/BotonMenu"
-            android:layout_marginTop="8dp"
-            android:text="@string/entrar" />
+            <EditText
+                android:id="@+id/txtClave"
+                style="@style/Campo"
+                android:autofillHints="password"
+                android:hint="@string/contrasena"
+                android:imeOptions="actionDone"
+                android:inputType="textPassword" />
 
-        <ProgressBar
-            android:id="@+id/progreso"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:visibility="gone" />
+            <Button
+                android:id="@+id/btnEntrar"
+                style="@style/BotonMenu"
+                android:layout_marginTop="8dp"
+                android:layout_marginBottom="0dp"
+                android:text="@string/entrar" />
+
+            <ProgressBar
+                android:id="@+id/progreso"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:layout_marginTop="12dp"
+                android:visibility="gone" />
+        </LinearLayout>
     </LinearLayout>
 </ScrollView>

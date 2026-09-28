@@ -1,6 +1,5 @@
 package com.josue.ventas.movil.vista;
 
-import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.inputmethod.EditorInfo;
@@ -14,7 +13,7 @@ import com.josue.ventas.movil.datos.Sesion;
 import org.json.JSONObject;
 
 /** Inicio de sesion con los mismos usuarios de la app de escritorio. */
-public class LoginActivity extends Activity {
+public class LoginActivity extends ActividadTema {
 
     private EditText txtUsuario;
     private EditText txtClave;

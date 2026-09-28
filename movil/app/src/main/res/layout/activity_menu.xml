@@ -34,18 +34,18 @@
                 android:id="@+id/filaIndicadores"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="16dp"
+                android:layout_marginBottom="20dp"
                 android:baselineAligned="false"
                 android:orientation="horizontal">
 
                 <LinearLayout
                     style="@style/Tarjeta"
                     android:layout_width="0dp"
-                    android:layout_marginEnd="8dp"
+                    android:layout_marginEnd="12dp"
                     android:layout_marginBottom="0dp"
                     android:layout_weight="1"
                     android:orientation="vertical"
-                    android:padding="12dp">
+                    android:padding="14dp">
 
                     <TextView
                         android:id="@+id/lblVentasHoy"
@@ -60,11 +60,11 @@
                 <LinearLayout
                     style="@style/Tarjeta"
                     android:layout_width="0dp"
-                    android:layout_marginEnd="8dp"
+                    android:layout_marginEnd="12dp"
                     android:layout_marginBottom="0dp"
                     android:layout_weight="1"
                     android:orientation="vertical"
-                    android:padding="12dp">
+                    android:padding="14dp">
 
                     <TextView
                         android:id="@+id/lblFacturasHoy"
@@ -82,7 +82,7 @@
                     android:layout_marginBottom="0dp"
                     android:layout_weight="1"
                     android:orientation="vertical"
-                    android:padding="12dp">
+                    android:padding="14dp">
 
                     <TextView
                         android:id="@+id/lblExistenciaBaja"

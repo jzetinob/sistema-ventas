@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Paleta del modo claro. El modo oscuro redefine estos mismos nombres en values-night/colores.xml -->
+<!-- Paleta del modo claro (06:00 a 17:59). El modo oscuro (18:00 a 05:59) redefine estos
+     mismos nombres en values-night/colores.xml; la eleccion segun la hora la hace TemaPorHora. -->
 <resources>
     <color name="primario">#2F4F6F</color>
     <color name="primario_oscuro">#1F3548</color>

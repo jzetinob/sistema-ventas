@@ -3,7 +3,7 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="0dp"
     android:layout_height="112dp"
-    android:layout_margin="6dp"
+    android:layout_margin="7dp"
     android:background="@drawable/fondo_mosaico"
     android:clickable="true"
     android:elevation="2dp"

@@ -1,16 +1,16 @@
 package com.josue.ventas.movil.vista;
 
-import android.app.Activity;
 import android.content.Intent;
 import android.view.View;
 import android.widget.Toast;
 import com.josue.ventas.movil.datos.Sesion;
 
 /**
- * Base de las pantallas que requieren sesion (herencia): si el usuario no
+ * Base de las pantallas que requieren sesion (herencia de ActividadTema,
+ * que ademas aplica el tema segun la hora): si el usuario no
  * ha iniciado sesion, o su sesion vencio, lo regresa al inicio de sesion.
  */
-public abstract class ActividadBase extends Activity {
+public abstract class ActividadBase extends ActividadTema {
 
     @Override
     protected void onResume() {

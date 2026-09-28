@@ -84,7 +84,9 @@ public class MenuActivity extends ActividadBase {
             ((TextView) boton.findViewById(R.id.txtNombre)).setText(opcion.texto);
             boton.setBackgroundTintList(android.content.res.ColorStateList.valueOf(getColor(opcion.color)));
             boton.setOnClickListener(v -> abrir(opcion.pantalla));
-            GridLayout.LayoutParams lp = new GridLayout.LayoutParams(boton.getLayoutParams());
+            // se reutilizan los parametros inflados desde el XML: asi se conservan sus margenes
+            // (crear unos nuevos a partir de ViewGroup.LayoutParams los perdia y los botones quedaban pegados)
+            GridLayout.LayoutParams lp = (GridLayout.LayoutParams) boton.getLayoutParams();
             lp.width = 0;
             lp.columnSpec = GridLayout.spec(GridLayout.UNDEFINED, 1f); // columnas del mismo ancho
             mosaico.addView(boton, lp);

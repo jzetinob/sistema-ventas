@@ -43,6 +43,8 @@
     <string name="carrito_vacio">Toque «Agregar» para elegir los productos.\nMantenga presionado un producto para quitarlo.</string>
     <string name="guardar_venta">Guardar venta</string>
     <string name="sin_dato">—</string>
+    <string name="datos_cliente">Datos del cliente</string>
+    <string name="nota_nuevo_cliente">El NIT debe tener de 8 a 13 dígitos. El cliente aparece al instante en la aplicación de escritorio.</string>
     <string name="total_con_valor">Total %1$s</string>
     <string name="buscando">Buscando…</string>
     <plurals name="n_resultados">

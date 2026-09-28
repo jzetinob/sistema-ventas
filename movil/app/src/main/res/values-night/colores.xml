@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Paleta del modo oscuro: se usa automaticamente cuando el telefono esta en modo oscuro -->
+<!-- Paleta del modo oscuro: se usa de 18:00 a 05:59 segun la hora del telefono (ver TemaPorHora) -->
 <resources>
     <color name="primario">#9CC3E6</color>
     <color name="primario_oscuro">#0E1A26</color>
