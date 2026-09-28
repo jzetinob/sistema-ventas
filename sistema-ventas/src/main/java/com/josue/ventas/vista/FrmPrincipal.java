@@ -33,6 +33,7 @@ public class FrmPrincipal extends javax.swing.JFrame {
     FrmCompra compraVentana;
     FrmListaCompras listaComprasVentana;
     FrmUsuarios usuariosVentana;
+    FrmResumen resumenVentana;
 
     public FrmPrincipal() {
         initComponents();
@@ -88,6 +89,15 @@ public class FrmPrincipal extends javax.swing.JFrame {
             listaComprasVentana = new FrmListaCompras();
         }
         abrirFormulario(listaComprasVentana);
+    }
+
+    private void abrirResumen() {
+        // se crea de nuevo cada vez: asi siempre muestra los datos del momento
+        if (resumenVentana != null && resumenVentana.isDisplayable()) {
+            resumenVentana.dispose();
+        }
+        resumenVentana = new FrmResumen();
+        abrirFormulario(resumenVentana);
     }
 
     private void abrirUsuarios() {
@@ -459,6 +469,8 @@ public class FrmPrincipal extends javax.swing.JFrame {
 
         mnReportes = new javax.swing.JMenu("Reportes");
         mnReportes.setMnemonic('R');
+        agregarReporte("Resumen con gráficos", this::abrirResumen);
+        mnReportes.addSeparator();
         agregarReporte("Inventario de productos", () -> Reportes.inventario(this));
         agregarReporte("Productos con existencia baja", () -> Reportes.existenciaBaja(this));
         agregarReporte("Ventas por período", () -> Reportes.ventasPorPeriodo(this));
