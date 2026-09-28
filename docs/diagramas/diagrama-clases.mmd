@@ -453,6 +453,19 @@ classDiagram
             <<Swing>>
             #paintComponent(g: Graphics) void
         }
+        class Tema {
+            <<utility>>
+            -modo: Modo
+            -oscuro: boolean
+            +instalar()$ void
+            +setModo(modo: Modo)$ void
+            +esOscuro()$ boolean
+            +alCambiar(oyente: Runnable)$ void
+            +serie(i: int)$ Color
+        }
+        class PanelTarjeta {
+            #paintComponent(g: Graphics) void
+        }
         class FrmResumen {
             -cargar() void
         }
@@ -499,6 +512,11 @@ classDiagram
     FrmCatalogo <|-- FrmProveedores
     FrmCatalogo <|-- FrmUsuarios
     TicketFactura ..|> Printable
+    JPanel <|-- PanelTarjeta
+    FrmResumen *-- PanelTarjeta
+    FrmPrincipal ..> Tema : menu Ventana > Tema
+    GraficoBarrasPanel ..> Tema : colores
+    PanelTarjeta ..> Tema : colores
     JPanel <|-- GraficoBarrasPanel
     JPanel <|-- GraficoDonaPanel
     FrmResumen *-- GraficoBarrasPanel

@@ -40,12 +40,14 @@ La barra de título muestra quién inició sesión, su rol y si la base es **loc
 | **Catálogos** | Productos, Empleados, Clientes, Categorías, Proveedores |
 | **Compras** | Nueva compra, Ver compras |
 | **Edición** | Limpiar formulario (de la factura abierta) |
-| **Ventana** | Cascada, Mosaico, Minimizar todo, Restaurar todo |
+| **Ventana** | Cascada, Mosaico, Minimizar todo, Restaurar todo, **Tema** (Automático por hora, Claro, Oscuro) |
 | **Administración** | Usuarios, Respaldar base de datos |
 | **Reportes** | Resumen con gráficos, Inventario, Existencia baja, Ventas por período, Compras por proveedor |
 | **Ayuda** | Acerca de |
 
 Cada opción abre una ventana **dentro** de la ventana principal. Se pueden tener varias abiertas a la vez y ordenarlas con el menú **Ventana**.
+
+**Tema claro y oscuro:** el sistema se ve en **tema claro de 06:00 a 17:59** y en **tema oscuro de 18:00 a 05:59**, según la hora de la computadora. Cambia solo, sin cerrar las ventanas abiertas. En *Ventana → Tema* se puede dejar fijo en **Claro** u **Oscuro**, o volver a **Automático (por hora)**. La elección se recuerda para la próxima vez.
 
 ### 1.3 Catálogos (productos, clientes, empleados, categorías, proveedores, usuarios)
 
@@ -165,7 +167,7 @@ La factura recibe el siguiente número (FAC-…), descuenta la existencia y apar
 ### 2.5 Sin conexión y modo oscuro
 
 - **Sin internet:** la pantalla **Productos** muestra la última copia del catálogo guardada en el teléfono, con un aviso rojo y la fecha de esa copia. Vender, registrar clientes y ver el resumen sí necesitan internet. La copia se borra al cerrar sesión.
-- **Modo oscuro:** si el teléfono está en modo oscuro, la app cambia sus colores automáticamente.
+- **Tema según la hora:** la app se ve **clara de 06:00 a 17:59** y **oscura de 18:00 a 05:59**, según la hora del teléfono. Cambia sola, incluso con la app abierta. Es el mismo horario de la aplicación de escritorio.
 
 ---
 

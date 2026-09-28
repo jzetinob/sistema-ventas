@@ -107,6 +107,17 @@ classDiagram
             <<Android>>
             #onDraw(canvas: Canvas) void
         }
+        class ActividadTema {
+            <<abstract>>
+            #attachBaseContext(base: Context) void
+            #onResume() void
+        }
+        class TemaPorHora {
+            <<utility>>
+            ~esDeNoche()$ boolean
+            ~aplicar(base: Context)$ Context
+            ~cambio(pantalla: Context)$ boolean
+        }
         class ActividadBase {
             <<abstract>>
             #token() String
@@ -151,8 +162,10 @@ classDiagram
     }
 
     Exception <|-- ApiException
-    Activity <|-- ActividadBase
-    Activity <|-- LoginActivity
+    Activity <|-- ActividadTema
+    ActividadTema <|-- ActividadBase
+    ActividadTema <|-- LoginActivity
+    ActividadTema ..> TemaPorHora : claro 06-18, oscuro 18-06
     ActividadBase <|-- MenuActivity
     ActividadBase <|-- ResumenActivity
     ActividadBase <|-- NuevaVentaActivity

@@ -44,6 +44,7 @@ Dependencias Maven (`sistema-ventas/pom.xml`):
 | `org.xerial:sqlite-jdbc:3.47.1.0` | Base local SQLite |
 | `org.postgresql:postgresql:42.7.4` | Base en la nube |
 | `org.mindrot:jbcrypt:0.4` | Hash de contraseñas (bcrypt) |
+| `com.formdev:flatlaf:3.7.2` | Apariencia moderna de Swing con tema claro y oscuro |
 
 ## 3. Arquitectura de la app de escritorio
 
@@ -101,6 +102,11 @@ Los DAO usan SQL estándar que funciona en ambos motores. Lo único específico 
   - Vuelve a leer su lista (`setFuente`) cada vez que recibe el foco, así aparecen los registros creados en otra ventana o desde el celular.
   - Si nada coincide, muestra "(sin coincidencias)".
   - Avisa a sus oyentes (`addActionListener`) al elegir un elemento. Es el patrón Observer.
+- **Apariencia y tema por hora (`Tema`):**
+  - Usa FlatLaf (`FlatLightLaf` / `FlatDarkLaf`), con el color de acento de la app móvil y esquinas redondeadas.
+  - En modo automático, un `javax.swing.Timer` revisa la hora cada minuto: claro de 06:00 a 17:59, oscuro de 18:00 a 05:59. `FlatLaf.updateUI()` repinta todas las ventanas abiertas.
+  - El modo (Automático, Claro u Oscuro) se elige en *Ventana → Tema* y se guarda con `java.util.prefs.Preferences`.
+  - Los componentes pintados a mano (gráficos y `PanelTarjeta`) piden sus colores a `Tema` en cada pintado. `FrmResumen` se registra con `Tema.alCambiar(...)` para refrescarse cuando cambia el tema.
 - **Resumen con gráficos (`FrmResumen`):** `ResumenController` toma una "foto" de las facturas y los productos (a través de sus controllers, así funciona con los dos motores) y calcula los indicadores, las ventas de cada uno de los últimos 7 días (con ceros), el top 5 del mes y la existencia baja. `GraficoBarrasPanel` y `GraficoDonaPanel` sobrescriben `paintComponent()` y dibujan con `Graphics2D` (`fillRoundRect`, `Arc2D`). Es la misma idea que `onDraw()` con `Canvas` en Android.
 - **Búsqueda en tablas (`FiltroTabla`, `BarraBusqueda`):** usan `TableRowSorter` y `RowFilter`. Cuando la tabla está filtrada, la fila seleccionada se traduce con `convertRowIndexToModel`.
 
@@ -185,7 +191,7 @@ HTTP (`HttpURLConnection`), JSON (`org.json`) y gráficos (`Canvas`) usan solo l
 | **Gráficos** | `GraficoBarras` escala cada barra al máximo de la semana y escribe su valor encima; destaca el día de hoy. `GraficoDona` dibuja un arco por producto, proporcional a sus unidades (`drawArc`), y pone el total en el centro. Los colores salen de `colores.xml`, así que también cambian en modo oscuro |
 | **Factura móvil** | El teléfono envía solo el código y la cantidad de cada producto. `app_registrar_factura` bloquea la tabla para asignar el número correlativo, toma el precio del catálogo, bloquea cada producto (`SELECT … FOR UPDATE`), valida la existencia y la descuenta. Todo es una transacción: si algo falla, no se guarda nada |
 | **Sin conexión** | Cada consulta completa del catálogo se guarda en `SharedPreferences` (`CacheCatalogo`). Si no hay red, Productos muestra esa copia filtrada, con un aviso y su fecha. Se borra al cerrar sesión |
-| **Modo oscuro** | `values-night/colores.xml` y `values-night/estilos.xml` redefinen la paleta y el tema, y Android los aplica solo cuando el sistema está en modo oscuro |
+| **Tema por hora** | `values-night/colores.xml` y `values-night/estilos.xml` redefinen la paleta y el tema. `TemaPorHora` decide según la hora: claro de 06:00 a 17:59, oscuro de 18:00 a 05:59. `ActividadTema`, la clase padre de todas las pantallas, crea en `attachBaseContext` una copia de la configuración con el "modo noche" que toca, y Android toma los recursos de `values/` o `values-night/`. Cada minuto revisa la hora y, si cambió, recrea la pantalla (`recreate()`) |
 | **Fechas** | Se usa `Calendar` y `SimpleDateFormat` porque `java.time` requiere Android 8 y la app funciona desde Android 7. El teléfono envía su fecha local (`p_hoy`) porque el servidor trabaja en UTC |
 
 **Compilar:** abra la carpeta `movil/` en Android Studio y use *Build → Build APK(s)*, o desde la terminal ejecute `gradlew assembleDebug` con `JAVA_HOME` apuntando al JDK que trae Android Studio (carpeta `jbr`). El APK queda en `movil/app/build/outputs/apk/debug/`, y la copia lista para instalar está en `entregables/VentasMovil.apk`.
