@@ -246,7 +246,127 @@ BEGIN
 END
 $fn$;
 
+-- Productos de una factura (pantalla de detalle de venta del movil).
+CREATE OR REPLACE FUNCTION app_detalle_venta(p_token UUID, p_numero_factura TEXT)
+RETURNS TABLE (producto TEXT, cantidad INTEGER, precio NUMERIC, subtotal NUMERIC)
+LANGUAGE plpgsql SECURITY DEFINER SET search_path = public AS $fn$
+#variable_conflict use_column
+BEGIN
+    PERFORM app_usuario_de(p_token);
+    RETURN QUERY
+        SELECT d.producto, d.cantidad, d.precio, d.subtotal
+        FROM factura_detalles d JOIN facturas f ON f.id = d.factura_id
+        WHERE f.numero_factura = p_numero_factura
+        ORDER BY d.id;
+END
+$fn$;
+
+-- Datos del tablero "Resumen" en una sola llamada. p_hoy lo envia el telefono
+-- (fecha local); el servidor trabaja en UTC y su "hoy" podria ser otro dia.
+CREATE OR REPLACE FUNCTION app_resumen(p_token UUID, p_hoy DATE, p_existencia_baja INTEGER DEFAULT 5)
+RETURNS JSON
+LANGUAGE plpgsql SECURITY DEFINER SET search_path = public AS $fn$
+DECLARE
+    v_inicio_mes DATE := date_trunc('month', p_hoy)::DATE;
+BEGIN
+    PERFORM app_usuario_de(p_token);
+    RETURN json_build_object(
+        'ventas_hoy', (SELECT coalesce(sum(total), 0) FROM facturas WHERE left(fecha, 10)::DATE = p_hoy),
+        'facturas_hoy', (SELECT count(*) FROM facturas WHERE left(fecha, 10)::DATE = p_hoy),
+        'ventas_mes', (SELECT coalesce(sum(total), 0) FROM facturas
+                       WHERE left(fecha, 10)::DATE BETWEEN v_inicio_mes AND p_hoy),
+        'ventas_7_dias', (
+            SELECT json_agg(json_build_object('fecha', dia::DATE, 'total', coalesce(v.total, 0)) ORDER BY dia)
+            FROM generate_series(p_hoy - 6, p_hoy, INTERVAL '1 day') AS dia
+            LEFT JOIN (SELECT left(fecha, 10)::DATE AS f, sum(total) AS total FROM facturas GROUP BY 1) v
+                   ON v.f = dia::DATE),
+        'top_productos', coalesce((
+            SELECT json_agg(t) FROM (
+                SELECT d.producto, sum(d.cantidad) AS cantidad, sum(d.subtotal) AS total
+                FROM factura_detalles d JOIN facturas f ON f.id = d.factura_id
+                WHERE left(f.fecha, 10)::DATE BETWEEN v_inicio_mes AND p_hoy
+                GROUP BY d.producto
+                ORDER BY sum(d.cantidad) DESC, d.producto
+                LIMIT 5) t), '[]'::JSON),
+        'existencia_baja', coalesce((
+            SELECT json_agg(b) FROM (
+                SELECT codigo, nombre, existencia FROM productos
+                WHERE existencia <= p_existencia_baja
+                ORDER BY existencia, nombre
+                LIMIT 20) b), '[]'::JSON)
+    );
+END
+$fn$;
+
+-- Factura desde el movil, en UNA transaccion (la funcion completa se revierte si algo falla):
+-- numero correlativo, detalles con el precio de la base (no el que envia el telefono)
+-- y descuento de existencia; si un producto no alcanza, no se guarda nada.
+-- p_detalles: [{"codigo": "P-1", "cantidad": 2}, ...]
+CREATE OR REPLACE FUNCTION app_registrar_factura(p_token UUID, p_nit TEXT, p_cliente TEXT,
+        p_fecha DATE, p_detalles JSON) RETURNS JSON
+LANGUAGE plpgsql SECURITY DEFINER SET search_path = public AS $fn$
+DECLARE
+    v_nit TEXT := trim(coalesce(p_nit, ''));
+    v_cliente TEXT := trim(coalesce(p_cliente, ''));
+    v_numero TEXT;
+    v_factura_id INTEGER;
+    v_total NUMERIC(12, 2) := 0;
+    v_linea JSON;
+    v_cantidad INTEGER;
+    v_producto productos%ROWTYPE;
+BEGIN
+    PERFORM app_usuario_de(p_token);
+    IF regexp_replace(v_nit, '[- ]', '', 'g') !~ '^[0-9]{8,13}$' THEN
+        RAISE EXCEPTION 'El NIT debe tener entre 8 y 13 dígitos.' USING ERRCODE = '22023';
+    END IF;
+    IF v_cliente = '' THEN
+        RAISE EXCEPTION 'Escriba el nombre del cliente.' USING ERRCODE = '22023';
+    END IF;
+    IF p_detalles IS NULL OR json_array_length(p_detalles) = 0 THEN
+        RAISE EXCEPTION 'Agregue al menos un producto.' USING ERRCODE = '22023';
+    END IF;
+    IF (SELECT count(DISTINCT lower(l ->> 'codigo')) FROM json_array_elements(p_detalles) l)
+            <> json_array_length(p_detalles) THEN
+        RAISE EXCEPTION 'Hay un producto repetido en la factura.' USING ERRCODE = '22023';
+    END IF;
+
+    -- evita que dos ventas simultaneas obtengan el mismo numero de factura
+    LOCK TABLE facturas IN SHARE ROW EXCLUSIVE MODE;
+    SELECT 'FAC-' || lpad((coalesce(max(substring(numero_factura FROM '([0-9]+)$')::INTEGER), 0) + 1)::TEXT, 4, '0')
+      INTO v_numero FROM facturas;
+
+    INSERT INTO facturas (numero_factura, nit, cliente, fecha, total)
+    VALUES (v_numero, v_nit, v_cliente, to_char(coalesce(p_fecha, CURRENT_DATE), 'YYYY-MM-DD') || ' 00:00:00', 0)
+    RETURNING id INTO v_factura_id;
+
+    FOR v_linea IN SELECT * FROM json_array_elements(p_detalles) LOOP
+        v_cantidad := (v_linea ->> 'cantidad')::INTEGER;
+        IF v_cantidad IS NULL OR v_cantidad <= 0 THEN
+            RAISE EXCEPTION 'La cantidad debe ser mayor que 0.' USING ERRCODE = '22023';
+        END IF;
+        SELECT * INTO v_producto FROM productos WHERE lower(codigo) = lower(v_linea ->> 'codigo') FOR UPDATE;
+        IF v_producto.id IS NULL THEN
+            RAISE EXCEPTION 'El producto % no existe.', v_linea ->> 'codigo' USING ERRCODE = '22023';
+        END IF;
+        IF v_producto.existencia < v_cantidad THEN
+            RAISE EXCEPTION 'No hay existencia suficiente de % (quedan %).', v_producto.nombre, v_producto.existencia
+                USING ERRCODE = '22023';
+        END IF;
+        UPDATE productos SET existencia = existencia - v_cantidad WHERE id = v_producto.id;
+        INSERT INTO factura_detalles (factura_id, producto, cantidad, precio, subtotal, producto_id)
+        VALUES (v_factura_id, v_producto.nombre, v_cantidad, v_producto.precio, v_cantidad * v_producto.precio, v_producto.id);
+        v_total := v_total + v_cantidad * v_producto.precio;
+    END LOOP;
+
+    UPDATE facturas SET total = v_total WHERE id = v_factura_id;
+    RETURN json_build_object('numero_factura', v_numero, 'total', v_total);
+END
+$fn$;
+
 -- Por defecto cualquiera puede ejecutar funciones: se deja solo lo necesario.
+REVOKE ALL ON FUNCTION app_detalle_venta(UUID, TEXT) FROM PUBLIC;
+REVOKE ALL ON FUNCTION app_resumen(UUID, DATE, INTEGER) FROM PUBLIC;
+REVOKE ALL ON FUNCTION app_registrar_factura(UUID, TEXT, TEXT, DATE, JSON) FROM PUBLIC;
 REVOKE ALL ON FUNCTION app_usuario_de(UUID) FROM PUBLIC;
 REVOKE ALL ON FUNCTION app_login(TEXT, TEXT) FROM PUBLIC;
 REVOKE ALL ON FUNCTION app_logout(UUID) FROM PUBLIC;
@@ -265,6 +385,9 @@ BEGIN
         GRANT EXECUTE ON FUNCTION app_clientes(UUID, TEXT) TO anon, authenticated;
         GRANT EXECUTE ON FUNCTION app_registrar_cliente(UUID, TEXT, TEXT, TEXT, TEXT) TO anon, authenticated;
         GRANT EXECUTE ON FUNCTION app_ventas(UUID, DATE, DATE) TO anon, authenticated;
+        GRANT EXECUTE ON FUNCTION app_detalle_venta(UUID, TEXT) TO anon, authenticated;
+        GRANT EXECUTE ON FUNCTION app_resumen(UUID, DATE, INTEGER) TO anon, authenticated;
+        GRANT EXECUTE ON FUNCTION app_registrar_factura(UUID, TEXT, TEXT, DATE, JSON) TO anon, authenticated;
     END IF;
 END
 $bloque$;
