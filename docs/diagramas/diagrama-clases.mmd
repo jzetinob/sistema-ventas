@@ -344,6 +344,17 @@ classDiagram
         class RespaldoController {
             +Respaldar(destino: File) String
         }
+        class ResumenController {
+            -facturas: List~Factura~
+            -productos: List~Producto~
+            -hoy: LocalDate
+            +VentasDelDia() double
+            +FacturasDelDia() int
+            +VentasDelMes() double
+            +VentasPorDia(dias: int) Map
+            +MasVendidosDelMes(limite: int) List~ProductoVendido~
+            +ExistenciaBaja(limite: int) List~Producto~
+        }
         class Sesion {
             <<Singleton>>
             -usuario: Usuario
@@ -374,6 +385,8 @@ classDiagram
     UsuarioController ..> Contrasenas : hash bcrypt
     UsuarioController ..> Sesion : inicia sesion
     RespaldoController ..> ConexionBD
+    ResumenController ..> FacturaController
+    ResumenController ..> ProductoController
     Sesion --> "0..1" Usuario
 
     %% ================================ VISTAS ================================
@@ -436,6 +449,21 @@ classDiagram
         class Printable {
             <<interface>>
         }
+        class JPanel {
+            <<Swing>>
+            #paintComponent(g: Graphics) void
+        }
+        class FrmResumen {
+            -cargar() void
+        }
+        class GraficoBarrasPanel {
+            +setDatos(etiquetas: List, valores: List, destacada: int) void
+            #paintComponent(g: Graphics) void
+        }
+        class GraficoDonaPanel {
+            +setDatos(valores: List, textoCentro: String, etiqueta: String) void
+            #paintComponent(g: Graphics) void
+        }
         class CampoBusqueda {
             -oyentes: List~ActionListener~
             -fuente: Supplier~List~String~~
@@ -471,6 +499,12 @@ classDiagram
     FrmCatalogo <|-- FrmProveedores
     FrmCatalogo <|-- FrmUsuarios
     TicketFactura ..|> Printable
+    JPanel <|-- GraficoBarrasPanel
+    JPanel <|-- GraficoDonaPanel
+    FrmResumen *-- GraficoBarrasPanel
+    FrmResumen *-- GraficoDonaPanel
+    FrmResumen --> ResumenController
+    FrmPrincipal o-- FrmResumen
     FrmPrincipal o-- "0..*" FrmCatalogo : ventanas internas
     FrmPrincipal o-- FrmFactura
     FrmPrincipal o-- FrmListaFacturas

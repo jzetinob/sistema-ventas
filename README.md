@@ -38,10 +38,10 @@ Cada carpeta tiene el documento fuente (`.md`) y, cuando corresponde, la present
 | **Facturación** | Número automático (FAC-0001…) y buscador de cliente y producto con autocompletado. Descuenta la existencia al guardar y no deja vender si no alcanza. Ticket con vista previa e impresión |
 | **Catálogos** | Productos (con categoría), clientes, empleados, categorías, proveedores y usuarios. En todos: altas, bajas, cambios, búsqueda y **Reporte HTML** |
 | **Compras** | Compras a proveedores: suman la existencia y proponen el último costo; se pueden anular |
-| **Reportes** | Inventario valorizado, existencia baja, ventas por período y compras por proveedor (HTML; desde el navegador se imprimen o se guardan como PDF) |
+| **Reportes** | **Resumen con gráficos** (barras de ventas de 7 días, dona de productos más vendidos, indicadores), inventario valorizado, existencia baja, ventas por período y compras por proveedor (HTML; desde el navegador se imprimen o se guardan como PDF) |
 | **Seguridad** | Inicio de sesión con roles (Administrador / Vendedor), contraseñas bcrypt, bloqueo tras 3 intentos y `PreparedStatement` contra inyección SQL. En la nube: RLS en todas las tablas y funciones con token para el móvil |
 | **Datos** | 10 tablas con llaves primarias y foráneas, operaciones en transacción y respaldo a un archivo `.db` |
-| **Móvil** | Mismos usuarios. Consulta de productos y existencia, clientes y ventas por fecha. Alta de clientes |
+| **Móvil** | Mismos usuarios. Inicio con indicadores y menú con íconos; **resumen con gráficos**; **facturar desde el teléfono**; productos (también **sin conexión**), clientes, ventas por fecha con su detalle; alta de clientes; modo oscuro |
 
 ## Cómo ejecutar
 

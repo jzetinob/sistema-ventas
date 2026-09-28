@@ -14,9 +14,9 @@ Todo está en GitHub, en la rama `main`.
 
 | Pieza | Estado | Dónde |
 |---|---|---|
-| App de escritorio | ✅ Terminada (fases 1–14) | `sistema-ventas/` |
+| App de escritorio | ✅ Terminada (fases 1–14 y 17: Resumen con gráficos) | `sistema-ventas/` |
 | Base en la nube | ✅ Funcionando (proyecto Supabase `sistema-ventas`) | `sistema-ventas/src/main/resources/bd/esquema-postgresql.sql` |
-| App móvil | ✅ Probada en un teléfono real | `movil/`, APK en `entregables/VentasMovil.apk` |
+| App móvil | ✅ Resumen con gráficos, factura, detalle, sin conexión y modo oscuro (fase 17). La versión anterior se probó en un teléfono real | `movil/`, APK en `entregables/VentasMovil.apk` |
 | Manuales | ✅ | `entregables/manual-usuario.pdf`, `entregables/manual-tecnico.pdf` |
 | Diagrama ER | ✅ Al día | [`../diagramas/diagrama-entidad-relacion.md`](../diagramas/diagrama-entidad-relacion.md) |
 | Diagrama de clases | ✅ Al día (5 vistas por capa, en PNG) | [`../diagramas/diagrama-clases.md`](../diagramas/diagrama-clases.md) |

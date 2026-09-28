@@ -25,6 +25,7 @@ Este archivo es el **historial de decisiones**: qué se hizo en cada fase y por 
 | 14 — La factura descuenta existencia | ✅ Completada |
 | 15 — Base en la nube (Supabase) y app móvil | ✅ Completada |
 | 16 — Manuales | ✅ Completada |
+| 17 — Gráficos, factura móvil y mejoras visuales | ✅ Completada |
 
 > Las secciones de las fases 1 a 11 se escribieron mientras se desarrollaban. Algunas hablan de "combos" o de CSV porque así era el sistema en ese momento.
 
@@ -204,3 +205,23 @@ Corresponde al entregable final de la guía: integrar la app móvil con la base 
 ## Fase 16 — Manuales
 
 - `docs/manual-usuario.md` y `docs/manual-tecnico.md`, exportados a PDF en `entregables/`.
+
+## Fase 17 — Gráficos, factura móvil y mejoras visuales
+
+- **Base (nube):** 3 funciones nuevas, con token obligatorio y solo `EXECUTE`:
+  - `app_resumen`: indicadores, 7 días con ceros, top 5 del mes y existencia baja. La fecha la envía el teléfono porque el servidor está en UTC.
+  - `app_detalle_venta`.
+  - `app_registrar_factura`: transacción completa con `LOCK TABLE` para el correlativo, precio de la base, `SELECT … FOR UPDATE` y descuento de existencia.
+  - Se probaron contra la nube dentro de una transacción revertida, así que los datos reales no cambiaron.
+- **Móvil:**
+  - Inicio con indicadores y menú en mosaico con íconos vectoriales.
+  - `ResumenActivity` con `GraficoBarras` y `GraficoDona`, que extienden `View` y dibujan con `Canvas`.
+  - `NuevaVentaActivity`, con `DialogoBusqueda<T>` genérico.
+  - `DetalleVentaActivity`.
+  - Listas en tarjetas (`item_fila`).
+  - Deslizar para actualizar con SwipeRefreshLayout, la única dependencia.
+  - Catálogo sin conexión (`CacheCatalogo`), que se borra al cerrar sesión.
+  - Modo oscuro (`values-night`).
+  - Lint sin errores.
+- **Escritorio:** `FrmResumen` con `GraficoBarrasPanel` y `GraficoDonaPanel` (`Graphics2D` en `paintComponent`) y `ResumenController`, que funciona con los dos motores. Está en *Reportes → Resumen con gráficos*.
+- **Decisión: gráficos hechos a mano, sin librerías como MPAndroidChart o JFreeChart.** Así no hay dependencias y cada línea se puede explicar: herencia de `View` / `JPanel`, sobrescritura de `onDraw` / `paintComponent` y escalado de valores a píxeles.

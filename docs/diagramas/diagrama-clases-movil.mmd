@@ -7,15 +7,20 @@ classDiagram
     namespace datos {
         class ApiSupabase {
             <<Singleton / Facade>>
+            +SIN_CONEXION$: String
             -hilo: ExecutorService
             -principal: Handler
             +getInstancia()$ ApiSupabase
             +login(usuario: String, clave: String, r: Respuesta) void
             +logout(token: String) void
+            +resumen(token: String, hoy: String, r: Respuesta) void
             +productos(token: String, buscar: String, r: Respuesta) void
+            +productosDesdeJson(filas: JSONArray)$ List~Producto~
             +clientes(token: String, buscar: String, r: Respuesta) void
             +registrarCliente(token: String, nit: String, nombre: String, direccion: String, telefono: String, r: Respuesta) void
             +ventas(token: String, desde: String, hasta: String, r: Respuesta) void
+            +detalleVenta(token: String, numero: String, r: Respuesta) void
+            +registrarFactura(token: String, nit: String, cliente: String, fecha: String, lineas: List, r: Respuesta) void
             -rpc(funcion: String, parametros: JSONObject) String
         }
         class Respuesta~T~ {
@@ -37,6 +42,13 @@ classDiagram
             +getToken(c: Context)$ String
             +activa(c: Context)$ boolean
             +cerrar(c: Context)$ void
+        }
+        class CacheCatalogo {
+            <<utility>>
+            +guardar(c: Context, productos: JSONArray)$ void
+            +buscar(c: Context, texto: String)$ List~Producto~
+            +guardadoEn(c: Context)$ long
+            +borrar(c: Context)$ void
         }
     }
 
@@ -61,11 +73,39 @@ classDiagram
             -cliente: String
             -total: double
         }
+        class LineaVenta {
+            -producto: String
+            -codigo: String
+            -cantidad: int
+            -precio: double
+            +getSubtotal() double
+        }
+        class Resumen {
+            -ventasHoy: double
+            -facturasHoy: int
+            -ventasMes: double
+            -ventasSemana: List~VentaDia~
+            -masVendidos: List~ProductoVendido~
+            -existenciaBaja: List~Producto~
+        }
+        class VentaDia {
+            -fecha: String
+            -total: double
+        }
+        class ProductoVendido {
+            -producto: String
+            -cantidad: int
+            -total: double
+        }
     }
 
     namespace vista {
         class Activity {
             <<Android>>
+        }
+        class View {
+            <<Android>>
+            #onDraw(canvas: Canvas) void
         }
         class ActividadBase {
             <<abstract>>
@@ -74,14 +114,39 @@ classDiagram
             #irAlLogin() void
         }
         class LoginActivity
-        class MenuActivity
+        class MenuActivity {
+            -armarMosaico() void
+            -cargarIndicadores() void
+        }
+        class ResumenActivity
+        class NuevaVentaActivity {
+            -carrito: List~LineaVenta~
+            -elegirCliente() void
+            -elegirProducto() void
+            -pedirCantidad(p: Producto) void
+            -guardar(nit: String, cliente: String) void
+        }
+        class DetalleVentaActivity
         class ProductosActivity
         class ClientesActivity
         class NuevoClienteActivity
         class VentasActivity
+        class GraficoBarras {
+            +setDatos(etiquetas: List, valores: List, destacada: int) void
+            #onDraw(canvas: Canvas) void
+        }
+        class GraficoDona {
+            +setDatos(valores: List, textoCentro: String, etiqueta: String) void
+            +colorDe(c: Context, i: int)$ int
+            #onDraw(canvas: Canvas) void
+        }
         class AdaptadorFilas~T~ {
             -formato: Formato
             +setElementos(elementos: List) void
+        }
+        class DialogoBusqueda~T~ {
+            <<utility>>
+            ~mostrar(pantalla: ActividadBase, titulo: String, pista: String, formato: Formato, buscador: Buscador, alElegir: AlElegir)$ void
         }
     }
 
@@ -89,23 +154,48 @@ classDiagram
     Activity <|-- ActividadBase
     Activity <|-- LoginActivity
     ActividadBase <|-- MenuActivity
+    ActividadBase <|-- ResumenActivity
+    ActividadBase <|-- NuevaVentaActivity
+    ActividadBase <|-- DetalleVentaActivity
     ActividadBase <|-- ProductosActivity
     ActividadBase <|-- ClientesActivity
     ActividadBase <|-- NuevoClienteActivity
     ActividadBase <|-- VentasActivity
+    View <|-- GraficoBarras
+    View <|-- GraficoDona
+    Resumen *-- VentaDia
+    Resumen *-- ProductoVendido
+    Resumen o-- Producto
     ApiSupabase ..> Respuesta : devuelve resultados
     ApiSupabase ..> ApiException : errores HTTP
     ApiSupabase ..> ConfigSupabase
+    ApiSupabase ..> Resumen : crea
     ApiSupabase ..> Producto : crea
     ApiSupabase ..> Cliente : crea
     ApiSupabase ..> Venta : crea
+    ApiSupabase ..> LineaVenta : crea
+    CacheCatalogo ..> ApiSupabase : productosDesdeJson
     LoginActivity ..> ApiSupabase
     LoginActivity ..> Sesion
     ActividadBase ..> Sesion
+    MenuActivity ..> ApiSupabase
+    MenuActivity ..> CacheCatalogo : borra al salir
+    ResumenActivity ..> ApiSupabase
+    ResumenActivity *-- GraficoBarras
+    ResumenActivity *-- GraficoDona
+    NuevaVentaActivity ..> ApiSupabase
+    NuevaVentaActivity ..> DialogoBusqueda
+    NuevaVentaActivity *-- "0..*" LineaVenta : carrito
+    DetalleVentaActivity ..> ApiSupabase
     ProductosActivity ..> ApiSupabase
+    ProductosActivity ..> CacheCatalogo : sin conexion
     ClientesActivity ..> ApiSupabase
     NuevoClienteActivity ..> ApiSupabase
     VentasActivity ..> ApiSupabase
+    VentasActivity ..> DetalleVentaActivity : al tocar
+    DialogoBusqueda *-- AdaptadorFilas
     ProductosActivity *-- AdaptadorFilas
     ClientesActivity *-- AdaptadorFilas
     VentasActivity *-- AdaptadorFilas
+    NuevaVentaActivity *-- AdaptadorFilas
+    DetalleVentaActivity *-- AdaptadorFilas

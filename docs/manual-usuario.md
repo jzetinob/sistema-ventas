@@ -7,7 +7,7 @@ Autor: Josue Zetino
 Este manual explica cómo usar el sistema día a día. Tiene dos partes:
 
 1. **Aplicación de escritorio** (Windows): para facturar, administrar catálogos, registrar compras y sacar reportes.
-2. **Aplicación móvil** (Android): para consultar productos, clientes y ventas, y registrar clientes desde el teléfono.
+2. **Aplicación móvil** (Android): para ver el resumen con gráficos, **vender**, consultar productos, clientes y ventas, y registrar clientes desde el teléfono.
 
 Las dos trabajan con **la misma base de datos en la nube**, así que lo que se registra en una aparece en la otra.
 
@@ -42,7 +42,7 @@ La barra de título muestra quién inició sesión, su rol y si la base es **loc
 | **Edición** | Limpiar formulario (de la factura abierta) |
 | **Ventana** | Cascada, Mosaico, Minimizar todo, Restaurar todo |
 | **Administración** | Usuarios, Respaldar base de datos |
-| **Reportes** | Inventario, Existencia baja, Ventas por período, Compras por proveedor |
+| **Reportes** | Resumen con gráficos, Inventario, Existencia baja, Ventas por período, Compras por proveedor |
 | **Ayuda** | Acerca de |
 
 Cada opción abre una ventana **dentro** de la ventana principal. Se pueden tener varias abiertas a la vez y ordenarlas con el menú **Ventana**.
@@ -108,6 +108,7 @@ En el menú **Reportes** (administrador):
 
 | Reporte | Qué muestra |
 |---|---|
+| **Resumen con gráficos** | Tablero con las ventas de hoy, las facturas de hoy, las ventas del mes y los productos por agotarse. Incluye un **gráfico de barras** con las ventas de los últimos 7 días (hoy en naranja), un **gráfico de dona** con los 5 productos más vendidos del mes y la tabla de productos con existencia de 5 o menos. **Actualizar** vuelve a calcular todo |
 | Inventario de productos | Todos los productos con su valor en inventario (precio × existencia) y el total |
 | Productos con existencia baja | Los productos con existencia menor o igual al número que usted indique (por defecto 5) |
 | Ventas por período | Facturas entre dos fechas y el total vendido |
@@ -138,15 +139,33 @@ Use **el mismo usuario y contraseña** de la aplicación de escritorio. La sesi�
 
 > Si un usuario fue creado antes de la versión con base en la nube y no puede entrar desde el teléfono, basta con que inicie sesión una vez en la aplicación de escritorio.
 
-### 2.3 Pantallas
+### 2.3 Pantalla de inicio
+
+Arriba aparecen tres **indicadores del día**: ventas de hoy, facturas de hoy y productos por agotarse (en rojo si hay alguno). Al tocarlos se abre el **Resumen**. Abajo está el menú en botones de colores, y al final, **Cerrar sesión**.
 
 | Botón | Para qué sirve |
 |---|---|
-| **Productos** | Buscar por código o nombre; muestra categoría, precio y existencia. Los productos con existencia de 5 o menos se marcan en rojo con "(baja)". |
+| **Resumen** | Tablero con gráficos: ventas de hoy y del mes, **barras** con las ventas de los últimos 7 días (hoy en otro color), **dona** con los 5 productos más vendidos del mes y lista de productos por agotarse. |
+| **Nueva venta** | Facturar desde el teléfono (ver 2.4). |
+| **Productos** | Buscar por código o nombre; cada tarjeta muestra el precio, la categoría y la existencia. Los productos con existencia de 5 o menos se marcan en rojo. |
 | **Clientes** | Buscar clientes por NIT o nombre (escriba y presione la lupa del teclado). |
 | **Nuevo cliente** | Registrar un cliente (NIT de 8 a 13 dígitos y nombre obligatorios). Queda disponible de inmediato en la aplicación de escritorio. |
-| **Ventas por fecha** | Elegir fecha inicial y final; muestra las facturas del período y el total vendido. Por defecto muestra las de hoy. |
-| **Cerrar sesión** | Sale de la cuenta en ese teléfono. |
+| **Ventas** | Elegir fecha inicial y final; muestra las facturas del período y el total. **Toque una factura para ver sus productos.** |
+
+En todas las listas se puede **deslizar hacia abajo para actualizar**.
+
+### 2.4 Nueva venta (facturar desde el teléfono)
+
+1. **Cliente:** toque **Del catálogo** para buscarlo y elegirlo, o escriba el NIT y el nombre.
+2. **Productos:** toque **Agregar**, busque el producto, tóquelo y escriba la cantidad. La app muestra cuánto hay disponible y no deja pedir más. Si agrega un producto que ya estaba, se cambia su cantidad. Para quitar un producto, **manténgalo presionado**.
+3. Revise el **total** y toque **Guardar venta**, y luego confirme.
+
+La factura recibe el siguiente número (FAC-…), descuenta la existencia y aparece de inmediato en la aplicación de escritorio y en los reportes. El precio lo toma el sistema del catálogo. Si otro vendedor agotó un producto mientras tanto, la venta **no se guarda** y se muestra el aviso.
+
+### 2.5 Sin conexión y modo oscuro
+
+- **Sin internet:** la pantalla **Productos** muestra la última copia del catálogo guardada en el teléfono, con un aviso rojo y la fecha de esa copia. Vender, registrar clientes y ver el resumen sí necesitan internet. La copia se borra al cerrar sesión.
+- **Modo oscuro:** si el teléfono está en modo oscuro, la app cambia sus colores automáticamente.
 
 ---
 

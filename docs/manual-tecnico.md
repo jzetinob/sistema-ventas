@@ -23,7 +23,7 @@ El sistema tiene tres piezas que comparten los mismos datos:
 |---|---|---|
 | Escritorio | Java 25, Swing (MDI con `JDesktopPane`), Maven, NetBeans | `sistema-ventas/` |
 | Base de datos | PostgreSQL 17 en Supabase (nube) o SQLite (local, sin configuración) | `sistema-ventas/src/main/resources/bd/` |
-| Móvil | Android (Java 17; minSdk 24, compileSdk 37, targetSdk 34; sin librerías externas), Gradle | `movil/` |
+| Móvil | Android (Java 17; minSdk 24, compileSdk 37, targetSdk 34). Solo usa lo que trae Android, más la librería oficial SwipeRefreshLayout. Se compila con Gradle | `movil/` |
 | Documentación | Markdown | `docs/`, `tareas/` |
 
 ## 2. Requisitos de desarrollo
@@ -54,7 +54,7 @@ Patrón **MVC** en el paquete `com.josue.ventas`:
 | `modelo` | Entidades: `Persona` (abstracta) → `Cliente`, `Empleado`, `Proveedor`; `Producto`, `Categoria`, `Factura` + `FacturaDetalle`, `Compra` + `CompraDetalle`, `Usuario` |
 | `dao` | Interfaces DAO y su implementación JDBC (`…DAOSQLite`, que funcionan también con PostgreSQL), `ConexionBD`, `CopiadorBD`, `MigradorDatos` (CSV antiguos) |
 | `controlador` | Un controller por entidad, `Sesion` (usuario conectado), `Contrasenas` (hash), `RespaldoController` |
-| `vista` | Formularios (`JInternalFrame`), `FrmCatalogo` (base abstracta), `DlgLogin`, `BarraBusqueda`, `FiltroTabla`, `ReporteHtml`, `Reportes`, `CampoBusqueda` |
+| `vista` | Formularios (`JInternalFrame`), `FrmCatalogo` (base abstracta), `DlgLogin`, `FrmResumen` + `GraficoBarrasPanel` / `GraficoDonaPanel` (gráficos con `Graphics2D`), `BarraBusqueda`, `FiltroTabla`, `ReporteHtml`, `Reportes`, `CampoBusqueda` |
 
 Flujo de una operación: **vista → controlador → DAO → base de datos**. Las vistas nunca escriben SQL.
 
@@ -101,6 +101,7 @@ Los DAO usan SQL estándar que funciona en ambos motores. Lo único específico 
   - Vuelve a leer su lista (`setFuente`) cada vez que recibe el foco, así aparecen los registros creados en otra ventana o desde el celular.
   - Si nada coincide, muestra "(sin coincidencias)".
   - Avisa a sus oyentes (`addActionListener`) al elegir un elemento. Es el patrón Observer.
+- **Resumen con gráficos (`FrmResumen`):** `ResumenController` toma una "foto" de las facturas y los productos (a través de sus controllers, así funciona con los dos motores) y calcula los indicadores, las ventas de cada uno de los últimos 7 días (con ceros), el top 5 del mes y la existencia baja. `GraficoBarrasPanel` y `GraficoDonaPanel` sobrescriben `paintComponent()` y dibujan con `Graphics2D` (`fillRoundRect`, `Arc2D`). Es la misma idea que `onDraw()` con `Canvas` en Android.
 - **Búsqueda en tablas (`FiltroTabla`, `BarraBusqueda`):** usan `TableRowSorter` y `RowFilter`. Cuando la tabla está filtrada, la fila seleccionada se traduce con `convertRowIndexToModel`.
 
 ## 4. Base de datos
@@ -161,6 +162,9 @@ Todas se llaman con `POST https://<proyecto>.supabase.co/rest/v1/rpc/<función>`
 | `app_clientes` | `p_token`, `p_buscar` | `[{nit, nombre, direccion, telefono}]` |
 | `app_registrar_cliente` | `p_token`, `p_nit`, `p_nombre`, `p_direccion`, `p_telefono` | `{id, nit, nombre}` |
 | `app_ventas` | `p_token`, `p_desde`, `p_hasta` (aaaa-mm-dd) | `[{numero_factura, fecha, cliente, total}]` |
+| `app_detalle_venta` | `p_token`, `p_numero_factura` | `[{producto, cantidad, precio, subtotal}]` |
+| `app_resumen` | `p_token`, `p_hoy` (fecha local del teléfono), `p_existencia_baja` (5) | `{ventas_hoy, facturas_hoy, ventas_mes, ventas_7_dias[], top_productos[], existencia_baja[]}` |
+| `app_registrar_factura` | `p_token`, `p_nit`, `p_cliente`, `p_fecha`, `p_detalles` (`[{codigo, cantidad}]`) | `{numero_factura, total}` |
 
 Los errores llegan con código HTTP 4xx y `{"message": "..."}`. El mensaje ya está en español y la app lo muestra tal cual.
 
@@ -168,11 +172,21 @@ Los errores llegan con código HTTP 4xx y `{"message": "..."}`. El mensaje ya es
 
 | Paquete | Clases |
 |---|---|
-| `datos` | `ConfigSupabase` (URL y clave publishable), `ApiSupabase` (singleton: llamadas HTTP en un hilo aparte con `ExecutorService`, respuesta en el hilo principal con `Handler`), `Sesion` (token en `SharedPreferences`; nunca guarda la contraseña) |
-| `modelo` | `Producto`, `Cliente`, `Venta` |
-| `vista` | `LoginActivity`, `MenuActivity`, `ProductosActivity`, `ClientesActivity`, `NuevoClienteActivity`, `VentasActivity`, `ActividadBase` (exige sesión), `AdaptadorFilas<T>` (lista genérica) |
+| `datos` | `ConfigSupabase` (URL y clave publishable), `ApiSupabase` (singleton y fachada: llamadas HTTP en un hilo aparte con `ExecutorService`, respuesta en el hilo principal con `Handler`), `Sesion` (token en `SharedPreferences`; nunca guarda la contraseña), `CacheCatalogo` (copia del catálogo para usar sin conexión) |
+| `modelo` | `Producto`, `Cliente`, `Venta`, `LineaVenta` (detalle y carrito), `Resumen` (con `VentaDia` y `ProductoVendido`) |
+| `vista` | `LoginActivity`; `MenuActivity` (inicio con indicadores y menú en mosaico); `ResumenActivity`; `NuevaVentaActivity`; `DetalleVentaActivity`; `ProductosActivity`; `ClientesActivity`; `NuevoClienteActivity`; `VentasActivity`; `ActividadBase` (abstracta, exige sesión); `AdaptadorFilas<T>` (tarjetas, genérica); `DialogoBusqueda<T>` (elegir cliente o producto, genérica); `GraficoBarras` y `GraficoDona` (extienden `View` y dibujan con `Canvas` en `onDraw()`); `Formatos` |
 
-No usa librerías externas: `HttpURLConnection` y `org.json` vienen incluidos en Android.
+HTTP (`HttpURLConnection`), JSON (`org.json`) y gráficos (`Canvas`) usan solo lo que trae Android. La **única dependencia** es `androidx.swiperefreshlayout`, el componente oficial para *deslizar para actualizar*.
+
+**Detalles de la app móvil:**
+
+| Tema | Cómo funciona |
+|---|---|
+| **Gráficos** | `GraficoBarras` escala cada barra al máximo de la semana y escribe su valor encima; destaca el día de hoy. `GraficoDona` dibuja un arco por producto, proporcional a sus unidades (`drawArc`), y pone el total en el centro. Los colores salen de `colores.xml`, así que también cambian en modo oscuro |
+| **Factura móvil** | El teléfono envía solo el código y la cantidad de cada producto. `app_registrar_factura` bloquea la tabla para asignar el número correlativo, toma el precio del catálogo, bloquea cada producto (`SELECT … FOR UPDATE`), valida la existencia y la descuenta. Todo es una transacción: si algo falla, no se guarda nada |
+| **Sin conexión** | Cada consulta completa del catálogo se guarda en `SharedPreferences` (`CacheCatalogo`). Si no hay red, Productos muestra esa copia filtrada, con un aviso y su fecha. Se borra al cerrar sesión |
+| **Modo oscuro** | `values-night/colores.xml` y `values-night/estilos.xml` redefinen la paleta y el tema, y Android los aplica solo cuando el sistema está en modo oscuro |
+| **Fechas** | Se usa `Calendar` y `SimpleDateFormat` porque `java.time` requiere Android 8 y la app funciona desde Android 7. El teléfono envía su fecha local (`p_hoy`) porque el servidor trabaja en UTC |
 
 **Compilar:** abra la carpeta `movil/` en Android Studio y use *Build → Build APK(s)*, o desde la terminal ejecute `gradlew assembleDebug` con `JAVA_HOME` apuntando al JDK que trae Android Studio (carpeta `jbr`). El APK queda en `movil/app/build/outputs/apk/debug/`, y la copia lista para instalar está en `entregables/VentasMovil.apk`.
 
@@ -216,3 +230,4 @@ Se ejecutaron pruebas automatizadas contra bases temporales (SQLite) y contra el
 | Búsquedas y reportes | Filtro literal, selección correcta con la tabla filtrada, escape HTML |
 | Respaldo | Local (`VACUUM INTO`) y desde la nube a `.db` |
 | API móvil | Login correcto e incorrecto, token falso o cerrado rechazado, consultas, alta de cliente visible en el escritorio, **lectura directa de tablas bloqueada (401)** |
+| Resumen y factura móvil | `app_resumen` (7 días con ceros, top, existencia baja) y `app_registrar_factura` (número, precio de la base, descuento de existencia, rechazo por existencia, NIT, repetidos y productos inexistentes). Se probaron **contra la nube dentro de una transacción revertida**, sin tocar los datos reales. Resumen de escritorio: cálculos verificados con una base temporal |

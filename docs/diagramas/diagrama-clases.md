@@ -64,6 +64,7 @@ El diagrama completo tiene unas 60 clases y en una sola imagen no se lee. Por es
 - `FrmCatalogo` es **abstracta**, con el patrón *Template Method*: `FrmCategorias`, `FrmProveedores` y `FrmUsuarios` heredan de ella.
 - `CampoBusqueda` es un componente reutilizable: `FrmFactura` y `FrmCompra` tienen dos cada uno. Aplica el patrón Observer (`addActionListener`).
 - `TicketFactura` implementa `Printable`: el mismo dibujo sirve para la vista previa y para imprimir.
+- `FrmResumen` contiene `GraficoBarrasPanel` y `GraficoDonaPanel`, que **heredan de `JPanel`** y sobrescriben `paintComponent()` para dibujar con `Graphics2D`. Los datos se los da `ResumenController`.
 - Cada vista usa **solo controllers**, nunca DAO ni SQL.
 
 ## 5. App móvil (Android)
@@ -71,6 +72,9 @@ El diagrama completo tiene unas 60 clases y en una sola imagen no se lee. Por es
 ![App móvil](img/clases-5-movil.png)
 
 - `ApiSupabase` es Singleton y fachada (*Facade*): esconde HTTP, JSON e hilos. Devuelve los resultados por la interfaz genérica `Respuesta<T>` (*callback*).
+- `GraficoBarras` y `GraficoDona` **heredan de `View`** y sobrescriben `onDraw(Canvas)`: los gráficos se dibujan a mano, sin librerías. `ResumenActivity` los contiene (composición).
+- `NuevaVentaActivity` arma un carrito de `LineaVenta` y usa `DialogoBusqueda<T>`, un diálogo **genérico** que sirve para elegir clientes o productos.
+- `CacheCatalogo` guarda el catálogo para consultarlo sin conexión.
 - `ApiException` es una **excepción propia** que guarda el código HTTP.
 - `ActividadBase` es **abstracta** y exige sesión en todas las pantallas que heredan de ella.
 - `AdaptadorFilas<T>` es una clase **genérica** para las listas.
