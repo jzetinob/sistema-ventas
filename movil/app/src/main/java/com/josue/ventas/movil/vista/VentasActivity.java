@@ -1,11 +1,12 @@
 package com.josue.ventas.movil.vista;
 
 import android.app.DatePickerDialog;
+import android.content.Intent;
 import android.os.Bundle;
 import android.widget.Button;
 import android.widget.ListView;
-import android.widget.ProgressBar;
 import android.widget.TextView;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 import com.josue.ventas.movil.R;
 import com.josue.ventas.movil.datos.ApiSupabase;
 import com.josue.ventas.movil.modelo.Venta;
@@ -13,7 +14,10 @@ import java.util.Calendar;
 import java.util.List;
 import java.util.Locale;
 
-/** Ventas (facturas) de un rango de fechas con su total. Por defecto, las de hoy. */
+/**
+ * Ventas (facturas) de un rango de fechas con su total. Por defecto, las de hoy.
+ * Al tocar una venta se abre su detalle.
+ */
 public class VentasActivity extends ActividadBase {
 
     private final Calendar desde = Calendar.getInstance();
@@ -22,7 +26,7 @@ public class VentasActivity extends ActividadBase {
     private Button btnHasta;
     private TextView lblTotal;
     private TextView lblVacio;
-    private ProgressBar progreso;
+    private SwipeRefreshLayout deslizar;
     private AdaptadorFilas<Venta> adaptador;
 
     @Override
@@ -33,69 +37,90 @@ public class VentasActivity extends ActividadBase {
         btnHasta = findViewById(R.id.btnHasta);
         lblTotal = findViewById(R.id.lblTotal);
         lblVacio = findViewById(R.id.lblVacio);
-        progreso = findViewById(R.id.progreso);
+        deslizar = findViewById(R.id.deslizar);
+        deslizar.setColorSchemeColors(getColor(R.color.acento));
+        deslizar.setOnRefreshListener(this::consultar);
 
         adaptador = new AdaptadorFilas<>(this, new AdaptadorFilas.Formato<Venta>() {
             @Override
             public String titulo(Venta v) {
-                return String.format(Locale.US, "%s  ·  Q %.2f", v.getNumeroFactura(), v.getTotal());
+                return v.getNumeroFactura();
             }
 
             @Override
             public String detalle(Venta v) {
-                return v.getFecha() + "  ·  " + v.getCliente();
+                return Formatos.fechaLarga(v.getFecha()) + "  ·  " + v.getCliente();
+            }
+
+            @Override
+            public String valor(Venta v) {
+                return Formatos.dinero(v.getTotal());
             }
         });
-        ((ListView) findViewById(R.id.lista)).setAdapter(adaptador);
+        ListView lista = findViewById(R.id.lista);
+        lista.setAdapter(adaptador);
+        lista.setOnItemClickListener((padre, vista, posicion, id) -> abrirDetalle(adaptador.getItem(posicion)));
 
         btnDesde.setOnClickListener(v -> elegirFecha(desde));
         btnHasta.setOnClickListener(v -> elegirFecha(hasta));
         mostrarFechas();
-        consultar();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        deslizar.setRefreshing(true);
+        consultar(); // al volver de una venta nueva, aparece en la lista
+    }
+
+    private void abrirDetalle(Venta v) {
+        Intent intent = new Intent(this, DetalleVentaActivity.class);
+        intent.putExtra(DetalleVentaActivity.EXTRA_NUMERO, v.getNumeroFactura());
+        intent.putExtra(DetalleVentaActivity.EXTRA_FECHA, v.getFecha());
+        intent.putExtra(DetalleVentaActivity.EXTRA_CLIENTE, v.getCliente());
+        intent.putExtra(DetalleVentaActivity.EXTRA_TOTAL, v.getTotal());
+        startActivity(intent);
     }
 
     private void elegirFecha(Calendar fecha) {
         new DatePickerDialog(this, (vista, anio, mes, dia) -> {
             fecha.set(anio, mes, dia);
             mostrarFechas();
+            deslizar.setRefreshing(true);
             consultar();
         }, fecha.get(Calendar.YEAR), fecha.get(Calendar.MONTH), fecha.get(Calendar.DAY_OF_MONTH)).show();
     }
 
     private void mostrarFechas() {
-        btnDesde.setText(getString(R.string.fecha_boton, getString(R.string.desde), texto(desde)));
-        btnHasta.setText(getString(R.string.fecha_boton, getString(R.string.hasta), texto(hasta)));
-    }
-
-    private static String texto(Calendar c) {
-        return String.format(Locale.US, "%04d-%02d-%02d", c.get(Calendar.YEAR), c.get(Calendar.MONTH) + 1,
-                c.get(Calendar.DAY_OF_MONTH));
+        btnDesde.setText(getString(R.string.fecha_boton, getString(R.string.desde), Formatos.fechaLarga(Formatos.aTexto(desde))));
+        btnHasta.setText(getString(R.string.fecha_boton, getString(R.string.hasta), Formatos.fechaLarga(Formatos.aTexto(hasta))));
     }
 
     private void consultar() {
-        if (desde.after(hasta)) {
+        if (Formatos.aTexto(desde).compareTo(Formatos.aTexto(hasta)) > 0) {
+            deslizar.setRefreshing(false);
             mostrarError("La fecha inicial no puede ser posterior a la final.", false);
             return;
         }
-        visible(progreso, true);
-        ApiSupabase.getInstancia().ventas(token(), texto(desde), texto(hasta), new ApiSupabase.Respuesta<List<Venta>>() {
-            @Override
-            public void exito(List<Venta> ventas) {
-                visible(progreso, false);
-                visible(lblVacio, ventas.isEmpty());
-                adaptador.setElementos(ventas);
-                double total = 0;
-                for (Venta v : ventas) {
-                    total += v.getTotal();
-                }
-                lblTotal.setText(String.format(Locale.US, "%d facturas  ·  Total Q %.2f", ventas.size(), total));
-            }
+        ApiSupabase.getInstancia().ventas(token(), Formatos.aTexto(desde), Formatos.aTexto(hasta),
+                new ApiSupabase.Respuesta<List<Venta>>() {
+                    @Override
+                    public void exito(List<Venta> ventas) {
+                        deslizar.setRefreshing(false);
+                        visible(lblVacio, ventas.isEmpty());
+                        adaptador.setElementos(ventas);
+                        double total = 0;
+                        for (Venta v : ventas) {
+                            total += v.getTotal();
+                        }
+                        lblTotal.setText(String.format(Locale.US, "%d facturas  ·  Total %s", ventas.size(), Formatos.dinero(total)));
+                    }
 
-            @Override
-            public void error(String mensaje, boolean sesionVencida) {
-                visible(progreso, false);
-                mostrarError(mensaje, sesionVencida);
-            }
-        });
+                    @Override
+                    public void error(String mensaje, boolean sesionVencida) {
+                        deslizar.setRefreshing(false);
+                        mostrarError(mensaje, sesionVencida);
+                    }
+                });
     }
 }

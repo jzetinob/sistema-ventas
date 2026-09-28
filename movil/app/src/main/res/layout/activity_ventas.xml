@@ -3,12 +3,14 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:padding="16dp">
+    android:paddingStart="16dp"
+    android:paddingTop="12dp"
+    android:paddingEnd="16dp">
 
     <LinearLayout
+        style="?android:attr/buttonBarStyle"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        style="?android:attr/buttonBarStyle"
         android:orientation="horizontal">
 
         <Button
@@ -17,14 +19,18 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginEnd="8dp"
-            android:layout_weight="1" />
+            android:layout_weight="1"
+            android:background="@drawable/fondo_tarjeta"
+            android:textColor="@color/texto" />
 
         <Button
             android:id="@+id/btnHasta"
             style="?android:attr/buttonBarButtonStyle"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_weight="1" />
+            android:layout_weight="1"
+            android:background="@drawable/fondo_tarjeta"
+            android:textColor="@color/texto" />
     </LinearLayout>
 
     <TextView
@@ -37,13 +43,6 @@
         android:textSize="18sp"
         android:textStyle="bold" />
 
-    <ProgressBar
-        android:id="@+id/progreso"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center_horizontal"
-        android:visibility="gone" />
-
     <TextView
         android:id="@+id/lblVacio"
         android:layout_width="match_parent"
@@ -54,9 +53,19 @@
         android:textColor="@color/texto_suave"
         android:visibility="gone" />
 
-    <ListView
-        android:id="@+id/lista"
+    <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+        android:id="@+id/deslizar"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_weight="1" />
+        android:layout_weight="1">
+
+        <ListView
+            android:id="@+id/lista"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:clipToPadding="false"
+            android:divider="@android:color/transparent"
+            android:dividerHeight="10dp"
+            android:paddingBottom="16dp" />
+    </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
 </LinearLayout>

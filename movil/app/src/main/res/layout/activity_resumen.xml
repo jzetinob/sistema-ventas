@@ -14,27 +14,11 @@
             android:orientation="vertical"
             android:padding="16dp">
 
-            <TextView
-                android:id="@+id/lblBienvenida"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:textColor="@color/texto"
-                android:textSize="22sp"
-                android:textStyle="bold" />
-
-            <TextView
-                android:id="@+id/lblRol"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="16dp"
-                android:textColor="@color/texto_suave" />
-
-            <!-- Indicadores del dia: al tocarlos se abre el Resumen -->
+            <!-- Indicadores -->
             <LinearLayout
-                android:id="@+id/filaIndicadores"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="16dp"
+                android:layout_marginBottom="12dp"
                 android:baselineAligned="false"
                 android:orientation="horizontal">
 
@@ -49,8 +33,7 @@
 
                     <TextView
                         android:id="@+id/lblVentasHoy"
-                        style="@style/ValorIndicador"
-                        android:text="@string/sin_dato" />
+                        style="@style/ValorIndicador" />
 
                     <TextView
                         style="@style/EtiquetaIndicador"
@@ -68,8 +51,7 @@
 
                     <TextView
                         android:id="@+id/lblFacturasHoy"
-                        style="@style/ValorIndicador"
-                        android:text="@string/sin_dato" />
+                        style="@style/ValorIndicador" />
 
                     <TextView
                         style="@style/EtiquetaIndicador"
@@ -85,36 +67,68 @@
                     android:padding="12dp">
 
                     <TextView
-                        android:id="@+id/lblExistenciaBaja"
-                        style="@style/ValorIndicador"
-                        android:text="@string/sin_dato" />
+                        android:id="@+id/lblVentasMes"
+                        style="@style/ValorIndicador" />
 
                     <TextView
                         style="@style/EtiquetaIndicador"
-                        android:text="@string/por_agotarse" />
+                        android:text="@string/ventas_mes" />
                 </LinearLayout>
             </LinearLayout>
 
-            <!-- Botones del menu en mosaico de 2 columnas (los arma MenuActivity) -->
-            <GridLayout
-                android:id="@+id/mosaico"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:columnCount="2"
-                android:useDefaultMargins="false" />
+            <!-- Grafico de barras -->
+            <LinearLayout
+                style="@style/Tarjeta"
+                android:orientation="vertical">
 
-            <Button
-                android:id="@+id/btnSalir"
-                style="?android:attr/borderlessButtonStyle"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center_horizontal"
-                android:layout_marginTop="8dp"
-                android:drawableStart="@drawable/ic_salir"
-                android:drawablePadding="8dp"
-                android:drawableTint="@color/texto_suave"
-                android:text="@string/cerrar_sesion"
-                android:textColor="@color/texto_suave" />
+                <TextView
+                    style="@style/TituloTarjeta"
+                    android:text="@string/ventas_semana" />
+
+                <com.josue.ventas.movil.vista.GraficoBarras
+                    android:id="@+id/graficoBarras"
+                    android:layout_width="match_parent"
+                    android:layout_height="200dp" />
+            </LinearLayout>
+
+            <!-- Grafico de dona con su leyenda -->
+            <LinearLayout
+                style="@style/Tarjeta"
+                android:orientation="vertical">
+
+                <TextView
+                    style="@style/TituloTarjeta"
+                    android:text="@string/mas_vendidos" />
+
+                <com.josue.ventas.movil.vista.GraficoDona
+                    android:id="@+id/graficoDona"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_horizontal"
+                    android:layout_marginBottom="12dp" />
+
+                <LinearLayout
+                    android:id="@+id/leyenda"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical" />
+            </LinearLayout>
+
+            <!-- Productos por agotarse -->
+            <LinearLayout
+                style="@style/Tarjeta"
+                android:orientation="vertical">
+
+                <TextView
+                    style="@style/TituloTarjeta"
+                    android:text="@string/por_agotarse_titulo" />
+
+                <LinearLayout
+                    android:id="@+id/listaAgotandose"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical" />
+            </LinearLayout>
         </LinearLayout>
     </ScrollView>
 </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>

@@ -7,6 +7,7 @@
         android:allowBackup="false"
         android:icon="@drawable/ic_ventas"
         android:label="@string/app_name"
+        android:supportsRtl="true"
         android:theme="@style/TemaVentas">
 
         <activity
@@ -26,5 +27,11 @@
             android:label="@string/titulo_nuevo_cliente"
             android:windowSoftInputMode="adjustResize" />
         <activity android:name=".vista.VentasActivity" android:label="@string/titulo_ventas" />
+        <activity android:name=".vista.ResumenActivity" android:label="@string/titulo_resumen" />
+        <activity android:name=".vista.DetalleVentaActivity" android:label="@string/titulo_detalle_venta" />
+        <activity
+            android:name=".vista.NuevaVentaActivity"
+            android:label="@string/titulo_nueva_venta"
+            android:windowSoftInputMode="adjustResize" />
     </application>
 </manifest>

@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Modo oscuro: mismo tema sobre la base oscura de Material. Los colores salen de values-night/colores.xml -->
+    <style name="TemaVentas" parent="android:Theme.Material">
+        <item name="android:colorPrimary">@color/superficie</item>
+        <item name="android:colorPrimaryDark">@color/primario_oscuro</item>
+        <item name="android:colorAccent">@color/acento</item>
+        <item name="android:windowBackground">@color/fondo</item>
+        <item name="android:textColorPrimary">@color/texto</item>
+        <item name="android:textColorSecondary">@color/texto_suave</item>
+    </style>
+</resources>

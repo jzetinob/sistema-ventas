@@ -24,4 +24,30 @@
     <string name="saludo">Hola, %1$s</string>
     <string name="rol">Rol: %1$s</string>
     <string name="fecha_boton">%1$s: %2$s</string>
+
+    <string name="titulo_resumen">Resumen</string>
+    <string name="titulo_nueva_venta">Nueva venta</string>
+    <string name="titulo_detalle_venta">Detalle de venta</string>
+    <string name="ventas_hoy">Ventas hoy</string>
+    <string name="facturas_hoy">Facturas hoy</string>
+    <string name="ventas_mes">Ventas del mes</string>
+    <string name="por_agotarse">Por agotarse</string>
+    <string name="por_agotarse_titulo">Productos por agotarse</string>
+    <string name="ventas_semana">Ventas de los últimos 7 días</string>
+    <string name="mas_vendidos">Más vendidos del mes</string>
+    <string name="sin_ventas_mes">Todavía no hay ventas este mes.</string>
+    <string name="sin_agotandose">Ningún producto está por agotarse.</string>
+    <string name="cliente">Cliente</string>
+    <string name="del_catalogo">Del catálogo</string>
+    <string name="agregar_producto">Agregar</string>
+    <string name="carrito_vacio">Toque «Agregar» para elegir los productos.\nMantenga presionado un producto para quitarlo.</string>
+    <string name="guardar_venta">Guardar venta</string>
+    <string name="sin_dato">—</string>
+    <string name="total_con_valor">Total %1$s</string>
+    <string name="buscando">Buscando…</string>
+    <plurals name="n_resultados">
+        <item quantity="one">%1$d resultado</item>
+        <item quantity="other">%1$d resultados</item>
+    </plurals>
+    <string name="aviso_sin_conexion">Sin conexión: mostrando el catálogo guardado el %1$s.</string>
 </resources>

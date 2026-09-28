@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Paleta del modo oscuro: se usa automaticamente cuando el telefono esta en modo oscuro -->
+<resources>
+    <color name="primario">#9CC3E6</color>
+    <color name="primario_oscuro">#0E1A26</color>
+    <color name="acento">#7DB4E6</color>
+    <color name="fondo">#10151B</color>
+    <color name="superficie">#1B232C</color>
+    <color name="borde">#2C3743</color>
+    <color name="texto">#E6EDF3</color>
+    <color name="texto_suave">#9AA7B4</color>
+    <color name="texto_sobre_primario">#0E1A26</color>
+    <color name="alerta">#F1948A</color>
+    <color name="exito">#7DCEA0</color>
+    <color name="rejilla">#26313C</color>
+
+    <color name="serie_1">#6FA8DC</color>
+    <color name="serie_2">#F0B066</color>
+    <color name="serie_3">#6CCB9C</color>
+    <color name="serie_4">#C39BD3</color>
+    <color name="serie_5">#EC8FA4</color>
+
+    <color name="mosaico_1">#2B4A66</color>
+    <color name="mosaico_2">#1D6B3F</color>
+    <color name="mosaico_3">#2C5F8F</color>
+    <color name="mosaico_4">#5E4680</color>
+    <color name="mosaico_5">#8C5A12</color>
+    <color name="mosaico_6">#236066</color>
+</resources>

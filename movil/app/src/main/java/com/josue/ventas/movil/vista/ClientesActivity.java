@@ -4,8 +4,8 @@ import android.os.Bundle;
 import android.view.inputmethod.EditorInfo;
 import android.widget.EditText;
 import android.widget.ListView;
-import android.widget.ProgressBar;
 import android.widget.TextView;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 import com.josue.ventas.movil.R;
 import com.josue.ventas.movil.datos.ApiSupabase;
 import com.josue.ventas.movil.modelo.Cliente;
@@ -15,7 +15,7 @@ import java.util.List;
 public class ClientesActivity extends ActividadBase {
 
     private AdaptadorFilas<Cliente> adaptador;
-    private ProgressBar progreso;
+    private SwipeRefreshLayout deslizar;
     private TextView lblVacio;
     private EditText txtBuscar;
 
@@ -23,10 +23,12 @@ public class ClientesActivity extends ActividadBase {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_lista);
-        progreso = findViewById(R.id.progreso);
         lblVacio = findViewById(R.id.lblVacio);
         txtBuscar = findViewById(R.id.txtBuscar);
         txtBuscar.setHint(R.string.buscar_cliente);
+        deslizar = findViewById(R.id.deslizar);
+        deslizar.setColorSchemeColors(getColor(R.color.acento));
+        deslizar.setOnRefreshListener(this::buscar);
 
         adaptador = new AdaptadorFilas<>(this, new AdaptadorFilas.Formato<Cliente>() {
             @Override
@@ -60,23 +62,23 @@ public class ClientesActivity extends ActividadBase {
     @Override
     protected void onResume() {
         super.onResume();
+        deslizar.setRefreshing(true);
         buscar(); // al volver de "Nuevo cliente" se ve el cliente registrado
     }
 
     private void buscar() {
-        visible(progreso, true);
         ApiSupabase.getInstancia().clientes(token(), txtBuscar.getText().toString().trim(),
                 new ApiSupabase.Respuesta<List<Cliente>>() {
                     @Override
                     public void exito(List<Cliente> clientes) {
-                        visible(progreso, false);
+                        deslizar.setRefreshing(false);
                         visible(lblVacio, clientes.isEmpty());
                         adaptador.setElementos(clientes);
                     }
 
                     @Override
                     public void error(String mensaje, boolean sesionVencida) {
-                        visible(progreso, false);
+                        deslizar.setRefreshing(false);
                         mostrarError(mensaje, sesionVencida);
                     }
                 });

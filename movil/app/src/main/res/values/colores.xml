@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Paleta del modo claro. El modo oscuro redefine estos mismos nombres en values-night/colores.xml -->
+<resources>
+    <color name="primario">#2F4F6F</color>
+    <color name="primario_oscuro">#1F3548</color>
+    <color name="acento">#3C7DBA</color>
+    <color name="fondo">#F2F4F7</color>
+    <color name="superficie">#FFFFFF</color>
+    <color name="borde">#DDE3EA</color>
+    <color name="texto">#1D2733</color>
+    <color name="texto_suave">#5F6B78</color>
+    <color name="texto_sobre_primario">#FFFFFF</color>
+    <color name="alerta">#C0392B</color>
+    <color name="exito">#1E8449</color>
+    <color name="rejilla">#E6EAF0</color>
+
+    <!-- Serie de colores de los graficos (distinguibles entre si y con buen contraste) -->
+    <color name="serie_1">#3C7DBA</color>
+    <color name="serie_2">#E08E2B</color>
+    <color name="serie_3">#2E9E6B</color>
+    <color name="serie_4">#9B59B6</color>
+    <color name="serie_5">#D4526E</color>
+
+    <!-- Fondos de los botones del menu principal -->
+    <color name="mosaico_1">#2F4F6F</color>
+    <color name="mosaico_2">#1E8449</color>
+    <color name="mosaico_3">#3C7DBA</color>
+    <color name="mosaico_4">#7D5BA6</color>
+    <color name="mosaico_5">#B9770E</color>
+    <color name="mosaico_6">#2E7D84</color>
+</resources>

@@ -3,7 +3,9 @@ package com.josue.ventas.movil.datos;
 import android.os.Handler;
 import android.os.Looper;
 import com.josue.ventas.movil.modelo.Cliente;
+import com.josue.ventas.movil.modelo.LineaVenta;
 import com.josue.ventas.movil.modelo.Producto;
+import com.josue.ventas.movil.modelo.Resumen;
 import com.josue.ventas.movil.modelo.Venta;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -52,6 +54,9 @@ public final class ApiSupabase {
         }
     }
 
+    /** Mensaje de error cuando no hay internet (las pantallas lo comparan para usar datos guardados). */
+    public static final String SIN_CONEXION = "No hay conexión con el servidor. Revise su internet e intente de nuevo.";
+
     private static final ApiSupabase instancia = new ApiSupabase();
     private static final int TIEMPO_ESPERA_MS = 15000;
 
@@ -82,18 +87,80 @@ public final class ApiSupabase {
         }, null);
     }
 
-    public void productos(String token, String buscar, Respuesta<List<Producto>> respuesta) {
+    /** Devuelve el JSON tal cual llego (para guardarlo en el telefono) junto con la lista ya convertida. */
+    public void productos(String token, String buscar, Respuesta<JSONArray> respuesta) {
+        ejecutar(() -> new JSONArray(rpc("app_productos",
+                new JSONObject().put("p_token", token).put("p_buscar", buscar))), respuesta);
+    }
+
+    /** Convierte el JSON de app_productos en objetos (tambien se usa con la copia guardada sin conexion). */
+    public static List<Producto> productosDesdeJson(JSONArray filas) throws JSONException {
+        List<Producto> lista = new ArrayList<>();
+        for (int i = 0; i < filas.length(); i++) {
+            JSONObject f = filas.getJSONObject(i);
+            lista.add(new Producto(f.getString("codigo"), f.getString("nombre"),
+                    f.isNull("categoria") ? "" : f.getString("categoria"),
+                    f.getDouble("precio"), f.getInt("existencia")));
+        }
+        return lista;
+    }
+
+    /** Fecha de hoy con formato aaaa-mm-dd. */
+    public void resumen(String token, String hoy, Respuesta<Resumen> respuesta) {
         ejecutar(() -> {
-            JSONArray filas = new JSONArray(rpc("app_productos",
-                    new JSONObject().put("p_token", token).put("p_buscar", buscar)));
-            List<Producto> lista = new ArrayList<>();
+            JSONObject r = new JSONObject(rpc("app_resumen",
+                    new JSONObject().put("p_token", token).put("p_hoy", hoy)));
+            List<Resumen.VentaDia> semana = new ArrayList<>();
+            JSONArray dias = r.optJSONArray("ventas_7_dias");
+            for (int i = 0; dias != null && i < dias.length(); i++) {
+                JSONObject d = dias.getJSONObject(i);
+                semana.add(new Resumen.VentaDia(d.getString("fecha"), d.getDouble("total")));
+            }
+            List<Resumen.ProductoVendido> top = new ArrayList<>();
+            JSONArray vendidos = r.optJSONArray("top_productos");
+            for (int i = 0; vendidos != null && i < vendidos.length(); i++) {
+                JSONObject v = vendidos.getJSONObject(i);
+                top.add(new Resumen.ProductoVendido(v.getString("producto"), v.getInt("cantidad"), v.getDouble("total")));
+            }
+            List<Producto> baja = new ArrayList<>();
+            JSONArray agotandose = r.optJSONArray("existencia_baja");
+            for (int i = 0; agotandose != null && i < agotandose.length(); i++) {
+                JSONObject p = agotandose.getJSONObject(i);
+                baja.add(new Producto(p.getString("codigo"), p.getString("nombre"), "", 0, p.getInt("existencia")));
+            }
+            return new Resumen(r.getDouble("ventas_hoy"), r.getInt("facturas_hoy"), r.getDouble("ventas_mes"),
+                    semana, top, baja);
+        }, respuesta);
+    }
+
+    public void detalleVenta(String token, String numeroFactura, Respuesta<List<LineaVenta>> respuesta) {
+        ejecutar(() -> {
+            JSONArray filas = new JSONArray(rpc("app_detalle_venta",
+                    new JSONObject().put("p_token", token).put("p_numero_factura", numeroFactura)));
+            List<LineaVenta> lineas = new ArrayList<>();
             for (int i = 0; i < filas.length(); i++) {
                 JSONObject f = filas.getJSONObject(i);
-                lista.add(new Producto(f.getString("codigo"), f.getString("nombre"),
-                        f.isNull("categoria") ? "" : f.getString("categoria"),
-                        f.getDouble("precio"), f.getInt("existencia")));
+                lineas.add(new LineaVenta(f.getString("producto"), f.getInt("cantidad"), f.getDouble("precio")));
             }
-            return lista;
+            return lineas;
+        }, respuesta);
+    }
+
+    /**
+     * Registra la factura. Solo se envian codigo y cantidad de cada linea:
+     * el precio y la existencia los toma y valida la base de datos.
+     * Devuelve {numero_factura, total}.
+     */
+    public void registrarFactura(String token, String nit, String cliente, String fecha, List<LineaVenta> lineas,
+            Respuesta<JSONObject> respuesta) {
+        ejecutar(() -> {
+            JSONArray detalles = new JSONArray();
+            for (LineaVenta l : lineas) {
+                detalles.put(new JSONObject().put("codigo", l.getCodigo()).put("cantidad", l.getCantidad()));
+            }
+            JSONObject p = new JSONObject().put("p_token", token).put("p_nit", nit).put("p_cliente", cliente)
+                    .put("p_fecha", fecha).put("p_detalles", detalles);
+            return new JSONObject(rpc("app_registrar_factura", p));
         }, respuesta);
     }
 
@@ -181,7 +248,7 @@ public final class ApiSupabase {
             }
             return cuerpo;
         } catch (IOException ex) {
-            throw new ApiException(0, "No hay conexión con el servidor. Revise su internet e intente de nuevo.");
+            throw new ApiException(0, SIN_CONEXION);
         } finally {
             if (conexion != null) {
                 conexion.disconnect();

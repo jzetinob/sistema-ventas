@@ -1,0 +1,126 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:paddingStart="16dp"
+    android:paddingTop="12dp"
+    android:paddingEnd="16dp">
+
+    <!-- Cliente -->
+    <LinearLayout
+        style="@style/Tarjeta"
+        android:orientation="vertical"
+        android:paddingBottom="4dp">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
+
+            <TextView
+                style="@style/TituloTarjeta"
+                android:layout_width="0dp"
+                android:layout_marginBottom="0dp"
+                android:layout_weight="1"
+                android:text="@string/cliente" />
+
+            <Button
+                android:id="@+id/btnBuscarCliente"
+                style="?android:attr/borderlessButtonStyle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:drawableStart="@drawable/ic_buscar"
+                android:drawablePadding="6dp"
+                android:drawableTint="@color/acento"
+                android:text="@string/del_catalogo"
+                android:textColor="@color/acento" />
+        </LinearLayout>
+
+        <EditText
+            android:id="@+id/txtNit"
+            style="@style/Campo"
+            android:hint="@string/nit"
+            android:importantForAutofill="no"
+            android:inputType="text" />
+
+        <EditText
+            android:id="@+id/txtCliente"
+            style="@style/Campo"
+            android:hint="@string/nombre"
+            android:importantForAutofill="no"
+            android:inputType="textPersonName|textCapWords" />
+    </LinearLayout>
+
+    <!-- Productos -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_vertical"
+        android:orientation="horizontal">
+
+        <TextView
+            style="@style/TituloTarjeta"
+            android:layout_width="0dp"
+            android:layout_marginBottom="0dp"
+            android:layout_weight="1"
+            android:text="@string/titulo_productos" />
+
+        <Button
+            android:id="@+id/btnAgregarProducto"
+            style="?android:attr/borderlessButtonStyle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:drawableStart="@drawable/ic_agregar"
+            android:drawablePadding="6dp"
+            android:drawableTint="@color/acento"
+            android:text="@string/agregar_producto"
+            android:textColor="@color/acento" />
+    </LinearLayout>
+
+    <TextView
+        android:id="@+id/lblVacio"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:padding="24dp"
+        android:text="@string/carrito_vacio"
+        android:textColor="@color/texto_suave" />
+
+    <ListView
+        android:id="@+id/lista"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:divider="@android:color/transparent"
+        android:dividerHeight="10dp" />
+
+    <!-- Total y guardar -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:paddingTop="8dp"
+        android:paddingBottom="12dp">
+
+        <TextView
+            android:id="@+id/lblTotal"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:textColor="@color/primario"
+            android:textSize="20sp"
+            android:textStyle="bold" />
+
+        <Button
+            android:id="@+id/btnGuardar"
+            style="@style/BotonMenu"
+            android:layout_width="wrap_content"
+            android:layout_marginBottom="0dp"
+            android:paddingStart="24dp"
+            android:paddingEnd="24dp"
+            android:text="@string/guardar_venta" />
+    </LinearLayout>
+</LinearLayout>

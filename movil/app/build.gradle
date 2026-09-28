@@ -26,4 +26,8 @@ android {
     }
 }
 
-// Sin dependencias externas: HttpURLConnection y org.json vienen incluidos en Android.
+// HTTP (HttpURLConnection), JSON (org.json) y los graficos (Canvas) usan solo lo que trae Android.
+// Unica libreria: el gesto oficial de "deslizar hacia abajo para actualizar".
+dependencies {
+    implementation 'androidx.swiperefreshlayout:swiperefreshlayout:1.2.0'
+}

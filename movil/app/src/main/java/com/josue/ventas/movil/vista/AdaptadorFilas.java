@@ -6,12 +6,14 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.TextView;
+import com.josue.ventas.movil.R;
 import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Adaptador generico para listas de dos lineas (titulo y detalle).
- * Cada pantalla indica como convertir su objeto en esas dos lineas.
+ * Adaptador generico (clase con parametro de tipo T) para las listas con
+ * forma de tarjeta. Cada pantalla indica como convertir su objeto en el
+ * texto de la tarjeta implementando la interfaz Formato.
  */
 public class AdaptadorFilas<T> extends BaseAdapter {
 
@@ -21,9 +23,29 @@ public class AdaptadorFilas<T> extends BaseAdapter {
 
         String detalle(T elemento);
 
+        /** Valor destacado a la derecha (precio, total...); null = no se muestra. */
+        default String valor(T elemento) {
+            return null;
+        }
+
         /** Color del detalle (0 = color normal). */
         default int colorDetalle(T elemento) {
             return 0;
+        }
+    }
+
+    /** Guarda las vistas de la fila para no buscarlas cada vez (patron ViewHolder). */
+    private static final class Fila {
+        final TextView titulo;
+        final TextView detalle;
+        final TextView valor;
+        final int colorDetalleNormal;
+
+        Fila(View vista) {
+            titulo = vista.findViewById(R.id.txtTitulo);
+            detalle = vista.findViewById(R.id.txtDetalle);
+            valor = vista.findViewById(R.id.txtValor);
+            colorDetalleNormal = detalle.getCurrentTextColor();
         }
     }
 
@@ -39,6 +61,10 @@ public class AdaptadorFilas<T> extends BaseAdapter {
     public void setElementos(List<T> elementos) {
         this.elementos = elementos;
         notifyDataSetChanged();
+    }
+
+    public List<T> getElementos() {
+        return elementos;
     }
 
     @Override
@@ -58,21 +84,22 @@ public class AdaptadorFilas<T> extends BaseAdapter {
 
     @Override
     public View getView(int posicion, View vista, ViewGroup padre) {
+        Fila fila;
         if (vista == null) {
-            vista = inflador.inflate(android.R.layout.simple_list_item_2, padre, false);
+            vista = inflador.inflate(R.layout.item_fila, padre, false);
+            fila = new Fila(vista);
+            vista.setTag(fila);
+        } else {
+            fila = (Fila) vista.getTag();
         }
         T elemento = getItem(posicion);
-        TextView titulo = vista.findViewById(android.R.id.text1);
-        TextView detalle = vista.findViewById(android.R.id.text2);
-        titulo.setText(formato.titulo(elemento));
-        detalle.setText(formato.detalle(elemento));
+        fila.titulo.setText(formato.titulo(elemento));
+        fila.detalle.setText(formato.detalle(elemento));
         int color = formato.colorDetalle(elemento);
-        if (color != 0) {
-            detalle.setTextColor(color);
-        } else {
-            detalle.setTextColor(titulo.getCurrentTextColor());
-            detalle.setAlpha(0.7f);
-        }
+        fila.detalle.setTextColor(color != 0 ? color : fila.colorDetalleNormal);
+        String valor = formato.valor(elemento);
+        fila.valor.setVisibility(valor == null ? View.GONE : View.VISIBLE);
+        fila.valor.setText(valor);
         return vista;
     }
 }
