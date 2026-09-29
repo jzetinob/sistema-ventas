@@ -42,9 +42,9 @@ Detalle y reglas de borrado: [docs/diagramas/diagrama-entidad-relacion.md](../..
 | **Catálogos** | Productos, Empleados, Clientes, Categorías, Proveedores |
 | **Compras** | Nueva compra, Ver compras |
 | **Edición** | Limpiar formulario |
-| **Ventana** | Cascada, Mosaico, Minimizar todo, Restaurar todo |
+| **Ventana** | Cascada, Mosaico, Minimizar todo, Restaurar todo, Tema (automático por hora, claro, oscuro) |
 | **Administración** | Usuarios, Respaldar base de datos |
-| **Reportes** | Inventario, Existencia baja, Ventas por período, Compras por proveedor |
+| **Reportes** | Resumen con gráficos, Inventario, Existencia baja, Ventas por período, Compras por proveedor |
 | **Ayuda** | Acerca de |
 
 El menú se adapta al rol: el **Vendedor** solo ve facturación y clientes.
@@ -58,6 +58,7 @@ El menú se adapta al rol: el **Vendedor** solo ve facturación y clientes.
 | Lista de facturas | Consultar, ver detalle, eliminar (devuelve la existencia), reporte | Base de datos |
 | Compra | Registrar compra a proveedor con detalle | Transacción: encabezado + detalles + suma de existencia |
 | Lista de compras | Consultar, ver detalle, anular, reporte | Base de datos |
+| Resumen | Ventas del día y del mes, gráfico de barras de la semana y dona de más vendidos | Consultas agregadas a la base |
 | Inicio de sesión | Login con roles; creación del administrador en el primer uso | Tabla `usuarios` (contraseñas bcrypt) |
 
 ## 5. Flujo funcional e integración (1.00)
@@ -70,8 +71,9 @@ Proveedores ─┐
 Productos ───┴─► Compra ──► suma existencia del producto
 Clientes ────┐
 Productos ───┴─► Factura ──► descuenta existencia · no deja vender sin existencia
-Facturas / Compras ──► Reportes (ventas por período, compras por proveedor, inventario)
-Todo lo anterior ──► App móvil (misma base): consulta productos, clientes y ventas; registra clientes
+Facturas / Compras ──► Reportes y Resumen con gráficos (ventas por período, compras por proveedor, inventario)
+Todo lo anterior ──► App móvil (misma base): consulta productos, clientes y ventas; registra clientes y facturas
+Factura hecha en el celular ──► aparece en Ver facturas y descuenta existencia en el escritorio
 ```
 
 ## 6. Documentación de apoyo
