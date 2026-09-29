@@ -6,7 +6,7 @@
 
 Esta página resume el avance según los criterios de la rúbrica y enlaza cada evidencia.
 
-**Presentación:** [presentacion-avance-sistema-ventas.pptx](presentacion-avance-sistema-ventas.pptx) · [versión PDF](presentacion-avance-sistema-ventas.pdf). Tiene 16 diapositivas en el orden de la rúbrica; cada diapositiva lleva sus notas para el expositor.
+**Presentación:** [presentacion-avance-sistema-ventas.pptx](presentacion-avance-sistema-ventas.pptx) · [versión PDF](presentacion-avance-sistema-ventas.pdf). Tiene 10 diapositivas; cada una lleva sus notas para el expositor, y la última incluye el guion de la demostración.
 
 ---
 
