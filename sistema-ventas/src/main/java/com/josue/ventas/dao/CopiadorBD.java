@@ -32,7 +32,7 @@ public final class CopiadorBD {
 
     /** Orden de copia: primero las tablas padre, luego las que tienen llaves foraneas. */
     static final String[] TABLAS = {
-        "categorias", "productos", "clientes", "empleados", "proveedores", "usuarios",
+        "categorias", "productos", "clientes", "telefonos", "empleados", "proveedores", "usuarios",
         "facturas", "factura_detalles", "compras", "compra_detalles"
     };
 

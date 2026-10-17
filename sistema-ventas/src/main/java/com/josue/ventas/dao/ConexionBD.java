@@ -256,6 +256,13 @@ public class ConexionBD {
                     FOREIGN KEY (compra_id) REFERENCES compras(id) ON DELETE CASCADE,
                     FOREIGN KEY (producto_id) REFERENCES productos(id)
                 );
+                CREATE TABLE IF NOT EXISTS telefonos (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    cliente_id INTEGER NOT NULL,
+                    numero TEXT NOT NULL,
+                    tipo TEXT NOT NULL CHECK (tipo IN ('PERSONAL', 'TRABAJO', 'CASA', 'OTRO')),
+                    FOREIGN KEY (cliente_id) REFERENCES clientes(id) ON DELETE CASCADE
+                );
                 """;
         try (Statement stmt = conexion.createStatement()) {
             stmt.executeUpdate(sql);

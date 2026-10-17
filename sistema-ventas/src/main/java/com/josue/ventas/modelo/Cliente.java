@@ -4,6 +4,9 @@
  */
 package com.josue.ventas.modelo;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * Cliente hereda de Persona los datos personales (id, nombre, nit, telefono)
  * y agrega la direccion. Una persona con rol de cliente puede tener muchas
@@ -14,6 +17,7 @@ package com.josue.ventas.modelo;
 public class Cliente extends Persona {
 
     private String direccion;
+    private List<Telefono> telefonos = new ArrayList<>();
 
     public Cliente() {
     }
@@ -24,5 +28,13 @@ public class Cliente extends Persona {
 
     public void setDireccion(String direccion) {
         this.direccion = direccion;
+    }
+
+    public List<Telefono> getTelefonos() {
+        return telefonos;
+    }
+
+    public void setTelefonos(List<Telefono> telefonos) {
+        this.telefonos = telefonos;
     }
 }

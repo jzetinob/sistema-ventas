@@ -36,7 +36,7 @@ public class FrmClientes extends javax.swing.JInternalFrame {
     }
 
     private void configurarTabla() {
-        String[] columnas = {"No.", "NIT", "Nombre", "Dirección", "Teléfono"};
+        String[] columnas = {"No.", "NIT", "Nombre", "Dirección", "Teléfono principal"};
         modeloTabla = new DefaultTableModel(columnas, 0) {
             @Override
             public boolean isCellEditable(int row, int column) {
@@ -72,7 +72,6 @@ public class FrmClientes extends javax.swing.JInternalFrame {
         String nit = txtNit.getText().trim();
         String nombre = txtNombre.getText().trim();
         String direccion = txtDireccion.getText().trim();
-        String telefono = txtTelefono.getText().trim();
 
         if (nit.isEmpty() || nombre.isEmpty()) {
             JOptionPane.showMessageDialog(this, "Complete al menos el NIT y el nombre del cliente.");
@@ -90,8 +89,12 @@ public class FrmClientes extends javax.swing.JInternalFrame {
         c.setNit(nit);
         c.setNombre(nombre);
         c.setDireccion(direccion);
-        c.setTelefono(telefono);
-        controller.Guardar(c);
+        c.setTelefonos(panelTelefonos.getTelefonos());
+        String error = controller.Guardar(c);
+        if (error != null) {
+            JOptionPane.showMessageDialog(this, error);
+            return;
+        }
         limpiarCampos();
         refrescarTabla();
     }
@@ -106,7 +109,6 @@ public class FrmClientes extends javax.swing.JInternalFrame {
         String nit = txtNit.getText().trim();
         String nombre = txtNombre.getText().trim();
         String direccion = txtDireccion.getText().trim();
-        String telefono = txtTelefono.getText().trim();
 
         if (nit.isEmpty() || nombre.isEmpty()) {
             JOptionPane.showMessageDialog(this, "Complete al menos el NIT y el nombre del cliente.");
@@ -126,8 +128,12 @@ public class FrmClientes extends javax.swing.JInternalFrame {
         c.setNit(nit);
         c.setNombre(nombre);
         c.setDireccion(direccion);
-        c.setTelefono(telefono);
-        controller.Actualizar(c);
+        c.setTelefonos(panelTelefonos.getTelefonos());
+        String error = controller.Actualizar(c);
+        if (error != null) {
+            JOptionPane.showMessageDialog(this, error);
+            return;
+        }
         limpiarCampos();
         refrescarTabla();
     }
@@ -157,14 +163,15 @@ public class FrmClientes extends javax.swing.JInternalFrame {
         txtNit.setText((String) modeloTabla.getValueAt(fila, 1));
         txtNombre.setText((String) modeloTabla.getValueAt(fila, 2));
         txtDireccion.setText((String) modeloTabla.getValueAt(fila, 3));
-        txtTelefono.setText((String) modeloTabla.getValueAt(fila, 4));
+        int id = (int) modeloTabla.getValueAt(fila, 0);
+        panelTelefonos.setTelefonos(controller.GetTelefonos(id));
     }
 
     private void limpiarCampos() {
         txtNit.setText("");
         txtNombre.setText("");
         txtDireccion.setText("");
-        txtTelefono.setText("");
+        panelTelefonos.limpiar();
     }
 
     @SuppressWarnings("unchecked")
@@ -179,7 +186,7 @@ public class FrmClientes extends javax.swing.JInternalFrame {
         txtNit = new javax.swing.JTextField();
         txtNombre = new javax.swing.JTextField();
         txtDireccion = new javax.swing.JTextField();
-        txtTelefono = new javax.swing.JTextField();
+        panelTelefonos = new PanelTelefonos();
         btnGuardar = new javax.swing.JButton();
         btnActualizar = new javax.swing.JButton();
         btnEliminar = new javax.swing.JButton();
@@ -202,7 +209,7 @@ public class FrmClientes extends javax.swing.JInternalFrame {
 
         jLabel3.setText("Dirección:");
 
-        jLabel4.setText("Teléfono:");
+        jLabel4.setText("Teléfonos:");
 
         btnGuardar.setText("Guardar");
         btnGuardar.addActionListener(new java.awt.event.ActionListener() {
@@ -248,7 +255,7 @@ public class FrmClientes extends javax.swing.JInternalFrame {
                     .addComponent(txtNit)
                     .addComponent(txtNombre)
                     .addComponent(txtDireccion)
-                    .addComponent(txtTelefono, javax.swing.GroupLayout.DEFAULT_SIZE, 180, Short.MAX_VALUE))
+                    .addComponent(panelTelefonos, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addGap(18, 18, 18)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(btnGuardar)
@@ -276,9 +283,9 @@ public class FrmClientes extends javax.swing.JInternalFrame {
                     .addComponent(txtDireccion, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(btnEliminar))
                 .addGap(18, 18, 18)
-                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(jLabel4)
-                    .addComponent(txtTelefono, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(panelTelefonos, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(btnLimpiar))
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
@@ -348,6 +355,6 @@ public class FrmClientes extends javax.swing.JInternalFrame {
     private javax.swing.JTextField txtDireccion;
     private javax.swing.JTextField txtNit;
     private javax.swing.JTextField txtNombre;
-    private javax.swing.JTextField txtTelefono;
+    private PanelTelefonos panelTelefonos;
     // End of variables declaration//GEN-END:variables
 }
