@@ -49,7 +49,7 @@ public class PanelTelefonos extends JPanel {
         add(fila, BorderLayout.NORTH);
 
         JScrollPane scroll = new JScrollPane(tabla);
-        scroll.setPreferredSize(new Dimension(380, 90));
+        scroll.setPreferredSize(new Dimension(380, 130));
         add(scroll, BorderLayout.CENTER);
 
         btnAgregar.addActionListener(e -> agregar());
