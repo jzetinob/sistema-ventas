@@ -28,6 +28,8 @@ Sistema de facturación e inventario en **Java**, desarrollado durante el curso 
 | 05 | Implementación del diagrama de clases | [`tareas/05-implementacion-diagrama-clases/`](tareas/05-implementacion-diagrama-clases/) |
 | 06 | Elaboración del diagrama de clases del proyecto | [`tareas/06-Elaboración del Diagrama de Clases del Proyecto/`](<tareas/06-Elaboración del Diagrama de Clases del Proyecto/>) |
 | 07 | Revisión presencial de avance del proyecto | [`tareas/07-revision-avance-proyecto/`](tareas/07-revision-avance-proyecto/) |
+| 08 | Revisión presencial: cumplimiento de la Guía Didáctica del curso | [`tareas/08-revision-presencial-guia-del-curso/`](tareas/08-revision-presencial-guia-del-curso/) |
+| 09 | Prueba práctica en clase: Cambio en caliente (varios teléfonos por cliente) | [`tareas/09-prueba-practica-cambio-en-caliente/`](tareas/09-prueba-practica-cambio-en-caliente/) |
 
 Cada carpeta tiene el documento fuente (`.md`) y, cuando corresponde, la presentación (`.pptx`) y el PDF que se entregó.
 
@@ -36,11 +38,11 @@ Cada carpeta tiene el documento fuente (`.md`) y, cuando corresponde, la present
 | Área | Funciones |
 |---|---|
 | **Facturación** | Número automático (FAC-0001…) y buscador de cliente y producto con autocompletado. Descuenta la existencia al guardar y no deja vender si no alcanza. Ticket con vista previa e impresión |
-| **Catálogos** | Productos (con categoría), clientes, empleados, categorías, proveedores y usuarios. En todos: altas, bajas, cambios, búsqueda y **Reporte HTML** |
+| **Catálogos** | Productos (con categoría), clientes (con **varios teléfonos**: personal, trabajo, casa u otro), empleados, categorías, proveedores y usuarios. En todos: altas, bajas, cambios, búsqueda y **Reporte HTML** |
 | **Compras** | Compras a proveedores: suman la existencia y proponen el último costo; se pueden anular |
 | **Reportes** | **Resumen con gráficos** (barras de ventas de 7 días, dona de productos más vendidos, indicadores), inventario valorizado, existencia baja, ventas por período y compras por proveedor (HTML; desde el navegador se imprimen o se guardan como PDF) |
 | **Seguridad** | Inicio de sesión con roles (Administrador / Vendedor), contraseñas bcrypt, bloqueo tras 3 intentos y `PreparedStatement` contra inyección SQL. En la nube: RLS en todas las tablas y funciones con token para el móvil |
-| **Datos** | 10 tablas con llaves primarias y foráneas, operaciones en transacción y respaldo a un archivo `.db` |
+| **Datos** | 11 tablas con llaves primarias y foráneas, operaciones en transacción y respaldo a un archivo `.db` |
 | **Móvil** | Mismos usuarios. Inicio con indicadores y menú con íconos; **resumen con gráficos**; **facturar desde el teléfono**; productos (también **sin conexión**), clientes, ventas por fecha con su detalle; alta de clientes; modo oscuro |
 
 ## Cómo ejecutar
@@ -65,7 +67,7 @@ Todo está en [`docs/`](docs/), con un [índice](docs/README.md) que dice qué l
 ├── sistema-ventas/     código de la app de escritorio (Maven)
 ├── movil/              código de la app Android (Gradle)
 ├── docs/               documentación (manuales, diagramas, historial, estado)
-├── tareas/             entregas del semestre (01 a 06)
+├── tareas/             entregas del semestre (01 a 09)
 ├── entregables/        APK y manuales en PDF del proyecto final
 └── notas/              notas personales (no se suben a GitHub)
 ```
