@@ -1,6 +1,6 @@
 # Diagrama de clases UML
 
-Refleja el **código actual** (fases 1 a 16). Los nombres y firmas se tomaron del código compilado con `javap`, así que coinciden con las clases implementadas.
+Refleja el **código actual** (fases 1 a 18). Los nombres y firmas se tomaron del código compilado con `javap`, así que coinciden con las clases implementadas.
 
 | Archivo | Contenido |
 |---|---|
@@ -30,7 +30,7 @@ El diagrama completo tiene unas 60 clases y en una sola imagen no se lee. Por es
 ![Modelo](img/clases-1-modelo.png)
 
 - **Herencia:** `Persona` es abstracta y de ella heredan `Cliente`, `Empleado` y `Proveedor`. `Empleado` y `Proveedor` sobrescriben `mostrarInformacion()` (polimorfismo).
-- **Composición:** `Factura` ◆— `FacturaDetalle` y `Compra` ◆— `CompraDetalle`. El detalle no existe sin su documento.
+- **Composición:** `Factura` ◆— `FacturaDetalle` y `Compra` ◆— `CompraDetalle`. El detalle no existe sin su documento. `Cliente` ◆— `Telefono` (0..*): un cliente tiene una lista de teléfonos sin límite fijo, y cada uno tiene número y tipo (enum `Tipo`: PERSONAL, TRABAJO, CASA, OTRO).
 - **Asociaciones:**
   - `Factura` → `Cliente`
   - `FacturaDetalle` → `Producto` (0..1: se puede facturar un producto escrito a mano)
@@ -45,6 +45,7 @@ El diagrama completo tiene unas 60 clases y en una sola imagen no se lee. Por es
 
 - Cada entidad tiene una **interfaz DAO** y una implementación JDBC (`…DAOSQLite`, que funciona con SQLite y con PostgreSQL). Las implementaciones son **Singleton**.
 - `…DAOCsv` son las implementaciones del entregable de listas y archivos. Siguen cumpliendo la misma interfaz, y eso demuestra que la implementación se puede cambiar sin tocar el resto.
+- `TelefonoDAO.reemplazar(...)` guarda la lista de teléfonos de un cliente en una transacción: borra los anteriores e inserta los de la lista.
 - `ConexionBD` (Singleton) elige el motor según `config/bd.properties` y crea las tablas.
 - `CopiadorBD` sube los datos a la nube y hace los respaldos; `MigradorDatos` importa los CSV antiguos.
 
@@ -55,6 +56,7 @@ El diagrama completo tiene unas 60 clases y en una sola imagen no se lee. Por es
 - Cada controller trabaja **con la interfaz** DAO, no con la implementación.
 - `UsuarioController` concentra el inicio de sesión y las reglas de los usuarios. Usa `Contrasenas` (hash bcrypt) y `Sesion` (Singleton con el usuario conectado).
 - `CompraController` toma de `Sesion` el usuario que registra la compra.
+- `ClienteController` usa dos DAO: guarda el cliente con `ClienteDAO` y sus teléfonos con `TelefonoDAO`. Antes valida los teléfonos (de 8 a 15 dígitos, con tipo y sin repetirse). `Guardar` y `Actualizar` devuelven `null` o el mensaje de error.
 
 ## 4. Vistas (Swing, MDI)
 
@@ -63,6 +65,7 @@ El diagrama completo tiene unas 60 clases y en una sola imagen no se lee. Por es
 - `FrmPrincipal` es el contenedor **MDI**: agrega todas las ventanas internas.
 - `FrmCatalogo` es **abstracta**, con el patrón *Template Method*: `FrmCategorias`, `FrmProveedores` y `FrmUsuarios` heredan de ella.
 - `CampoBusqueda` es un componente reutilizable: `FrmFactura` y `FrmCompra` tienen dos cada uno. Aplica el patrón Observer (`addActionListener`).
+- `PanelTelefonos` hereda de `JPanel` y es un componente reutilizable: agrega, modifica y quita teléfonos de una lista. `FrmClientes` lo contiene (composición).
 - `TicketFactura` implementa `Printable`: el mismo dibujo sirve para la vista previa y para imprimir.
 - `FrmResumen` contiene `GraficoBarrasPanel` y `GraficoDonaPanel`, que **heredan de `JPanel`** y sobrescriben `paintComponent()` para dibujar con `Graphics2D`. Los datos se los da `ResumenController`.
 - Cada vista usa **solo controllers**, nunca DAO ni SQL.

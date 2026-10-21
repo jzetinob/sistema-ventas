@@ -64,11 +64,22 @@ Validaciones que hace el sistema:
 
 - **NIT:** entre 8 y 13 dígitos (los guiones son opcionales). No se repiten NIT de clientes ni de proveedores.
 - **Código de producto** y **código de empleado:** no se repiten.
+- **Teléfonos de un cliente:** de 8 a 15 dígitos y sin repetirse.
 - **Precio** mayor que 0 y **existencia** no negativa.
 - No se puede eliminar un **producto** ni un **proveedor** que aparecen en compras registradas.
 - Al eliminar una **categoría**, sus productos quedan "sin categoría".
 
 **Productos:** además de código, nombre, precio y existencia, cada producto puede tener una **categoría**, que se elige de la lista (primero cree las categorías en *Catálogos → Categorías*).
+
+**Clientes:** cada cliente puede tener **varios teléfonos**, sin límite. Se trabajan en la sección **Teléfonos** del formulario:
+
+1. Escriba el número, elija el tipo (**Personal**, **Trabajo**, **Casa** u **Otro**) y presione **Agregar**. Repita para agregar más teléfonos.
+2. Para cambiar uno, haga clic en él en la lista (sus datos suben a las cajas), corrija el número o el tipo y presione **Modificar**. Para borrarlo de la lista, selecciónelo y presione **Quitar**.
+3. Los cambios de la lista se guardan al presionar **Guardar** (cliente nuevo) o **Actualizar** (cliente existente).
+
+- Cada teléfono debe tener de 8 a 15 dígitos (se permiten `+`, guiones y espacios) y no puede repetirse en el mismo cliente.
+- Al seleccionar un cliente en la tabla, se cargan sus teléfonos guardados.
+- La columna **Teléfono principal** de la tabla muestra el primer teléfono de la lista. Ese es el que se ve en la aplicación móvil.
 
 **Usuarios** (solo administrador):
 

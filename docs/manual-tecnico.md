@@ -12,7 +12,7 @@ El sistema tiene tres piezas que comparten los mismos datos:
 
 ```
  App de escritorio (Java Swing, MVC) ──JDBC + SSL──▶ Supabase (PostgreSQL 17)
-   sistema-ventas/                                     11 tablas, RLS activo
+   sistema-ventas/                                     12 tablas, RLS activo
    (sin config: base local SQLite)                     funciones app_* seguras
                                                                ▲
  App móvil Android (Java) ─────HTTPS / REST (/rpc)─────────────┘
@@ -52,10 +52,10 @@ Patrón **MVC** en el paquete `com.josue.ventas`:
 
 | Paquete | Contenido |
 |---|---|
-| `modelo` | Entidades: `Persona` (abstracta) → `Cliente`, `Empleado`, `Proveedor`; `Producto`, `Categoria`, `Factura` + `FacturaDetalle`, `Compra` + `CompraDetalle`, `Usuario` |
+| `modelo` | Entidades: `Persona` (abstracta) → `Cliente`, `Empleado`, `Proveedor`; `Cliente` + `Telefono`, `Producto`, `Categoria`, `Factura` + `FacturaDetalle`, `Compra` + `CompraDetalle`, `Usuario` |
 | `dao` | Interfaces DAO y su implementación JDBC (`…DAOSQLite`, que funcionan también con PostgreSQL), `ConexionBD`, `CopiadorBD`, `MigradorDatos` (CSV antiguos) |
 | `controlador` | Un controller por entidad, `Sesion` (usuario conectado), `Contrasenas` (hash), `RespaldoController` |
-| `vista` | Formularios (`JInternalFrame`), `FrmCatalogo` (base abstracta), `DlgLogin`, `FrmResumen` + `GraficoBarrasPanel` / `GraficoDonaPanel` (gráficos con `Graphics2D`), `BarraBusqueda`, `FiltroTabla`, `ReporteHtml`, `Reportes`, `CampoBusqueda` |
+| `vista` | Formularios (`JInternalFrame`), `FrmCatalogo` (base abstracta), `PanelTelefonos` (lista de teléfonos del cliente), `DlgLogin`, `FrmResumen` + `GraficoBarrasPanel` / `GraficoDonaPanel` (gráficos con `Graphics2D`), `BarraBusqueda`, `FiltroTabla`, `ReporteHtml`, `Reportes`, `CampoBusqueda` |
 
 Flujo de una operación: **vista → controlador → DAO → base de datos**. Las vistas nunca escriben SQL.
 
@@ -68,7 +68,7 @@ Flujo de una operación: **vista → controlador → DAO → base de datos**. La
 | **DAO** | Interfaces `ClienteDAO`, `ProductoDAO`… con implementación intercambiable (CSV → SQLite/PostgreSQL) sin tocar las vistas |
 | **Template Method** | `FrmCatalogo` arma la pantalla y define los pasos abstractos `guardar()`, `actualizar()`, `eliminar()`… que implementan `FrmCategorias`, `FrmProveedores`, `FrmUsuarios` |
 | **Herencia / polimorfismo** | `Persona` abstracta; `Empleado` y `Proveedor` sobrescriben `mostrarInformacion()`; `ActividadBase` en Android |
-| **Composición** | `Factura` ◆— `FacturaDetalle`, `Compra` ◆— `CompraDetalle` |
+| **Composición** | `Factura` ◆— `FacturaDetalle`, `Compra` ◆— `CompraDetalle`, `Cliente` ◆— `Telefono` |
 
 ### 3.2 Selección del motor de base de datos
 
@@ -90,7 +90,7 @@ Los DAO usan SQL estándar que funciona en ambos motores. Lo único específico 
 
 **Primera conexión a la nube:** si la base de Supabase está vacía y existe `datos/sistema_ventas.db` con datos, `CopiadorBD` los sube automáticamente. Conserva los `id` y ajusta las secuencias.
 
-**Migraciones SQLite:** las bases creadas con versiones anteriores se actualizan solas (`agregarColumnaSiFalta`): `productos.existencia`, `productos.categoria_id`, `factura_detalles.producto_id`. `MigradorDatos` importa una sola vez los CSV de las primeras versiones (`clientes.csv`, `productos.csv`, `facturas.csv`, `detalles.csv`) si la base está vacía. Los DAO CSV (`…DAOCsv`) quedaron en el código como referencia del entregable de listas y archivos.
+**Migraciones:** al crear la tabla `telefonos`, el script de PostgreSQL copia el teléfono que ya tenía cada cliente como tipo `PERSONAL` (`INSERT … SELECT … WHERE NOT EXISTS`, se puede repetir sin duplicar). En SQLite, las bases creadas con versiones anteriores se actualizan solas (`agregarColumnaSiFalta`): `productos.existencia`, `productos.categoria_id`, `factura_detalles.producto_id`. `MigradorDatos` importa una sola vez los CSV de las primeras versiones (`clientes.csv`, `productos.csv`, `facturas.csv`, `detalles.csv`) si la base está vacía. Los DAO CSV (`…DAOCsv`) quedaron en el código como referencia del entregable de listas y archivos.
 
 ### 3.3 Detalles de implementación
 
@@ -109,18 +109,24 @@ Los DAO usan SQL estándar que funciona en ambos motores. Lo único específico 
   - Los componentes pintados a mano (gráficos y `PanelTarjeta`) piden sus colores a `Tema` en cada pintado. `FrmResumen` se registra con `Tema.alCambiar(...)` para refrescarse cuando cambia el tema.
 - **Resumen con gráficos (`FrmResumen`):** `ResumenController` toma una "foto" de las facturas y los productos (a través de sus controllers, así funciona con los dos motores) y calcula los indicadores, las ventas de cada uno de los últimos 7 días (con ceros), el top 5 del mes y la existencia baja. `GraficoBarrasPanel` y `GraficoDonaPanel` sobrescriben `paintComponent()` y dibujan con `Graphics2D` (`fillRoundRect`, `Arc2D`). Es la misma idea que `onDraw()` con `Canvas` en Android.
 - **Búsqueda en tablas (`FiltroTabla`, `BarraBusqueda`):** usan `TableRowSorter` y `RowFilter`. Cuando la tabla está filtrada, la fila seleccionada se traduce con `convertRowIndexToModel`.
+- **Varios teléfonos por cliente (relación 1 a N):**
+  - `Cliente` tiene una `List<Telefono>`; cada `Telefono` guarda `clienteId`, `numero` y `tipo` (enum `Telefono.Tipo`: `PERSONAL`, `TRABAJO`, `CASA`, `OTRO`). En la base es la tabla `telefonos`, sin campos fijos `telefono1`, `telefono2`…
+  - `PanelTelefonos` (vista) agrega, modifica y quita teléfonos de una lista en memoria. `FrmClientes` lo contiene, y al seleccionar un cliente carga sus teléfonos desde la base.
+  - `ClienteController.Guardar` / `Actualizar` validan los teléfonos (8 a 15 dígitos, con tipo, sin repetirse), copian el primero a `clientes.telefono` (*teléfono principal*, que usan la app móvil y los reportes) y guardan el cliente con `ClienteDAO` y sus teléfonos con `TelefonoDAO`. Devuelven `null` o el mensaje de error.
+  - `TelefonoDAOSQLite.reemplazar` guarda la lista en una transacción: `DELETE` de los teléfonos del cliente e `INSERT` de los de la lista. Es la misma estrategia que `FacturaDAOSQLite.actualizar` usa con los detalles.
 
 ## 4. Base de datos
 
 ### 4.1 Tablas
 
-Hay 10 tablas del sistema, más `sesiones_app` para el móvil (solo en PostgreSQL). El diagrama completo está en [`diagramas/diagrama-entidad-relacion.md`](diagramas/diagrama-entidad-relacion.md).
+Hay 11 tablas del sistema, más `sesiones_app` para el móvil (solo en PostgreSQL). El diagrama completo está en [`diagramas/diagrama-entidad-relacion.md`](diagramas/diagrama-entidad-relacion.md).
 
 | Tabla | Descripción | Llaves foráneas |
 |---|---|---|
 | `categorias` | Clasificación de productos | — |
 | `productos` | Catálogo, precio y existencia | `categoria_id` → categorias (SET NULL) |
-| `clientes` | NIT único | — |
+| `clientes` | NIT único; `telefono` guarda el teléfono principal | — |
+| `telefonos` | Teléfonos de cada cliente: número y tipo (`CHECK`) | `cliente_id` → clientes (CASCADE) |
 | `empleados` | Código único | — |
 | `proveedores` | NIT único | — |
 | `usuarios` | Usuario, hash de contraseña, rol, activo | — |
@@ -140,6 +146,7 @@ Estas operaciones se ejecutan completas o no se ejecutan (`setAutoCommit(false)`
 - **Eliminar factura:** devuelve la existencia y borra la factura (los detalles se borran en cascada).
 - **Guardar compra:** inserta el encabezado y los detalles, y suma la existencia.
 - **Anular compra:** resta la existencia (se rechaza si ya no alcanza) y borra la compra.
+- **Guardar los teléfonos de un cliente:** borra los anteriores e inserta los de la lista.
 
 ## 5. Seguridad
 
@@ -153,7 +160,7 @@ Estas operaciones se ejecutan completas o no se ejecutan (`setAutoCommit(false)`
 | Reportes | Todo dato se escapa (`ReporteHtml.escapar`) antes de escribirse en HTML |
 | Búsqueda | `Pattern.quote`: lo que escribe el usuario no se interpreta como expresión regular |
 | Credenciales | La contraseña de la base solo está en `config/bd.properties` (ignorado por Git) |
-| **API pública (Supabase)** | **RLS activo en las 11 tablas y sin políticas**, y permisos de tablas revocados a `anon`/`authenticated`. La API no puede leer ni escribir tablas. Solo puede ejecutar las funciones `app_*` |
+| **API pública (Supabase)** | **RLS activo en las 12 tablas y sin políticas**, y permisos de tablas revocados a `anon`/`authenticated`. La API no puede leer ni escribir tablas. Solo puede ejecutar las funciones `app_*` |
 | Funciones móviles | `SECURITY DEFINER` con `search_path` fijo; todas validan el token (`app_usuario_de`); el login espera 1 s tras un fallo; los tokens vencen a las 8 h y `app_logout` los elimina |
 
 ### 5.1 API de la app móvil
@@ -228,7 +235,8 @@ Se ejecutaron pruebas automatizadas contra bases temporales (SQLite) y contra el
 
 | Área | Qué se verificó |
 |---|---|
-| Esquema | 10 tablas (+1 en la nube), llaves foráneas activas, RLS en las 11 tablas |
+| Esquema | 11 tablas (+1 en la nube), llaves foráneas activas, RLS en las 12 tablas |
+| Teléfonos de clientes | Guardar con dos teléfonos, consultar de nuevo, modificar y agregar un tercero, rechazo de números inválidos y repetidos, borrado en cascada al eliminar el cliente y migración de los teléfonos existentes. Probado con SQLite y contra la nube |
 | Migración | Una base de una versión anterior se actualiza sin perder datos |
 | Usuarios | Validaciones, contraseñas hasheadas, intento de inyección SQL rechazado, conversión de PBKDF2 a bcrypt, reglas de administrador |
 | Inventario | La compra suma, la factura descuenta, una venta sin existencia se rechaza, eliminar o anular devuelve la existencia |

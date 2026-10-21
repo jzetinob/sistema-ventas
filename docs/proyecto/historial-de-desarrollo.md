@@ -1,7 +1,7 @@
 # Historial de desarrollo
 
 **Proyecto:** Sistema de Ventas · **Repo:** https://github.com/jzetinob/sistema-ventas
-**Inicio del plan:** 2026-08-01 · **Última fase:** 2026-09-26
+**Inicio del plan:** 2026-08-01 · **Última fase:** 2026-10-17
 
 Este archivo es el **historial de decisiones**: qué se hizo en cada fase y por qué, en orden cronológico. Cómo está construido hoy el sistema se explica en el [manual técnico](../manual-tecnico.md), y dónde estamos, en [estado.md](estado.md).
 
@@ -26,6 +26,7 @@ Este archivo es el **historial de decisiones**: qué se hizo en cada fase y por 
 | 15 — Base en la nube (Supabase) y app móvil | ✅ Completada |
 | 16 — Manuales | ✅ Completada |
 | 17 — Gráficos, factura móvil y mejoras visuales | ✅ Completada |
+| 18 — Varios teléfonos por cliente (prueba práctica en clase) | ✅ Completada |
 
 > Las secciones de las fases 1 a 11 se escribieron mientras se desarrollaban. Algunas hablan de "combos" o de CSV porque así era el sistema en ese momento.
 
@@ -225,3 +226,16 @@ Corresponde al entregable final de la guía: integrar la app móvil con la base 
   - Lint sin errores.
 - **Escritorio:** `FrmResumen` con `GraficoBarrasPanel` y `GraficoDonaPanel` (`Graphics2D` en `paintComponent`) y `ResumenController`, que funciona con los dos motores. Está en *Reportes → Resumen con gráficos*.
 - **Decisión: gráficos hechos a mano, sin librerías como MPAndroidChart o JFreeChart.** Así no hay dependencias y cada línea se puede explicar: herencia de `View` / `JPanel`, sobrescritura de `onDraw` / `paintComponent` y escalado de valores a píxeles.
+
+## Fase 18 — Varios teléfonos por cliente
+
+Requerimiento de la prueba práctica en clase ("cambio en caliente", [tarea 09](../../tareas/09-prueba-practica-cambio-en-caliente/)): un cliente puede registrar uno o varios teléfonos, con número y tipo, sin campos fijos `telefono1`, `telefono2`…
+
+- **BD:** tabla `telefonos` (`cliente_id` → `clientes` con `ON DELETE CASCADE`, `CHECK` del tipo, índice por cliente y RLS), en PostgreSQL y en SQLite. El script copia el teléfono que ya tenía cada cliente como tipo `PERSONAL`; se puede ejecutar varias veces sin duplicar.
+- **Modelo:** `Telefono` (enum `Tipo`) y `List<Telefono>` en `Cliente`.
+- **DAO:** `TelefonoDAO` + `TelefonoDAOSQLite` (Singleton). `reemplazar()` guarda la lista en una transacción, igual que los detalles de la factura.
+- **Controlador:** `ClienteController` valida los teléfonos, deja el primero como teléfono principal en `clientes.telefono` y coordina `ClienteDAO` con `TelefonoDAO`. `Guardar` y `Actualizar` devuelven `null` o el mensaje de error.
+- **Vista:** `PanelTelefonos` (componente reutilizable) dentro de `FrmClientes`.
+- **Decisión: conservar `clientes.telefono` como teléfono principal.** Así la app móvil, los reportes y la tabla de clientes siguen funcionando sin cambios.
+- `CopiadorBD` incluye `telefonos` en el respaldo.
+- **Verificación:** con SQLite y contra la nube: guardar con dos teléfonos, consultar de nuevo, modificar y agregar un tercero, validaciones y borrado en cascada. Se migraron los teléfonos de los 28 clientes que existían.

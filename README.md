@@ -58,7 +58,7 @@ Todo está en [`docs/`](docs/), con un [índice](docs/README.md) que dice qué l
 
 - [Manual de usuario](docs/manual-usuario.md) · [Manual técnico](docs/manual-tecnico.md)
 - [Diagrama entidad-relación](docs/diagramas/diagrama-entidad-relacion.md) · [Diagrama de clases](docs/diagramas/diagrama-clases.md)
-- [Historial de desarrollo](docs/proyecto/historial-de-desarrollo.md): qué se hizo en cada una de las 16 fases y por qué.
+- [Historial de desarrollo](docs/proyecto/historial-de-desarrollo.md): qué se hizo en cada una de las 18 fases y por qué.
 - [Estado del proyecto](docs/proyecto/estado.md): dónde estamos y qué falta.
 
 ## Estructura del repositorio

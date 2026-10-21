@@ -19,6 +19,20 @@ classDiagram
         }
         class Cliente {
             -direccion: String
+            -telefonos: List~Telefono~
+        }
+        class Telefono {
+            -id: int
+            -clienteId: int
+            -numero: String
+            -tipo: Tipo
+        }
+        class Tipo {
+            <<enumeration>>
+            PERSONAL
+            TRABAJO
+            CASA
+            OTRO
         }
         class Empleado {
             -codigoEmpleado: String
@@ -104,6 +118,8 @@ classDiagram
     Persona <|-- Proveedor
     Factura "1" *-- "1..*" FacturaDetalle : se compone de
     Compra "1" *-- "1..*" CompraDetalle : se compone de
+    Cliente "1" *-- "0..*" Telefono : tiene
+    Telefono --> Tipo
     Factura "0..*" --> "1" Cliente : a nombre de
     FacturaDetalle "0..*" --> "0..1" Producto : vende
     CompraDetalle "0..*" --> "1" Producto : compra
@@ -121,6 +137,11 @@ classDiagram
             +actualizar(c: Cliente) void
             +eliminar(id: int) void
             +existeNit(nit: String) boolean
+        }
+        class TelefonoDAO {
+            <<interface>>
+            +listarPorCliente(clienteId: int) List~Telefono~
+            +reemplazar(clienteId: int, telefonos: List~Telefono~) boolean
         }
         class EmpleadoDAO {
             <<interface>>
@@ -186,6 +207,10 @@ classDiagram
         class ClienteDAOSQLite {
             <<Singleton>>
             +getInstancia()$ ClienteDAOSQLite
+        }
+        class TelefonoDAOSQLite {
+            <<Singleton>>
+            +getInstancia()$ TelefonoDAOSQLite
         }
         class EmpleadoDAOSQLite {
             <<Singleton>>
@@ -260,6 +285,7 @@ classDiagram
 
     ClienteDAOSQLite ..|> ClienteDAO
     ClienteDAOCsv ..|> ClienteDAO
+    TelefonoDAOSQLite ..|> TelefonoDAO
     EmpleadoDAOSQLite ..|> EmpleadoDAO
     ProveedorDAOSQLite ..|> ProveedorDAO
     CategoriaDAOSQLite ..|> CategoriaDAO
@@ -273,6 +299,7 @@ classDiagram
     ConexionBD ..> CopiadorBD : sube datos / respalda
     ConexionBD ..> MigradorDatos : importa CSV
     ClienteDAOSQLite ..> ConexionBD
+    TelefonoDAOSQLite ..> ConexionBD
     EmpleadoDAOSQLite ..> ConexionBD
     ProveedorDAOSQLite ..> ConexionBD
     CategoriaDAOSQLite ..> ConexionBD
@@ -284,11 +311,14 @@ classDiagram
     %% ====================== CONTROLADORES Y SEGURIDAD ======================
     namespace controlador {
         class ClienteController {
-            +Guardar(c: Cliente) void
+            +Guardar(c: Cliente) String
             +GetClientes() List~Cliente~
-            +Actualizar(c: Cliente) void
+            +Actualizar(c: Cliente) String
+            +GetTelefonos(clienteId: int) List~Telefono~
             +Eliminar(id: int) void
             +ExisteNit(nit: String) boolean
+            -validarTelefonos(telefonos: List~Telefono~) String
+            -telefonoPrincipal(c: Cliente) String
         }
         class EmpleadoController {
             +Guardar(e: Empleado) void
@@ -374,6 +404,7 @@ classDiagram
     }
 
     ClienteController --> ClienteDAO
+    ClienteController --> TelefonoDAO
     EmpleadoController --> EmpleadoDAO
     ProveedorController --> ProveedorDAO
     CategoriaController --> CategoriaDAO
@@ -423,6 +454,15 @@ classDiagram
         class FrmUsuarios
         class FrmProductos
         class FrmClientes
+        class PanelTelefonos {
+            -telefonos: List~Telefono~
+            +setTelefonos(lista: List~Telefono~) void
+            +getTelefonos() List~Telefono~
+            +limpiar() void
+            -agregar() void
+            -modificar() void
+            -quitar() void
+        }
         class FrmEmpleados
         class FrmFactura {
             -facturaActual: Factura
@@ -541,6 +581,8 @@ classDiagram
     FrmProductos --> ProductoController
     FrmProductos ..> CategoriaController
     FrmClientes --> ClienteController
+    FrmClientes *-- PanelTelefonos
+    JPanel <|-- PanelTelefonos
     FrmEmpleados --> EmpleadoController
     FrmFactura --> FacturaController
     FrmFactura --> ProductoController
