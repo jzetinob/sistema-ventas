@@ -6,7 +6,7 @@
 
 En la revisión presencial se repasó la **Guía Didáctica del curso** ([`Guia-Didactica-Programacion-II.pdf`](Guia-Didactica-Programacion-II.pdf)): los requisitos del proyecto, sus entregables y los temas de cada unidad. Esta página muestra, punto por punto, cómo los cumple el Sistema de Ventas y dónde está la evidencia.
 
-Las capturas del escritorio se tomaron el 17 de octubre de 2026 con la aplicación real conectada a la base de datos en la nube (Supabase). Las capturas de la app móvil (emulador de Android Studio) se agregarán en la siguiente actualización.
+Las capturas se tomaron con la aplicación real conectada a la base de datos en la nube (Supabase): el escritorio en Windows el 17 de octubre de 2026 y la app móvil en el emulador de Android Studio (Pixel 7, Android 16) el 24 de octubre de 2026.
 
 ---
 
@@ -19,7 +19,7 @@ Las capturas del escritorio se tomaron el 17 de octubre de 2026 con la aplicaci�
 | **Búsquedas** en cada módulo | Barra *Buscar* en catálogos y listas, que filtra mientras se escribe. En factura y compra, buscadores de cliente y producto con autocompletado | [03](#escritorio), [04](#escritorio), [05](#escritorio) |
 | **Reportes** en HTML, PDF o tablas grid | Botón *Reporte HTML* en cada catálogo y lista (desde el navegador se imprime o se guarda como PDF). Menú *Reportes*: resumen con gráficos, inventario, existencia baja, ventas por período y compras por proveedor. Todas las listas se muestran en tablas | [05](#escritorio), [07](#escritorio) |
 | **Al menos 10 entidades** en la base de datos | 11 tablas: `categorias`, `productos`, `clientes`, `telefonos`, `empleados`, `proveedores`, `usuarios`, `facturas`, `factura_detalles`, `compras` y `compra_detalles`. Además, `sesiones_app` para la app móvil | [`esquema-postgresql.sql`](../../sistema-ventas/src/main/resources/bd/esquema-postgresql.sql) |
-| **Aplicación móvil** | App Android en Java que usa la misma base de datos que el escritorio | [`movil/`](../../movil/), [`VentasMovil.apk`](../../entregables/VentasMovil.apk) |
+| **Aplicación móvil** | App Android en Java que usa la misma base de datos que el escritorio | [Capturas del móvil](#móvil), [`movil/`](../../movil/), [`VentasMovil.apk`](../../entregables/VentasMovil.apk) |
 | Desarrollado en **Java** | Escritorio en Java 25 (Swing, Maven, NetBeans). Móvil en Java (Android Studio) | [`sistema-ventas/`](../../sistema-ventas/), [`movil/`](../../movil/) |
 | **Manuales** de usuario y técnico | Ambos en PDF | [`manual-usuario.pdf`](../../entregables/manual-usuario.pdf), [`manual-tecnico.pdf`](../../entregables/manual-tecnico.pdf) |
 | **Código fuente** | Repositorio en GitHub con el historial de cambios | https://github.com/jzetinob/sistema-ventas |
@@ -52,7 +52,7 @@ Las capturas del escritorio se tomaron el 17 de octubre de 2026 con la aplicaci�
 | **Conexión a la base desde Java** (insert, update, delete, select) | Clases `…DAOSQLite` con JDBC y `PreparedStatement`. `ConexionBD` elige entre PostgreSQL (nube) y SQLite (local) |
 | **Código seguro**: validaciones, inyección SQL, autenticación | Validaciones en formularios y controladores; consultas parametrizadas (`?`); contraseñas con bcrypt; roles; cierre tras 3 intentos fallidos; RLS en la nube y token de sesión en el móvil |
 | **Patrones de diseño** | **MVC** (estructura), **Singleton** (DAO, `ConexionBD`, `Sesion`), **Facade** (`ApiSupabase` en el móvil), **Observer** (los *listeners* de Swing y `Tema.alCambiar`, que avisa a las ventanas cuando cambia el tema), **DAO** y **Template Method** (`FrmCatalogo`). El patrón Decorator no se usó |
-| **Desarrollo móvil** con Android Studio y emulador | Proyecto [`movil/`](../../movil/) en Android Studio (Gradle); el APK se genera desde *Build → Generate APKs* |
+| **Desarrollo móvil** con Android Studio y emulador | Proyecto [`movil/`](../../movil/) en Android Studio (Gradle); el APK se genera desde *Build → Generate APKs*. Las capturas del móvil se tomaron en el emulador |
 | **Integración del móvil con la base de datos** | La app llama funciones de la base (`app_login`, `app_productos`, `app_registrar_factura`…) que validan el token de sesión |
 
 ## 4. Evidencia
@@ -72,4 +72,12 @@ Las capturas del escritorio se tomaron el 17 de octubre de 2026 con la aplicaci�
 
 ### Móvil
 
-*Pendiente:* capturas de la app en el emulador de Android Studio (inicio de sesión, menú, productos, clientes, ventas por fecha, resumen y nueva venta).
+| | |
+|---|---|
+| **01. Inicio de sesión** con el mismo usuario del escritorio | ![Inicio de sesión](capturas/movil/01-inicio-de-sesion.png) |
+| **02. Menú principal** con indicadores del día | ![Menú](capturas/movil/02-menu-principal.png) |
+| **03. Productos** de la misma base que el escritorio | ![Productos](capturas/movil/03-productos.png) |
+| **04. Clientes**, cada uno con todos sus teléfonos y su tipo | ![Clientes](capturas/movil/04-clientes.png) |
+| **05. Ventas por fecha** (del 1 al 24 de octubre), con el total del período | ![Ventas](capturas/movil/05-ventas-por-fecha.png) |
+| **06. Resumen con gráficos** | ![Resumen](capturas/movil/06-resumen.png) |
+| **07. Nueva venta**: factura desde el celular, que aparece en el escritorio | ![Nueva venta](capturas/movil/07-nueva-venta.png) |

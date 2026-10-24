@@ -6,7 +6,8 @@ build/
 # base de datos local SQLite (solo la carpeta de datos, no paquetes Java llamados datos)
 /datos/
 sistema-ventas/datos/
-capturas/
+# capturas personales en la raiz (las capturas de cada tarea si se suben)
+/capturas/
 notas/
 reportes/
 **/config/bd.properties
