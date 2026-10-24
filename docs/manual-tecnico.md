@@ -112,7 +112,7 @@ Los DAO usan SQL estándar que funciona en ambos motores. Lo único específico 
 - **Varios teléfonos por cliente (relación 1 a N):**
   - `Cliente` tiene una `List<Telefono>`; cada `Telefono` guarda `clienteId`, `numero` y `tipo` (enum `Telefono.Tipo`: `PERSONAL`, `TRABAJO`, `CASA`, `OTRO`). En la base es la tabla `telefonos`, sin campos fijos `telefono1`, `telefono2`…
   - `PanelTelefonos` (vista) agrega, modifica y quita teléfonos de una lista en memoria. `FrmClientes` lo contiene, y al seleccionar un cliente carga sus teléfonos desde la base.
-  - `ClienteController.Guardar` / `Actualizar` validan los teléfonos (8 a 15 dígitos, con tipo, sin repetirse), copian el primero a `clientes.telefono` (*teléfono principal*, que usan la app móvil y los reportes) y guardan el cliente con `ClienteDAO` y sus teléfonos con `TelefonoDAO`. Devuelven `null` o el mensaje de error.
+  - `ClienteController.Guardar` / `Actualizar` validan los teléfonos (8 a 15 dígitos, con tipo, sin repetirse), copian el primero a `clientes.telefono` (*teléfono principal*, que usan los reportes y la tabla de clientes; el móvil recibe la lista completa desde `app_clientes`) y guardan el cliente con `ClienteDAO` y sus teléfonos con `TelefonoDAO`. Devuelven `null` o el mensaje de error.
   - `TelefonoDAOSQLite.reemplazar` guarda la lista en una transacción: `DELETE` de los teléfonos del cliente e `INSERT` de los de la lista. Es la misma estrategia que `FacturaDAOSQLite.actualizar` usa con los detalles.
 
 ## 4. Base de datos
@@ -172,8 +172,8 @@ Todas se llaman con `POST https://<proyecto>.supabase.co/rest/v1/rpc/<función>`
 | `app_login` | `p_usuario`, `p_clave` | `{token, nombre, rol}` |
 | `app_logout` | `p_token` | — |
 | `app_productos` | `p_token`, `p_buscar` | `[{codigo, nombre, categoria, precio, existencia}]` |
-| `app_clientes` | `p_token`, `p_buscar` | `[{nit, nombre, direccion, telefono}]` |
-| `app_registrar_cliente` | `p_token`, `p_nit`, `p_nombre`, `p_direccion`, `p_telefono` | `{id, nit, nombre}` |
+| `app_clientes` | `p_token`, `p_buscar` (NIT, nombre o teléfono) | `[{nit, nombre, direccion, telefono}]`; `telefono` trae todos los teléfonos del cliente con su tipo, por ejemplo `5512-3456 (Personal), 2234-5678 (Trabajo)` |
+| `app_registrar_cliente` | `p_token`, `p_nit`, `p_nombre`, `p_direccion`, `p_telefono` | `{id, nit, nombre}`; el teléfono también se guarda en la tabla `telefonos` como `PERSONAL` |
 | `app_ventas` | `p_token`, `p_desde`, `p_hasta` (aaaa-mm-dd) | `[{numero_factura, fecha, cliente, total}]` |
 | `app_detalle_venta` | `p_token`, `p_numero_factura` | `[{producto, cantidad, precio, subtotal}]` |
 | `app_resumen` | `p_token`, `p_hoy` (fecha local del teléfono), `p_existencia_baja` (5) | `{ventas_hoy, facturas_hoy, ventas_mes, ventas_7_dias[], top_productos[], existencia_baja[]}` |

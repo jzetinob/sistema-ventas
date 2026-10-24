@@ -238,4 +238,5 @@ Requerimiento de la prueba práctica en clase ("cambio en caliente", [tarea 09](
 - **Vista:** `PanelTelefonos` (componente reutilizable) dentro de `FrmClientes`.
 - **Decisión: conservar `clientes.telefono` como teléfono principal.** Así la app móvil, los reportes y la tabla de clientes siguen funcionando sin cambios.
 - `CopiadorBD` incluye `telefonos` en el respaldo.
+- **Móvil (sin recompilar la app):** `app_clientes` devuelve en el campo `telefono` todos los teléfonos con su tipo y permite buscar por número; `app_registrar_cliente` guarda también el teléfono en `telefonos`. Se probó contra la nube dentro de una transacción revertida.
 - **Verificación:** con SQLite y contra la nube: guardar con dos teléfonos, consultar de nuevo, modificar y agregar un tercero, validaciones y borrado en cascada. Se migraron los teléfonos de los 28 clientes que existían.

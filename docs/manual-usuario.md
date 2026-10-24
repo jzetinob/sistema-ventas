@@ -79,7 +79,7 @@ Validaciones que hace el sistema:
 
 - Cada teléfono debe tener de 8 a 15 dígitos (se permiten `+`, guiones y espacios) y no puede repetirse en el mismo cliente.
 - Al seleccionar un cliente en la tabla, se cargan sus teléfonos guardados.
-- La columna **Teléfono principal** de la tabla muestra el primer teléfono de la lista. Ese es el que se ve en la aplicación móvil.
+- La columna **Teléfono principal** de la tabla muestra el primer teléfono de la lista. En la aplicación móvil se ven todos los teléfonos del cliente.
 
 **Usuarios** (solo administrador):
 
@@ -161,7 +161,7 @@ Arriba aparecen tres **indicadores del día**: ventas de hoy, facturas de hoy y 
 | **Resumen** | Tablero con gráficos: ventas de hoy y del mes, **barras** con las ventas de los últimos 7 días (hoy en otro color), **dona** con los 5 productos más vendidos del mes y lista de productos por agotarse. |
 | **Nueva venta** | Facturar desde el teléfono (ver 2.4). |
 | **Productos** | Buscar por código o nombre; cada tarjeta muestra el precio, la categoría y la existencia. Los productos con existencia de 5 o menos se marcan en rojo. |
-| **Clientes** | Buscar clientes por NIT o nombre (escriba y presione la lupa del teclado). |
+| **Clientes** | Buscar clientes por NIT, nombre o teléfono (escriba y presione la lupa del teclado). Cada cliente muestra todos sus teléfonos con su tipo. |
 | **Nuevo cliente** | Registrar un cliente (NIT de 8 a 13 dígitos y nombre obligatorios). Queda disponible de inmediato en la aplicación de escritorio. |
 | **Ventas** | Elegir fecha inicial y final; muestra las facturas del período y el total. **Toque una factura para ver sus productos.** |
 

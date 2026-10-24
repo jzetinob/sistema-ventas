@@ -212,12 +212,16 @@ LANGUAGE plpgsql SECURITY DEFINER SET search_path = public AS $fn$
 #variable_conflict use_column
 BEGIN
     PERFORM app_usuario_de(p_token);
+    -- telefono: todos los telefonos del cliente con su tipo, ej. "5512-3456 (Personal), 2234-5678 (Trabajo)"
     RETURN QUERY
-        SELECT c.nit, c.nombre, c.direccion, c.telefono
+        SELECT c.nit, c.nombre, c.direccion,
+               coalesce((SELECT string_agg(t.numero || ' (' || initcap(t.tipo) || ')', ', ' ORDER BY t.id)
+                         FROM telefonos t WHERE t.cliente_id = c.id), c.telefono)
         FROM clientes c
         WHERE coalesce(p_buscar, '') = ''
            OR c.nit ILIKE '%' || p_buscar || '%'
            OR c.nombre ILIKE '%' || p_buscar || '%'
+           OR EXISTS (SELECT 1 FROM telefonos t WHERE t.cliente_id = c.id AND t.numero ILIKE '%' || p_buscar || '%')
         ORDER BY c.nombre
         LIMIT 200;
 END
@@ -243,6 +247,10 @@ BEGIN
     INSERT INTO clientes (nit, nombre, direccion, telefono)
     VALUES (v_nit, trim(p_nombre), trim(coalesce(p_direccion, '')), trim(coalesce(p_telefono, '')))
     RETURNING id INTO v_id;
+    -- el telefono del celular tambien queda en la lista de telefonos del cliente
+    IF trim(coalesce(p_telefono, '')) <> '' THEN
+        INSERT INTO telefonos (cliente_id, numero, tipo) VALUES (v_id, trim(p_telefono), 'PERSONAL');
+    END IF;
     RETURN json_build_object('id', v_id, 'nit', v_nit, 'nombre', trim(p_nombre));
 END
 $fn$;
