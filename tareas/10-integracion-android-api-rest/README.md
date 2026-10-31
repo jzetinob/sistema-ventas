@@ -139,6 +139,20 @@ ORDER BY o.id DESC;
 
 La orden con el NIT inexistente no aparece: la API la rechazó antes de guardar.
 
+**8) La API en el panel de Supabase**
+
+Panel del proyecto `sistema-ventas`: base de datos en línea (*Healthy*) y las peticiones que recibió la API en la última hora.
+
+![Panel del proyecto en Supabase](capturas/supabase/01-panel-del-proyecto.png)
+
+Registros (*Logs*) del mismo día, en hora de Guatemala:
+
+- Entre las 15:30 y las 15:32 se ve la actividad de la prueba: la orden enviada y los intentos con el NIT inexistente (la barra roja corresponde a las peticiones rechazadas).
+- A las 15:33:19 llega el `POST /rest/v1/rpc/app_logout` con respuesta **204**. Es el cierre de sesión hecho desde la app, que se identifica como `Dalvik`, la máquina virtual de Android.
+- A las 15:32:56 la base ejecuta el script de la API al abrir la app de escritorio: crea o actualiza funciones como `app_registrar_orden_venta` y les quita el permiso al rol público (`REVOKE ALL ... FROM PUBLIC`).
+
+![Registros de la API en Supabase](capturas/supabase/02-registros-de-la-api.png)
+
 ## 6. Lista de verificación
 
 Requerimiento principal (sección 2 del enunciado):
@@ -158,7 +172,7 @@ Demostración (sección 5 del enunciado):
 - [x] Túnel público: en lugar de ngrok, la URL pública HTTPS de Supabase (aprobado por el docente).
 - [x] Mostrar la URL que usa la app: [`ConfigSupabase.java`](../../movil/app/src/main/java/com/josue/ventas/movil/datos/ConfigSupabase.java) y la pantalla de la orden.
 - [x] Crear una Orden de Venta desde Android.
-- [x] Comprobar que llegó a la API: la API respondió con el número de orden.
+- [x] Comprobar que llegó a la API: la API respondió con el número de orden, y los registros de Supabase muestran las peticiones (evidencia 8).
 - [x] Comprobar que quedó en la base: ventana del escritorio o la consulta SQL.
 - [x] Explicar cómo se comunican Android, la API REST y la base de datos (secciones 2 a 4).
 
