@@ -12,7 +12,7 @@ El sistema tiene tres piezas que comparten los mismos datos:
 
 ```
  App de escritorio (Java Swing, MVC) ──JDBC + SSL──▶ Supabase (PostgreSQL 17)
-   sistema-ventas/                                     12 tablas, RLS activo
+   sistema-ventas/                                     14 tablas, RLS activo
    (sin config: base local SQLite)                     funciones app_* seguras
                                                                ▲
  App móvil Android (Java) ─────HTTPS / REST (/rpc)─────────────┘
@@ -52,10 +52,10 @@ Patrón **MVC** en el paquete `com.josue.ventas`:
 
 | Paquete | Contenido |
 |---|---|
-| `modelo` | Entidades: `Persona` (abstracta) → `Cliente`, `Empleado`, `Proveedor`; `Cliente` + `Telefono`, `Producto`, `Categoria`, `Factura` + `FacturaDetalle`, `Compra` + `CompraDetalle`, `Usuario` |
+| `modelo` | Entidades: `Persona` (abstracta) → `Cliente`, `Empleado`, `Proveedor`; `Cliente` + `Telefono`, `Producto`, `Categoria`, `Factura` + `FacturaDetalle`, `Compra` + `CompraDetalle`, `OrdenVenta` + `OrdenVentaDetalle`, `Usuario` |
 | `dao` | Interfaces DAO y su implementación JDBC (`…DAOSQLite`, que funcionan también con PostgreSQL), `ConexionBD`, `CopiadorBD`, `MigradorDatos` (CSV antiguos) |
 | `controlador` | Un controller por entidad, `Sesion` (usuario conectado), `Contrasenas` (hash), `RespaldoController` |
-| `vista` | Formularios (`JInternalFrame`), `FrmCatalogo` (base abstracta), `PanelTelefonos` (lista de teléfonos del cliente), `DlgLogin`, `FrmResumen` + `GraficoBarrasPanel` / `GraficoDonaPanel` (gráficos con `Graphics2D`), `BarraBusqueda`, `FiltroTabla`, `ReporteHtml`, `Reportes`, `CampoBusqueda` |
+| `vista` | Formularios (`JInternalFrame`), `FrmCatalogo` (base abstracta), `PanelTelefonos` (lista de teléfonos del cliente), `FrmOrdenesVenta` (órdenes que llegan del celular), `DlgLogin`, `FrmResumen` + `GraficoBarrasPanel` / `GraficoDonaPanel` (gráficos con `Graphics2D`), `BarraBusqueda`, `FiltroTabla`, `ReporteHtml`, `Reportes`, `CampoBusqueda` |
 
 Flujo de una operación: **vista → controlador → DAO → base de datos**. Las vistas nunca escriben SQL.
 
@@ -114,12 +114,16 @@ Los DAO usan SQL estándar que funciona en ambos motores. Lo único específico 
   - `PanelTelefonos` (vista) agrega, modifica y quita teléfonos de una lista en memoria. `FrmClientes` lo contiene, y al seleccionar un cliente carga sus teléfonos desde la base.
   - `ClienteController.Guardar` / `Actualizar` validan los teléfonos (8 a 15 dígitos, con tipo, sin repetirse), copian el primero a `clientes.telefono` (*teléfono principal*, que usan los reportes y la tabla de clientes; el móvil recibe la lista completa desde `app_clientes`) y guardan el cliente con `ClienteDAO` y sus teléfonos con `TelefonoDAO`. Devuelven `null` o el mensaje de error.
   - `TelefonoDAOSQLite.reemplazar` guarda la lista en una transacción: `DELETE` de los teléfonos del cliente e `INSERT` de los de la lista. Es la misma estrategia que `FacturaDAOSQLite.actualizar` usa con los detalles.
+- **Órdenes de venta (tarea final: Android + API REST):**
+  - El celular (`NuevaOrdenActivity`) hace un `POST` a la API REST `app_registrar_orden_venta` con el token de sesión, el NIT del cliente, las observaciones y el código y la cantidad de cada producto.
+  - La función valida todo (sesión, cliente, productos, cantidades, repetidos) y guarda la orden y su detalle en una transacción, con número correlativo `OV-0001` y precio del catálogo. Responde `200` con `{numero_orden, cliente, total, estado}`, o `400`/`403` con `{"message": …}`. Detalle en [`../api/README.md`](../api/README.md).
+  - La orden **no descuenta existencia**: queda `PENDIENTE`. En el escritorio, `FrmOrdenesVenta` → `OrdenVentaController` → `OrdenVentaDAOSQLite` la consulta y la confirma o la anula. `cambiarEstado` usa `UPDATE … WHERE estado = 'PENDIENTE'`, así que una orden ya cambiada no se puede cambiar otra vez.
 
 ## 4. Base de datos
 
 ### 4.1 Tablas
 
-Hay 11 tablas del sistema, más `sesiones_app` para el móvil (solo en PostgreSQL). El diagrama completo está en [`diagramas/diagrama-entidad-relacion.md`](diagramas/diagrama-entidad-relacion.md).
+Hay 13 tablas del sistema, más `sesiones_app` para el móvil (solo en PostgreSQL). El diagrama completo está en [`diagramas/diagrama-entidad-relacion.md`](diagramas/diagrama-entidad-relacion.md).
 
 | Tabla | Descripción | Llaves foráneas |
 |---|---|---|
@@ -134,6 +138,8 @@ Hay 11 tablas del sistema, más `sesiones_app` para el móvil (solo en PostgreSQ
 | `factura_detalles` | Líneas de la factura | `factura_id` (CASCADE), `producto_id` (SET NULL) |
 | `compras` | Encabezado de compra | `proveedor_id` (RESTRICT), `usuario_id` (SET NULL) |
 | `compra_detalles` | Líneas de la compra | `compra_id` (CASCADE), `producto_id` (RESTRICT) |
+| `ordenes_venta` | Órdenes de venta enviadas desde el celular: número OV, fecha, estado (`CHECK`), observaciones, total | `cliente_id` (RESTRICT), `usuario_id` (SET NULL) |
+| `orden_venta_detalles` | Líneas de la orden | `orden_venta_id` (CASCADE), `producto_id` (RESTRICT) |
 | `sesiones_app` | Tokens de la app móvil (8 h) | `usuario_id` (CASCADE) |
 
 En SQLite, las llaves foráneas se activan en cada conexión con `PRAGMA foreign_keys = ON`.
@@ -147,6 +153,7 @@ Estas operaciones se ejecutan completas o no se ejecutan (`setAutoCommit(false)`
 - **Guardar compra:** inserta el encabezado y los detalles, y suma la existencia.
 - **Anular compra:** resta la existencia (se rechaza si ya no alcanza) y borra la compra.
 - **Guardar los teléfonos de un cliente:** borra los anteriores e inserta los de la lista.
+- **Registrar una orden de venta (API REST, en la nube):** la función `app_registrar_orden_venta` inserta el encabezado y los detalles; si un dato falla, PostgreSQL revierte todo. Bloquea la tabla para asignar el número correlativo.
 
 ## 5. Seguridad
 
@@ -160,7 +167,7 @@ Estas operaciones se ejecutan completas o no se ejecutan (`setAutoCommit(false)`
 | Reportes | Todo dato se escapa (`ReporteHtml.escapar`) antes de escribirse en HTML |
 | Búsqueda | `Pattern.quote`: lo que escribe el usuario no se interpreta como expresión regular |
 | Credenciales | La contraseña de la base solo está en `config/bd.properties` (ignorado por Git) |
-| **API pública (Supabase)** | **RLS activo en las 12 tablas y sin políticas**, y permisos de tablas revocados a `anon`/`authenticated`. La API no puede leer ni escribir tablas. Solo puede ejecutar las funciones `app_*` |
+| **API pública (Supabase)** | **RLS activo en las 14 tablas y sin políticas**, y permisos de tablas revocados a `anon`/`authenticated`. La API no puede leer ni escribir tablas. Solo puede ejecutar las funciones `app_*` |
 | Funciones móviles | `SECURITY DEFINER` con `search_path` fijo; todas validan el token (`app_usuario_de`); el login espera 1 s tras un fallo; los tokens vencen a las 8 h y `app_logout` los elimina |
 
 ### 5.1 API de la app móvil
@@ -178,6 +185,7 @@ Todas se llaman con `POST https://<proyecto>.supabase.co/rest/v1/rpc/<función>`
 | `app_detalle_venta` | `p_token`, `p_numero_factura` | `[{producto, cantidad, precio, subtotal}]` |
 | `app_resumen` | `p_token`, `p_hoy` (fecha local del teléfono), `p_existencia_baja` (5) | `{ventas_hoy, facturas_hoy, ventas_mes, ventas_7_dias[], top_productos[], existencia_baja[]}` |
 | `app_registrar_factura` | `p_token`, `p_nit`, `p_cliente`, `p_fecha`, `p_detalles` (`[{codigo, cantidad}]`) | `{numero_factura, total}` |
+| `app_registrar_orden_venta` | `p_token`, `p_nit`, `p_observaciones`, `p_detalles` (`[{codigo, cantidad}]`) | `{numero_orden, cliente, total, estado}` (no descuenta existencia) |
 
 Los errores llegan con código HTTP 4xx y `{"message": "..."}`. El mensaje ya está en español y la app lo muestra tal cual.
 
@@ -187,7 +195,7 @@ Los errores llegan con código HTTP 4xx y `{"message": "..."}`. El mensaje ya es
 |---|---|
 | `datos` | `ConfigSupabase` (URL y clave publishable), `ApiSupabase` (singleton y fachada: llamadas HTTP en un hilo aparte con `ExecutorService`, respuesta en el hilo principal con `Handler`), `Sesion` (token en `SharedPreferences`; nunca guarda la contraseña), `CacheCatalogo` (copia del catálogo para usar sin conexión) |
 | `modelo` | `Producto`, `Cliente`, `Venta`, `LineaVenta` (detalle y carrito), `Resumen` (con `VentaDia` y `ProductoVendido`) |
-| `vista` | `LoginActivity`; `MenuActivity` (inicio con indicadores y menú en mosaico); `ResumenActivity`; `NuevaVentaActivity`; `DetalleVentaActivity`; `ProductosActivity`; `ClientesActivity`; `NuevoClienteActivity`; `VentasActivity`; `ActividadBase` (abstracta, exige sesión); `AdaptadorFilas<T>` (tarjetas, genérica); `DialogoBusqueda<T>` (elegir cliente o producto, genérica); `GraficoBarras` y `GraficoDona` (extienden `View` y dibujan con `Canvas` en `onDraw()`); `Formatos` |
+| `vista` | `LoginActivity`; `MenuActivity` (inicio con indicadores y menú en mosaico); `ResumenActivity`; `NuevaVentaActivity`; `NuevaOrdenActivity` (orden de venta por la API REST); `DetalleVentaActivity`; `ProductosActivity`; `ClientesActivity`; `NuevoClienteActivity`; `VentasActivity`; `ActividadBase` (abstracta, exige sesión); `AdaptadorFilas<T>` (tarjetas, genérica); `DialogoBusqueda<T>` (elegir cliente o producto, genérica); `GraficoBarras` y `GraficoDona` (extienden `View` y dibujan con `Canvas` en `onDraw()`); `Formatos` |
 
 HTTP (`HttpURLConnection`), JSON (`org.json`) y gráficos (`Canvas`) usan solo lo que trae Android. La **única dependencia** es `androidx.swiperefreshlayout`, el componente oficial para *deslizar para actualizar*.
 
@@ -235,7 +243,8 @@ Se ejecutaron pruebas automatizadas contra bases temporales (SQLite) y contra el
 
 | Área | Qué se verificó |
 |---|---|
-| Esquema | 11 tablas (+1 en la nube), llaves foráneas activas, RLS en las 12 tablas |
+| Esquema | 13 tablas (+1 en la nube), llaves foráneas activas, RLS en las 14 tablas |
+| Órdenes de venta | Orden válida (número OV, precio del catálogo, sin descontar existencia), sesión inválida (403), cliente inexistente, sin productos, cantidad 0, producto inexistente y repetido (400). En el escritorio: lista, detalle, confirmar y no permitir cambiar una orden ya confirmada. Probado contra la nube dentro de una transacción revertida, por HTTP con un token falso y de punta a punta desde el emulador |
 | Teléfonos de clientes | Guardar con dos teléfonos, consultar de nuevo, modificar y agregar un tercero, rechazo de números inválidos y repetidos, borrado en cascada al eliminar el cliente y migración de los teléfonos existentes. Probado con SQLite y contra la nube |
 | Migración | Una base de una versión anterior se actualiza sin perder datos |
 | Usuarios | Validaciones, contraseñas hasheadas, intento de inyección SQL rechazado, conversión de PBKDF2 a bcrypt, reglas de administrador |

@@ -1,6 +1,6 @@
 # Diagrama de clases UML
 
-Refleja el **código actual** (fases 1 a 18). Los nombres y firmas se tomaron del código compilado con `javap`, así que coinciden con las clases implementadas.
+Refleja el **código actual** (fases 1 a 19). Los nombres y firmas se tomaron del código compilado con `javap`, así que coinciden con las clases implementadas.
 
 | Archivo | Contenido |
 |---|---|
@@ -37,6 +37,7 @@ El diagrama completo tiene unas 60 clases y en una sola imagen no se lee. Por es
   - `CompraDetalle` → `Producto`
   - `Compra` → `Proveedor` y `Usuario`
   - `Producto` → `Categoria`
+- **Orden de venta:** `OrdenVenta` ◆— `OrdenVentaDetalle` (composición), asociada a `Cliente` y al `Usuario` que la envió desde el celular, con el enum `Estado` (PENDIENTE, CONFIRMADA, ANULADA).
 - **Sobrecarga:** `Factura.agregarDetalle(...)` tiene dos versiones.
 
 ## 2. Acceso a datos (patrón DAO + Singleton)
@@ -56,6 +57,7 @@ El diagrama completo tiene unas 60 clases y en una sola imagen no se lee. Por es
 - Cada controller trabaja **con la interfaz** DAO, no con la implementación.
 - `UsuarioController` concentra el inicio de sesión y las reglas de los usuarios. Usa `Contrasenas` (hash bcrypt) y `Sesion` (Singleton con el usuario conectado).
 - `CompraController` toma de `Sesion` el usuario que registra la compra.
+- `OrdenVentaController` consulta las órdenes que llegan del celular y aplica la regla de negocio: solo una orden `PENDIENTE` se puede confirmar o anular.
 - `ClienteController` usa dos DAO: guarda el cliente con `ClienteDAO` y sus teléfonos con `TelefonoDAO`. Antes valida los teléfonos (de 8 a 15 dígitos, con tipo y sin repetirse). `Guardar` y `Actualizar` devuelven `null` o el mensaje de error.
 
 ## 4. Vistas (Swing, MDI)
@@ -65,6 +67,7 @@ El diagrama completo tiene unas 60 clases y en una sola imagen no se lee. Por es
 - `FrmPrincipal` es el contenedor **MDI**: agrega todas las ventanas internas.
 - `FrmCatalogo` es **abstracta**, con el patrón *Template Method*: `FrmCategorias`, `FrmProveedores` y `FrmUsuarios` heredan de ella.
 - `CampoBusqueda` es un componente reutilizable: `FrmFactura` y `FrmCompra` tienen dos cada uno. Aplica el patrón Observer (`addActionListener`).
+- `FrmOrdenesVenta` muestra las órdenes de venta con su detalle y permite confirmarlas o anularlas.
 - `PanelTelefonos` hereda de `JPanel` y es un componente reutilizable: agrega, modifica y quita teléfonos de una lista. `FrmClientes` lo contiene (composición).
 - `TicketFactura` implementa `Printable`: el mismo dibujo sirve para la vista previa y para imprimir.
 - `FrmResumen` contiene `GraficoBarrasPanel` y `GraficoDonaPanel`, que **heredan de `JPanel`** y sobrescriben `paintComponent()` para dibujar con `Graphics2D`. Los datos se los da `ResumenController`.
@@ -76,6 +79,7 @@ El diagrama completo tiene unas 60 clases y en una sola imagen no se lee. Por es
 
 - `ApiSupabase` es Singleton y fachada (*Facade*): esconde HTTP, JSON e hilos. Devuelve los resultados por la interfaz genérica `Respuesta<T>` (*callback*).
 - `GraficoBarras` y `GraficoDona` **heredan de `View`** y sobrescriben `onDraw(Canvas)`: los gráficos se dibujan a mano, sin librerías. `ResumenActivity` los contiene (composición).
+- `NuevaOrdenActivity` es el formulario de la **Orden de Venta** (tarea final): arma la lista de productos y la envía con `ApiSupabase.registrarOrdenVenta(...)`, un `POST` a la API REST.
 - `NuevaVentaActivity` arma un carrito de `LineaVenta` y usa `DialogoBusqueda<T>`, un diálogo **genérico** que sirve para elegir clientes o productos.
 - `CacheCatalogo` guarda el catálogo para consultarlo sin conexión.
 - `ApiException` es una **excepción propia** que guarda el código HTTP.

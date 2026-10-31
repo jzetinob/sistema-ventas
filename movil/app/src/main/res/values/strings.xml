@@ -27,6 +27,12 @@
 
     <string name="titulo_resumen">Resumen</string>
     <string name="titulo_nueva_venta">Nueva venta</string>
+    <string name="titulo_orden_venta">Orden de venta</string>
+    <string name="observaciones">Observaciones (opcional)</string>
+    <string name="enviar_orden">Enviar orden</string>
+    <string name="orden_vacia">Toque «Agregar» para elegir los productos de la orden.\nMantenga presionado un producto para quitarlo.</string>
+    <string name="nombre_del_catalogo">Nombre (se llena al elegir del catálogo)</string>
+    <string name="endpoint_orden">Se envía por POST a la API REST:\n%1$s</string>
     <string name="titulo_detalle_venta">Detalle de venta</string>
     <string name="ventas_hoy">Ventas hoy</string>
     <string name="facturas_hoy">Facturas hoy</string>

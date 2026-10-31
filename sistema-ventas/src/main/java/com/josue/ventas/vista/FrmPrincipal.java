@@ -34,6 +34,7 @@ public class FrmPrincipal extends javax.swing.JFrame {
     FrmListaCompras listaComprasVentana;
     FrmUsuarios usuariosVentana;
     FrmResumen resumenVentana;
+    FrmOrdenesVenta ordenesVentana;
 
     public FrmPrincipal() {
         initComponents();
@@ -183,6 +184,13 @@ public class FrmPrincipal extends javax.swing.JFrame {
             listaVentana = new FrmListaFacturas(jDesktopPane);
         }
         abrirFormulario(listaVentana);
+    }
+
+    private void abrirOrdenesVenta() {
+        if (ordenesVentana == null || !ordenesVentana.isDisplayable()) {
+            ordenesVentana = new FrmOrdenesVenta();
+        }
+        abrirFormulario(ordenesVentana);
     }
 
     private void abrirProductos() {
@@ -345,6 +353,10 @@ public class FrmPrincipal extends javax.swing.JFrame {
             }
         });
         mnArchivo.add(miVerFacturas);
+
+        javax.swing.JMenuItem miOrdenesVenta = new javax.swing.JMenuItem("Órdenes de Venta");
+        miOrdenesVenta.addActionListener(evt -> abrirOrdenesVenta());
+        mnArchivo.add(miOrdenesVenta);
 
         mnArchivo.addSeparator();
 

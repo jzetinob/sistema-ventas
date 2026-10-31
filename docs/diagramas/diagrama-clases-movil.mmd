@@ -21,6 +21,8 @@ classDiagram
             +ventas(token: String, desde: String, hasta: String, r: Respuesta) void
             +detalleVenta(token: String, numero: String, r: Respuesta) void
             +registrarFactura(token: String, nit: String, cliente: String, fecha: String, lineas: List, r: Respuesta) void
+            +registrarOrdenVenta(token: String, nit: String, observaciones: String, lineas: List, r: Respuesta) void
+            +urlOrdenVenta()$ String
             -rpc(funcion: String, parametros: JSONObject) String
         }
         class Respuesta~T~ {
@@ -137,6 +139,14 @@ classDiagram
             -pedirCantidad(p: Producto) void
             -guardar(nit: String, cliente: String) void
         }
+        class NuevaOrdenActivity {
+            -productos: List~LineaVenta~
+            -elegirCliente() void
+            -elegirProducto() void
+            -pedirCantidad(p: Producto) void
+            -confirmar() void
+            -enviar(nit: String) void
+        }
         class DetalleVentaActivity
         class ProductosActivity
         class ClientesActivity
@@ -169,6 +179,7 @@ classDiagram
     ActividadBase <|-- MenuActivity
     ActividadBase <|-- ResumenActivity
     ActividadBase <|-- NuevaVentaActivity
+    ActividadBase <|-- NuevaOrdenActivity
     ActividadBase <|-- DetalleVentaActivity
     ActividadBase <|-- ProductosActivity
     ActividadBase <|-- ClientesActivity
@@ -199,6 +210,9 @@ classDiagram
     NuevaVentaActivity ..> ApiSupabase
     NuevaVentaActivity ..> DialogoBusqueda
     NuevaVentaActivity *-- "0..*" LineaVenta : carrito
+    NuevaOrdenActivity ..> ApiSupabase : POST app_registrar_orden_venta
+    NuevaOrdenActivity ..> DialogoBusqueda
+    NuevaOrdenActivity *-- "1..*" LineaVenta : productos
     DetalleVentaActivity ..> ApiSupabase
     ProductosActivity ..> ApiSupabase
     ProductosActivity ..> CacheCatalogo : sin conexion

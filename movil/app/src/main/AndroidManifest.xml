@@ -33,5 +33,9 @@
             android:name=".vista.NuevaVentaActivity"
             android:label="@string/titulo_nueva_venta"
             android:windowSoftInputMode="adjustResize" />
+        <activity
+            android:name=".vista.NuevaOrdenActivity"
+            android:label="@string/titulo_orden_venta"
+            android:windowSoftInputMode="adjustResize" />
     </application>
 </manifest>

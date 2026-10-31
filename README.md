@@ -6,7 +6,20 @@ Sistema de facturación e inventario en **Java**, desarrollado durante el curso 
 |---|---|---|
 | **App de escritorio** | Java 25 · Swing (MDI) · patrón MVC · Maven / NetBeans | [`sistema-ventas/`](sistema-ventas/) |
 | **Base de datos** | PostgreSQL en la nube (Supabase) · o SQLite local si no se configura la nube | [`sistema-ventas/src/main/resources/bd/`](sistema-ventas/src/main/resources/bd/) |
-| **App móvil** | Android (Java) · API REST segura de Supabase | [`movil/`](movil/) |
+| **API REST** | Funciones de PostgreSQL publicadas por Supabase como endpoints HTTPS (`POST /rest/v1/rpc/...`) | [`api/`](api/) |
+| **App móvil** | Android (Java) · consume la API REST | [`movil/`](movil/) |
+
+## Tarea final: integración Android + API REST
+
+La app Android crea una **Orden de Venta** con un `POST` a la API REST, que valida los datos, la guarda en la base y responde con el número de orden o con el error. La orden aparece en el escritorio en *Archivo → Órdenes de Venta*.
+
+| Parte | Enlace |
+|---|---|
+| Aplicación de escritorio | https://github.com/jzetinob/sistema-ventas/tree/main/sistema-ventas |
+| API REST (endpoint `app_registrar_orden_venta`) | https://github.com/jzetinob/sistema-ventas/tree/main/api |
+| Aplicación Android | https://github.com/jzetinob/sistema-ventas/tree/main/movil |
+
+Flujo, evidencia y guion de la demostración: [`tareas/10-integracion-android-api-rest/`](tareas/10-integracion-android-api-rest/).
 
 ## Entregables del proyecto final
 
@@ -30,6 +43,7 @@ Sistema de facturación e inventario en **Java**, desarrollado durante el curso 
 | 07 | Revisión presencial de avance del proyecto | [`tareas/07-revision-avance-proyecto/`](tareas/07-revision-avance-proyecto/) |
 | 08 | Revisión presencial: cumplimiento de la Guía Didáctica del curso | [`tareas/08-revision-presencial-guia-del-curso/`](tareas/08-revision-presencial-guia-del-curso/) |
 | 09 | Prueba práctica en clase: Cambio en caliente (varios teléfonos por cliente) | [`tareas/09-prueba-practica-cambio-en-caliente/`](tareas/09-prueba-practica-cambio-en-caliente/) |
+| 10 | Tarea final: integración Android + API REST (Orden de Venta) | [`tareas/10-integracion-android-api-rest/`](tareas/10-integracion-android-api-rest/) |
 
 Cada carpeta tiene el documento fuente (`.md`) y, cuando corresponde, la presentación (`.pptx`) y el PDF que se entregó.
 
@@ -40,10 +54,11 @@ Cada carpeta tiene el documento fuente (`.md`) y, cuando corresponde, la present
 | **Facturación** | Número automático (FAC-0001…) y buscador de cliente y producto con autocompletado. Descuenta la existencia al guardar y no deja vender si no alcanza. Ticket con vista previa e impresión |
 | **Catálogos** | Productos (con categoría), clientes (con **varios teléfonos**: personal, trabajo, casa u otro), empleados, categorías, proveedores y usuarios. En todos: altas, bajas, cambios, búsqueda y **Reporte HTML** |
 | **Compras** | Compras a proveedores: suman la existencia y proponen el último costo; se pueden anular |
+| **Órdenes de venta** | Se crean desde el celular por la API REST (OV-0001…); en el escritorio se consultan con su detalle y se confirman o anulan |
 | **Reportes** | **Resumen con gráficos** (barras de ventas de 7 días, dona de productos más vendidos, indicadores), inventario valorizado, existencia baja, ventas por período y compras por proveedor (HTML; desde el navegador se imprimen o se guardan como PDF) |
 | **Seguridad** | Inicio de sesión con roles (Administrador / Vendedor), contraseñas bcrypt, bloqueo tras 3 intentos y `PreparedStatement` contra inyección SQL. En la nube: RLS en todas las tablas y funciones con token para el móvil |
-| **Datos** | 11 tablas con llaves primarias y foráneas, operaciones en transacción y respaldo a un archivo `.db` |
-| **Móvil** | Mismos usuarios. Inicio con indicadores y menú con íconos; **resumen con gráficos**; **facturar desde el teléfono**; productos (también **sin conexión**), clientes, ventas por fecha con su detalle; alta de clientes; modo oscuro |
+| **Datos** | 13 tablas con llaves primarias y foráneas, operaciones en transacción y respaldo a un archivo `.db` |
+| **Móvil** | Mismos usuarios. Inicio con indicadores y menú con íconos; **resumen con gráficos**; **facturar desde el teléfono**; **crear órdenes de venta**; productos (también **sin conexión**), clientes, ventas por fecha con su detalle; alta de clientes; modo oscuro |
 
 ## Cómo ejecutar
 
@@ -58,16 +73,17 @@ Todo está en [`docs/`](docs/), con un [índice](docs/README.md) que dice qué l
 
 - [Manual de usuario](docs/manual-usuario.md) · [Manual técnico](docs/manual-tecnico.md)
 - [Diagrama entidad-relación](docs/diagramas/diagrama-entidad-relacion.md) · [Diagrama de clases](docs/diagramas/diagrama-clases.md)
-- [Historial de desarrollo](docs/proyecto/historial-de-desarrollo.md): qué se hizo en cada una de las 18 fases y por qué.
+- [Historial de desarrollo](docs/proyecto/historial-de-desarrollo.md): qué se hizo en cada una de las 19 fases y por qué.
 - [Estado del proyecto](docs/proyecto/estado.md): dónde estamos y qué falta.
 
 ## Estructura del repositorio
 
 ```
 ├── sistema-ventas/     código de la app de escritorio (Maven)
+├── api/                API REST: endpoints, seguridad y script de prueba
 ├── movil/              código de la app Android (Gradle)
 ├── docs/               documentación (manuales, diagramas, historial, estado)
-├── tareas/             entregas del semestre (01 a 09)
+├── tareas/             entregas del semestre (01 a 10)
 ├── entregables/        APK y manuales en PDF del proyecto final
 └── notas/              notas personales (no se suben a GitHub)
 ```

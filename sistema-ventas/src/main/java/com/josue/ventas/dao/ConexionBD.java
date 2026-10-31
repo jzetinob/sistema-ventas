@@ -263,6 +263,28 @@ public class ConexionBD {
                     tipo TEXT NOT NULL CHECK (tipo IN ('PERSONAL', 'TRABAJO', 'CASA', 'OTRO')),
                     FOREIGN KEY (cliente_id) REFERENCES clientes(id) ON DELETE CASCADE
                 );
+                CREATE TABLE IF NOT EXISTS ordenes_venta (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    numero_orden TEXT NOT NULL UNIQUE,
+                    cliente_id INTEGER NOT NULL,
+                    usuario_id INTEGER,
+                    fecha TEXT NOT NULL,
+                    estado TEXT NOT NULL DEFAULT 'PENDIENTE' CHECK (estado IN ('PENDIENTE', 'CONFIRMADA', 'ANULADA')),
+                    observaciones TEXT,
+                    total REAL NOT NULL DEFAULT 0,
+                    FOREIGN KEY (cliente_id) REFERENCES clientes(id),
+                    FOREIGN KEY (usuario_id) REFERENCES usuarios(id) ON DELETE SET NULL
+                );
+                CREATE TABLE IF NOT EXISTS orden_venta_detalles (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    orden_venta_id INTEGER NOT NULL,
+                    producto_id INTEGER NOT NULL,
+                    cantidad INTEGER NOT NULL CHECK (cantidad > 0),
+                    precio_unitario REAL NOT NULL,
+                    subtotal REAL NOT NULL,
+                    FOREIGN KEY (orden_venta_id) REFERENCES ordenes_venta(id) ON DELETE CASCADE,
+                    FOREIGN KEY (producto_id) REFERENCES productos(id)
+                );
                 """;
         try (Statement stmt = conexion.createStatement()) {
             stmt.executeUpdate(sql);

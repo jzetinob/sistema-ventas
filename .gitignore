@@ -14,3 +14,5 @@ reportes/
 supabase/.temp/
 # reportes de cierre inesperado de la JVM
 hs_err_pid*.log
+# configuracion local de Android Studio al abrir la carpeta raiz
+/.idea/

@@ -35,6 +35,7 @@ public class MenuActivity extends ActividadBase {
     private static final Opcion[] OPCIONES = {
         new Opcion(R.string.titulo_resumen, R.drawable.ic_resumen, R.color.mosaico_1, ResumenActivity.class),
         new Opcion(R.string.titulo_nueva_venta, R.drawable.ic_nueva_venta, R.color.mosaico_2, NuevaVentaActivity.class),
+        new Opcion(R.string.titulo_orden_venta, R.drawable.ic_orden_venta, R.color.mosaico_7, NuevaOrdenActivity.class),
         new Opcion(R.string.titulo_productos, R.drawable.ic_productos, R.color.mosaico_3, ProductosActivity.class),
         new Opcion(R.string.titulo_clientes, R.drawable.ic_clientes, R.color.mosaico_4, ClientesActivity.class),
         new Opcion(R.string.titulo_nuevo_cliente, R.drawable.ic_cliente_nuevo, R.color.mosaico_5, NuevoClienteActivity.class),

@@ -36,7 +36,7 @@ La barra de título muestra quién inició sesión, su rol y si la base es **loc
 
 | Menú | Opciones |
 |---|---|
-| **Archivo** | Nueva factura, Ver facturas, Cambiar mi contraseña, Cerrar sesión, Salir |
+| **Archivo** | Nueva factura, Ver facturas, Órdenes de venta, Cambiar mi contraseña, Cerrar sesión, Salir |
 | **Catálogos** | Productos, Empleados, Clientes, Categorías, Proveedores |
 | **Compras** | Nueva compra, Ver compras |
 | **Edición** | Limpiar formulario (de la factura abierta) |
@@ -115,7 +115,17 @@ Al guardar, el sistema **descuenta la existencia** de cada producto. Si algún p
 
 *Compras → Ver compras* lista las compras (con buscador y reporte). Al seleccionar una, abajo aparece su detalle. **Anular compra** la elimina y resta la existencia que había sumado. Si parte de esa mercadería ya se vendió, el sistema no permite anularla.
 
-### 1.6 Reportes
+### 1.6 Órdenes de venta (enviadas desde el celular)
+
+Las órdenes de venta son **pedidos** que los vendedores envían desde la aplicación móvil (ver 2.5). *Archivo → Órdenes de Venta* las muestra con su número (OV-0001…), fecha, cliente, quién la envió, estado y total; la más reciente va primero. Al seleccionar una, abajo aparecen sus productos y sus observaciones.
+
+- **Confirmar orden:** la marca como CONFIRMADA (el pedido se va a atender).
+- **Anular orden:** la marca como ANULADA (pide confirmación).
+- **Actualizar lista:** trae las órdenes que llegaron mientras la ventana estaba abierta.
+
+Solo se puede confirmar o anular una orden **PENDIENTE**. La orden **no descuenta existencia**: la existencia baja cuando se factura la venta.
+
+### 1.7 Reportes
 
 En el menú **Reportes** (administrador):
 
@@ -129,11 +139,11 @@ En el menú **Reportes** (administrador):
 
 Las fechas se escriben como **aaaa-mm-dd** (ejemplo: 2026-09-01). Los reportes se abren en el navegador y quedan guardados en la carpeta `reportes`.
 
-### 1.7 Respaldo de la base de datos
+### 1.8 Respaldo de la base de datos
 
 *Administración → Respaldar base de datos* crea una copia completa en un archivo `.db` (se propone un nombre con la fecha). Se recomienda hacerlo al final de cada día y guardar el archivo en otra unidad o en la nube. El archivo se puede abrir con **DB Browser for SQLite**.
 
-### 1.8 Cambiar mi contraseña y cerrar sesión
+### 1.9 Cambiar mi contraseña y cerrar sesión
 
 - *Archivo → Cambiar mi contraseña:* pide la contraseña actual y la nueva dos veces.
 - *Archivo → Cerrar sesión:* vuelve a la ventana de inicio de sesión (por ejemplo, para cambiar de usuario).
@@ -160,6 +170,7 @@ Arriba aparecen tres **indicadores del día**: ventas de hoy, facturas de hoy y 
 |---|---|
 | **Resumen** | Tablero con gráficos: ventas de hoy y del mes, **barras** con las ventas de los últimos 7 días (hoy en otro color), **dona** con los 5 productos más vendidos del mes y lista de productos por agotarse. |
 | **Nueva venta** | Facturar desde el teléfono (ver 2.4). |
+| **Orden de venta** | Enviar un pedido de un cliente a la oficina (ver 2.5). |
 | **Productos** | Buscar por código o nombre; cada tarjeta muestra el precio, la categoría y la existencia. Los productos con existencia de 5 o menos se marcan en rojo. |
 | **Clientes** | Buscar clientes por NIT, nombre o teléfono (escriba y presione la lupa del teclado). Cada cliente muestra todos sus teléfonos con su tipo. |
 | **Nuevo cliente** | Registrar un cliente (NIT de 8 a 13 dígitos y nombre obligatorios). Queda disponible de inmediato en la aplicación de escritorio. |
@@ -175,9 +186,20 @@ En todas las listas se puede **deslizar hacia abajo para actualizar**.
 
 La factura recibe el siguiente número (FAC-…), descuenta la existencia y aparece de inmediato en la aplicación de escritorio y en los reportes. El precio lo toma el sistema del catálogo. Si otro vendedor agotó un producto mientras tanto, la venta **no se guarda** y se muestra el aviso.
 
-### 2.5 Sin conexión y modo oscuro
+### 2.5 Orden de venta (pedido)
 
-- **Sin internet:** la pantalla **Productos** muestra la última copia del catálogo guardada en el teléfono, con un aviso rojo y la fecha de esa copia. Vender, registrar clientes y ver el resumen sí necesitan internet. La copia se borra al cerrar sesión.
+Sirve para tomar el pedido de un cliente y enviarlo a la oficina, sin facturar todavía.
+
+1. **Cliente:** toque **Del catálogo** y elíjalo (también puede escribir su NIT). El cliente debe estar registrado.
+2. **Productos:** toque **Agregar**, busque el producto, tóquelo y escriba la cantidad. Se puede pedir más de lo que hay en existencia, porque la orden todavía no la descuenta. Para quitar un producto, **manténgalo presionado**.
+3. **Observaciones** (opcional): por ejemplo, el día de entrega.
+4. Toque **Enviar orden** y confirme.
+
+La app envía la orden al servidor (abajo se ve la dirección a la que se envía). Si todo está bien, muestra el **número de orden** (OV-…), el cliente, el total y el estado **PENDIENTE**; en la oficina aparece en *Archivo → Órdenes de Venta*. Si algo no es válido (por ejemplo, un NIT que no está registrado), muestra el mensaje del servidor y no se guarda nada.
+
+### 2.6 Sin conexión y modo oscuro
+
+- **Sin internet:** la pantalla **Productos** muestra la última copia del catálogo guardada en el teléfono, con un aviso rojo y la fecha de esa copia. Vender, enviar órdenes, registrar clientes y ver el resumen sí necesitan internet. La copia se borra al cerrar sesión.
 - **Tema según la hora:** la app se ve **clara de 06:00 a 17:59** y **oscura de 18:00 a 05:59**, según la hora del teléfono. Cambia sola, incluso con la app abierta. Es el mismo horario de la aplicación de escritorio.
 
 ---

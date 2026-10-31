@@ -1,7 +1,7 @@
 # Historial de desarrollo
 
 **Proyecto:** Sistema de Ventas · **Repo:** https://github.com/jzetinob/sistema-ventas
-**Inicio del plan:** 2026-08-01 · **Última fase:** 2026-10-17
+**Inicio del plan:** 2026-08-01 · **Última fase:** 2026-10-31
 
 Este archivo es el **historial de decisiones**: qué se hizo en cada fase y por qué, en orden cronológico. Cómo está construido hoy el sistema se explica en el [manual técnico](../manual-tecnico.md), y dónde estamos, en [estado.md](estado.md).
 
@@ -27,6 +27,7 @@ Este archivo es el **historial de decisiones**: qué se hizo en cada fase y por 
 | 16 — Manuales | ✅ Completada |
 | 17 — Gráficos, factura móvil y mejoras visuales | ✅ Completada |
 | 18 — Varios teléfonos por cliente (prueba práctica en clase) | ✅ Completada |
+| 19 — Tarea final: Orden de Venta desde Android por la API REST | ✅ Completada |
 
 > Las secciones de las fases 1 a 11 se escribieron mientras se desarrollaban. Algunas hablan de "combos" o de CSV porque así era el sistema en ese momento.
 
@@ -240,3 +241,14 @@ Requerimiento de la prueba práctica en clase ("cambio en caliente", [tarea 09](
 - `CopiadorBD` incluye `telefonos` en el respaldo.
 - **Móvil (sin recompilar la app):** `app_clientes` devuelve en el campo `telefono` todos los teléfonos con su tipo y permite buscar por número; `app_registrar_cliente` guarda también el teléfono en `telefonos`. Se probó contra la nube dentro de una transacción revertida.
 - **Verificación:** con SQLite y contra la nube: guardar con dos teléfonos, consultar de nuevo, modificar y agregar un tercero, validaciones y borrado en cascada. Se migraron los teléfonos de los 28 clientes que existían.
+
+## Fase 19 — Tarea final: Orden de Venta desde Android por la API REST
+
+Requerimiento de la tarea final ([tarea 10](../../tareas/10-integracion-android-api-rest/)): la app Android crea una Orden de Venta con un `POST` a una API REST, que valida, la guarda en la base y responde éxito o error.
+
+- **Decisión: la API REST es Supabase.** El docente aceptó usar Supabase en lugar de una API local publicada con ngrok. Cada función de PostgreSQL ya es un endpoint HTTPS público (`POST /rest/v1/rpc/...`), así que no hace falta un servidor en la computadora ni un túnel. La carpeta [`api/`](../../api/) documenta los endpoints e incluye un script de prueba.
+- **BD:** tablas `ordenes_venta` (número `OV-0001`, cliente, usuario, fecha, estado `PENDIENTE`/`CONFIRMADA`/`ANULADA`, observaciones, total) y `orden_venta_detalles`, en PostgreSQL y SQLite, con RLS en la nube. Se basan en el borrador del módulo de órdenes que había quedado sin terminar, simplificado.
+- **API:** `app_registrar_orden_venta` valida el token, el cliente (por NIT), los productos y las cantidades, y guarda todo en una transacción con bloqueo para el número correlativo. El precio lo pone la base y **no descuenta existencia**. Responde `200` con el número de orden, o `400`/`403` con el mensaje.
+- **Android:** pantalla `NuevaOrdenActivity` (botón *Orden de venta* en el menú) y método `ApiSupabase.registrarOrdenVenta`. La pantalla muestra la URL del endpoint para la demostración.
+- **Escritorio:** `FrmOrdenesVenta` (*Archivo → Órdenes de Venta*) con `OrdenVentaController` y `OrdenVentaDAO`: lista, detalle, confirmar y anular. Solo una orden `PENDIENTE` cambia de estado.
+- **Verificación:** contra la nube dentro de una transacción revertida (orden válida y seis casos de error), por HTTP con un token falso (403) y lectura directa de la tabla bloqueada (401), y de punta a punta desde el emulador.

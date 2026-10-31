@@ -1,20 +1,21 @@
 # Estado del proyecto
 
-> Actualizado el 2026-10-20. Es la foto de "dónde estamos". El porqué de cada fase está en [historial-de-desarrollo.md](historial-de-desarrollo.md).
+> Actualizado el 2026-10-31. Es la foto de "dónde estamos". El porqué de cada fase está en [historial-de-desarrollo.md](historial-de-desarrollo.md).
 
 ## Resumen
 
 El proyecto **cumple todo lo que pide la guía del curso**:
 - App de escritorio completa.
-- Base de datos con 11 entidades, en la nube (Supabase / PostgreSQL) o local (SQLite).
-- App móvil Android conectada a la misma base.
+- Base de datos con 13 entidades, en la nube (Supabase / PostgreSQL) o local (SQLite).
+- App móvil Android conectada a la misma base por la API REST de Supabase; crea órdenes de venta (tarea final).
 - Manuales de usuario y técnico.
 
 Todo está en GitHub, en la rama `main`.
 
 | Pieza | Estado | Dónde |
 |---|---|---|
-| App de escritorio | ✅ Terminada (fases 1–14, 17: Resumen con gráficos y 18: varios teléfonos por cliente) | `sistema-ventas/` |
+| App de escritorio | ✅ Terminada (fases 1–14, 17: Resumen con gráficos, 18: varios teléfonos por cliente y 19: órdenes de venta) | `sistema-ventas/` |
+| API REST | ✅ Funciones de Supabase; endpoint de la tarea final `app_registrar_orden_venta` | `api/` |
 | Base en la nube | ✅ Funcionando (proyecto Supabase `sistema-ventas`) | `sistema-ventas/src/main/resources/bd/esquema-postgresql.sql` |
 | App móvil | ✅ Resumen con gráficos, factura, detalle, sin conexión y modo oscuro (fase 17). La versión anterior se probó en un teléfono real | `movil/`, APK en `entregables/VentasMovil.apk` |
 | Manuales | ✅ | `entregables/manual-usuario.pdf`, `entregables/manual-tecnico.pdf` |

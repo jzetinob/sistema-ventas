@@ -111,6 +111,30 @@ classDiagram
             ADMINISTRADOR
             VENDEDOR
         }
+        class OrdenVenta {
+            -id: int
+            -numeroOrden: String
+            -cliente: Cliente
+            -usuario: Usuario
+            -fecha: LocalDateTime
+            -estado: Estado
+            -observaciones: String
+            -total: double
+            -detalles: List~OrdenVentaDetalle~
+            +estaPendiente() boolean
+        }
+        class OrdenVentaDetalle {
+            -producto: Producto
+            -cantidad: int
+            -precioUnitario: double
+            +calcularSubtotal() double
+        }
+        class Estado {
+            <<enumeration>>
+            PENDIENTE
+            CONFIRMADA
+            ANULADA
+        }
     }
 
     Persona <|-- Cliente
@@ -127,6 +151,11 @@ classDiagram
     Compra "0..*" --> "0..1" Usuario : registrada por
     Producto "0..*" --> "0..1" Categoria : pertenece a
     Usuario --> Rol
+    OrdenVenta "1" *-- "1..*" OrdenVentaDetalle : se compone de
+    OrdenVenta "0..*" --> "1" Cliente : pedida por
+    OrdenVenta "0..*" --> "0..1" Usuario : enviada por
+    OrdenVentaDetalle "0..*" --> "1" Producto : pide
+    OrdenVenta --> Estado
 
     %% ========================= ACCESO A DATOS (DAO) =========================
     namespace dao {
@@ -244,6 +273,16 @@ classDiagram
             <<Singleton>>
             +getInstancia()$ UsuarioDAOSQLite
         }
+        class OrdenVentaDAO {
+            <<interface>>
+            +listar() List~OrdenVenta~
+            +listarDetalles(ordenId: int) List~OrdenVentaDetalle~
+            +cambiarEstado(id: int, nuevo: Estado) boolean
+        }
+        class OrdenVentaDAOSQLite {
+            <<Singleton>>
+            +getInstancia()$ OrdenVentaDAOSQLite
+        }
         class ClienteDAOCsv {
             <<Singleton>>
         }
@@ -295,6 +334,7 @@ classDiagram
     FacturaDAOCsv ..|> FacturaDAO
     CompraDAOSQLite ..|> CompraDAO
     UsuarioDAOSQLite ..|> UsuarioDAO
+    OrdenVentaDAOSQLite ..|> OrdenVentaDAO
     ConexionBD --> Motor
     ConexionBD ..> CopiadorBD : sube datos / respalda
     ConexionBD ..> MigradorDatos : importa CSV
@@ -307,6 +347,7 @@ classDiagram
     FacturaDAOSQLite ..> ConexionBD
     CompraDAOSQLite ..> ConexionBD
     UsuarioDAOSQLite ..> ConexionBD
+    OrdenVentaDAOSQLite ..> ConexionBD
 
     %% ====================== CONTROLADORES Y SEGURIDAD ======================
     namespace controlador {
@@ -374,6 +415,13 @@ classDiagram
         class RespaldoController {
             +Respaldar(destino: File) String
         }
+        class OrdenVentaController {
+            +GetOrdenes() List~OrdenVenta~
+            +GetDetalles(ordenId: int) List~OrdenVentaDetalle~
+            +Confirmar(o: OrdenVenta) String
+            +Anular(o: OrdenVenta) String
+            -cambiarEstado(o: OrdenVenta, nuevo: Estado) String
+        }
         class ResumenController {
             -facturas: List~Factura~
             -productos: List~Producto~
@@ -416,6 +464,7 @@ classDiagram
     UsuarioController ..> Contrasenas : hash bcrypt
     UsuarioController ..> Sesion : inicia sesion
     RespaldoController ..> ConexionBD
+    OrdenVentaController --> OrdenVentaDAO
     ResumenController ..> FacturaController
     ResumenController ..> ProductoController
     Sesion --> "0..1" Usuario
@@ -480,6 +529,12 @@ classDiagram
             -completarDatosProducto() void
         }
         class FrmListaCompras {
+            -anular() void
+        }
+        class FrmOrdenesVenta {
+            -refrescar() void
+            -mostrarDetalle() void
+            -confirmar() void
             -anular() void
         }
         class TicketFactura {
@@ -597,6 +652,8 @@ classDiagram
     FrmCompra --> ProductoController
     FrmCompra *-- "2" CampoBusqueda
     FrmListaCompras --> CompraController
+    FrmPrincipal o-- FrmOrdenesVenta
+    FrmOrdenesVenta --> OrdenVentaController
     FrmCatalogo ..> BarraBusqueda
     BarraBusqueda ..> FiltroTabla
     BarraBusqueda ..> ReporteHtml

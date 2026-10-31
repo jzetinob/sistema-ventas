@@ -164,6 +164,30 @@ public final class ApiSupabase {
         }, respuesta);
     }
 
+    /**
+     * Crea una Orden de Venta: POST /rest/v1/rpc/app_registrar_orden_venta.
+     * Se envia el NIT del cliente, las observaciones y el codigo y la cantidad
+     * de cada producto; el precio y el total los pone la base de datos.
+     * Devuelve {numero_orden, cliente, total, estado}.
+     */
+    public void registrarOrdenVenta(String token, String nit, String observaciones, List<LineaVenta> lineas,
+            Respuesta<JSONObject> respuesta) {
+        ejecutar(() -> {
+            JSONArray detalles = new JSONArray();
+            for (LineaVenta l : lineas) {
+                detalles.put(new JSONObject().put("codigo", l.getCodigo()).put("cantidad", l.getCantidad()));
+            }
+            JSONObject p = new JSONObject().put("p_token", token).put("p_nit", nit)
+                    .put("p_observaciones", observaciones).put("p_detalles", detalles);
+            return new JSONObject(rpc("app_registrar_orden_venta", p));
+        }, respuesta);
+    }
+
+    /** URL del endpoint de ordenes (se muestra en la pantalla para la demostracion). */
+    public static String urlOrdenVenta() {
+        return ConfigSupabase.URL + "/rest/v1/rpc/app_registrar_orden_venta";
+    }
+
     public void clientes(String token, String buscar, Respuesta<List<Cliente>> respuesta) {
         ejecutar(() -> {
             JSONArray filas = new JSONArray(rpc("app_clientes",
