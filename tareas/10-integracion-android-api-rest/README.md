@@ -186,7 +186,12 @@ Demostración (sección 5 del enunciado):
 6. **Comprobar en la base:** en el escritorio, *Archivo → Órdenes de Venta* → *Actualizar lista*; seleccionar la orden para ver sus productos. Luego *Confirmar orden*.
 7. **Explicar el flujo** con el diagrama de la sección 2 y el código de la sección 4.
 
-## 8. Archivos nuevos y modificados
+## 8. Seguimiento después de la entrega
+
+- **2026-11-06, teléfono real:** se instaló el APK actual ([`entregables/VentasMovil.apk`](../../entregables/VentasMovil.apk)) en un teléfono Android y la app funciona contra la misma API REST. La base registró el inicio de sesión desde el teléfono a las 23:22.
+- **Supabase activo:** el plan gratuito pausa el proyecto si pasa 7 días sin actividad, y mientras tanto la API no responde. Por eso el proyecto se usa al menos una vez por semana; el registro de fechas está en [`docs/proyecto/estado.md`](../../docs/proyecto/estado.md#supabase-activo-plan-free). Si al revisar aparece pausado, se reactiva en supabase.com con *Restore project*, sin perder datos.
+
+## 9. Archivos nuevos y modificados
 
 | Parte | Nuevos | Modificados |
 |---|---|---|
