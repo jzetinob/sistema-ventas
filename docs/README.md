@@ -8,6 +8,7 @@
 | Ver el **diagrama de clases** UML | [diagramas/diagrama-clases.md](diagramas/diagrama-clases.md) (código: [diagrama-clases.mmd](diagramas/diagrama-clases.mmd)) |
 | Saber **qué se hizo en cada fase y por qué** | [proyecto/historial-de-desarrollo.md](proyecto/historial-de-desarrollo.md) |
 | Saber **dónde está el proyecto hoy** y qué falta | [proyecto/estado.md](proyecto/estado.md) |
+| **Estudiar** el proyecto completo y repasar preguntas del curso | [guia-de-estudio/](guia-de-estudio/00-indice-y-resumen.md) (8 archivos; empezar por el 00) |
 
 ## Organización
 
@@ -20,6 +21,7 @@ docs/
 │   ├── diagrama-entidad-relacion.md
 │   ├── diagrama-clases.md
 │   └── diagrama-clases.mmd
+├── guia-de-estudio/              ← guía para estudiar el proyecto (00 a 07)
 └── proyecto/
     ├── historial-de-desarrollo.md
     └── estado.md

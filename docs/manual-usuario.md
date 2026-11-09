@@ -28,7 +28,7 @@ Hay dos tipos de usuario:
 | Rol | Puede usar |
 |---|---|
 | **Administrador** | Todo el sistema |
-| **Vendedor** | Facturación, lista de facturas y catálogo de clientes |
+| **Vendedor** | Facturación, lista de facturas, órdenes de venta y catálogo de clientes |
 
 La barra de título muestra quién inició sesión, su rol y si la base es **local** o **en la nube**.
 
